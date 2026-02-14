@@ -33,32 +33,45 @@ class: text-center
 </div>
 
 ---
-layout: center
-class: text-center
----
 
 # Agenda
 
-<div class="grid grid-cols-2 gap-x-16 gap-y-4 text-left mt-8 text-lg">
-
-<div>
-
-**1.** Introduction & Motivation
-
-**2.** Background & Related Work
-
-**3.** Three-Layer Evaluation Framework
-
-</div>
-<div>
-
-**4.** Methodology: User as Code Architecture
-
-**5.** Discussion
-
-**6.** Conclusion
-
-</div>
+<div class="mt-4 grid grid-cols-1 gap-3 max-w-xl text-sm">
+  <div class="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+    <div class="text-2xl font-bold text-blue-400 w-8">1</div>
+    <div>
+      <div class="font-bold">Introduction & Motivation</div>
+      <div class="text-xs opacity-60">The memory challenge · Bag of Facts · Representation tension</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border-l-4 border-amber-400">
+    <div class="text-2xl font-bold text-amber-400 w-8">2</div>
+    <div>
+      <div class="font-bold">Three-Layer Evaluation Framework</div>
+      <div class="text-xs opacity-60">Basic Recall → Multi-session Retrieval → Active Service</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 p-3 rounded-lg bg-green-50 border-l-4 border-green-400">
+    <div class="text-2xl font-bold text-green-400 w-8">3</div>
+    <div>
+      <div class="font-bold">Methodology: User as Code Architecture</div>
+      <div class="text-xs opacity-60">Code as knowledge · Generate-and-verify loop · Project structure</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 p-3 rounded-lg bg-purple-50 border-l-4 border-purple-400">
+    <div class="text-2xl font-bold text-purple-400 w-8">4</div>
+    <div>
+      <div class="font-bold">Discussion</div>
+      <div class="text-xs opacity-60">Bitter Lesson · Formalization boundary · Agent-native architecture</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 p-3 rounded-lg bg-red-50 border-l-4 border-red-400">
+    <div class="text-2xl font-bold text-red-400 w-8">5</div>
+    <div>
+      <div class="font-bold">Conclusion</div>
+      <div class="text-xs opacity-60">Why code — and nothing else</div>
+    </div>
+  </div>
 </div>
 
 ---
@@ -204,78 +217,6 @@ layout: section
 ---
 
 # Part 2
-## Background & Related Work
-
----
-
-# Current Approaches to User Memory
-
-<div class="mt-2"></div>
-
-| Approach | Mechanism | Strength | Weakness |
-|---|---|---|---|
-| **Vector RAG** | Semantic search over chunks | Basic recall | No conflict detection |
-| **Knowledge Graphs** | Entity-relation triples | Structured relations | Rigid; no conditional logic |
-| **Mem0 / Memobase** | CRUD + vector + LLM merge | Modular lifecycle | Still text-based verification |
-| **Contextual Retrieval** | LLM context prepended to chunks | -67% retrieval failure | Retrieval only, no computation |
-| **Dual-Layer Memory** | JSON Cards + Contextual RAG | Strongest baseline | Cannot express executable rules |
-
-
-<div class="mt-4 p-4 bg-amber-50 rounded-lg">
-
-**State of the art (Dual-Layer):** Advanced JSON Cards + Contextual-Retrieval-enhanced RAG.
-But even this cannot compute: *"passport expires in 34 days — below 180-day requirement."*
-
-</div>
-
----
-
-# Code as Knowledge Representation
-
-<div class="mt-2 grid grid-cols-2 gap-6">
-<div>
-
-### Why Code?
-
-- High-density, unambiguous representation
-- Allows **Active Knowledge**: `if x: do y` is more robust than text
-- Already the LLM's native output medium
-
-### The LLM + Interpreter Paradigm
-
-ChatGPT Code Interpreter and sandboxed agents demonstrated LLMs can **generate code** for computation.
-
-**User as Code applies this paradigm to user memory.**
-
-</div>
-<div>
-
-### Passive vs. Active Knowledge
-
-```python
-# Passive (text/JSON) — LLM must reason
-"Passport expires 2025-02-18, 
- flight departs 2025-01-15,
- need 180 days validity"
-
-# Active (code) — Interpreter verifies
-days_left = (passport.expiry 
-             - trip.departure).days
-if days_left < 180:
-    alert(f"Only {days_left} days!")
-# Output: "Only 34 days!" ✓
-```
-
-Turning unreliable natural-language arithmetic into **deterministic** verified computation.
-
-</div>
-</div>
-
----
-layout: section
----
-
-# Part 3
 ## Three-Layer Evaluation Framework
 
 ---
@@ -456,10 +397,53 @@ Result: `"Passport: 34 days validity for Tokyo — need 180!"`
 layout: section
 ---
 
-# Part 4
+# Part 3
 ## Methodology: The User as Code Architecture
 
 *A user is a self-evolving software project.*
+
+---
+
+# Code as Knowledge Representation
+
+<div class="mt-2 grid grid-cols-2 gap-6">
+<div>
+
+### Why Code?
+
+- High-density, unambiguous representation
+- Allows **Active Knowledge**: `if x: do y` is more robust than text
+- Already the LLM's native output medium
+
+### The LLM + Interpreter Paradigm
+
+ChatGPT Code Interpreter and sandboxed agents demonstrated LLMs can **generate code** for computation.
+
+**User as Code applies this paradigm to user memory.**
+
+</div>
+<div>
+
+### Passive vs. Active Knowledge
+
+```python
+# Passive (text/JSON) — LLM must reason
+"Passport expires 2025-02-18, 
+ flight departs 2025-01-15,
+ need 180 days validity"
+
+# Active (code) — Interpreter verifies
+days_left = (passport.expiry 
+             - trip.departure).days
+if days_left < 180:
+    alert(f"Only {days_left} days!")
+# Output: "Only 34 days!" ✓
+```
+
+Turning unreliable natural-language arithmetic into **deterministic** verified computation.
+
+</div>
+</div>
 
 ---
 
@@ -973,7 +957,7 @@ Analogous to RAG grounding — not hand-crafted features.
 layout: section
 ---
 
-# Part 5
+# Part 4
 ## Discussion
 
 ---
@@ -1114,7 +1098,7 @@ Mitigated by strict type checking, test validation, and reject-and-retry loops.
 layout: section
 ---
 
-# Part 6
+# Part 5
 ## Conclusion
 
 ---
