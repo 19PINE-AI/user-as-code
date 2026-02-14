@@ -1,0 +1,19 @@
+{
+  "name": "user-as-code",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build --base /files/UserAsCode/dist/ --download --timeout 60000",
+    "dev": "slidev --open",
+    "export": "slidev export --output slides.pdf"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.12.0",
+    "@slidev/theme-default": "latest",
+    "@slidev/theme-seriph": "latest",
+    "vue": "^3.5.27"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.50.0"
+  }
+}

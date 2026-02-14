@@ -1,0 +1,60 @@
+.slidev-layout {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  padding: 1.8rem 2.5rem;
+}
+
+.slidev-layout h1 {
+  font-size: 1.7rem !important;
+  margin-bottom: 0.4rem;
+}
+
+.slidev-layout h2 {
+  font-size: 1.25rem !important;
+  margin-bottom: 0.3rem;
+}
+
+.slidev-layout h3 {
+  font-size: 1rem !important;
+  margin-bottom: 0.2rem;
+}
+
+.slidev-layout p,
+.slidev-layout li {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin-bottom: 0.2rem;
+}
+
+.slidev-layout ul,
+.slidev-layout ol {
+  margin-top: 0.2rem;
+  margin-bottom: 0.3rem;
+}
+
+.slidev-layout table {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.slidev-layout table th,
+.slidev-layout table td {
+  padding: 0.25rem 0.5rem;
+}
+
+.slidev-layout pre,
+.slidev-layout code {
+  font-size: 0.78rem !important;
+  line-height: 1.4;
+}
+
+.slidev-layout blockquote {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  margin: 0.35rem 0;
+}
+
+.slidev-layout blockquote p {
+  font-size: 0.85rem;
+}
+
