@@ -491,11 +491,12 @@ assert (passport_expiry - flight_date).days >= 180
 
 ### Architectural Fit
 
-Modern AI agents (Claude, Cursor, OpenHands) are fundamentally **coding agents** built on virtual file systems.
+Modern AI agents (OpenClaw, Cursor, Claude Code, etc.) are fundamentally **coding agents** built on virtual file systems.
 
 - They read, write, and execute files
 - The user project is a **directory in the agent's own workspace**
 - No custom memory API needed
+- **RL-trainable**: file ops are natural actions that RL can optimize end-to-end
 
 </div>
 </div>
@@ -535,7 +536,7 @@ Modern AI agents (Claude, Cursor, OpenHands) are fundamentally **coding agents**
   </div>
   <div class="p-3 rounded-lg bg-red-50 border-l-4 border-red-400">
     <div class="font-bold text-sm mb-1">5. Agent-Native File System Abstraction</div>
-    <div>The user project is a <strong>directory in the agent's own workspace</strong>. Modern coding agents (Claude, Cursor, OpenHands) already read, write, and execute files — User as Code requires <strong>no custom memory API</strong>, no special toolset. Memory operations are native file operations.</div>
+    <div>The user project is a <strong>directory in the agent's own workspace</strong>. Modern coding agents (OpenClaw, Cursor, Claude Code) already read, write, and execute files — User as Code requires <strong>no custom memory API</strong>, no special toolset. Memory operations are native file operations.</div>
   </div>
 </div>
 

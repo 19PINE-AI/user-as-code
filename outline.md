@@ -24,7 +24,7 @@ Current personalization in AI agents primarily relies on Retrieval-Augmented Gen
 
 ### 1.3 The User as Code Proposal
 *   Model a user's entire memory as a **self-evolving software project** — with domain packages, schema definitions, state data, cross-domain constraints, and tests.
-*   **Architectural fit:** Modern AI agents (Claude, Cursor, OpenHands) are fundamentally coding agents built on virtual file systems — they read, write, and execute files. User as Code leverages this directly: the user project is a **directory in the agent's own workspace**, manipulated with the same file and interpreter primitives the agent already uses. No custom memory API is needed.
+*   **Architectural fit:** Modern AI agents (OpenClaw, Cursor, Claude Code, etc.) are fundamentally coding agents built on virtual file systems — they read, write, and execute files. User as Code leverages this directly: the user project is a **directory in the agent's own workspace**, manipulated with the same file and interpreter primitives the agent already uses. No custom memory API is needed. Because memory operations are standard file-system actions, foundation models can be **trained via RL** to improve memory management — file ops are natural actions that RL can optimize end-to-end.
 *   **Core insight:** The same Python that stores `passport_expiry = date(2025, 2, 18)` can also express `assert (passport_expiry - flight_date).days >= 180`. No other format unifies storage and verification this way.
 *   **The generate-and-verify loop:** The LLM handles *semantic reasoning* ("should I check passport validity?"); the interpreter handles *computation* ("is 34 < 180?"). This division of labor directly **reduces hallucination**: instead of the LLM attempting arithmetic or date calculations in natural language — where it is demonstrably unreliable — it delegates these to deterministic execution. The LLM reasons about *what* to check; the interpreter guarantees *correctness* of the check.
 *   **Progressive disclosure** via a compact manifest: the agent navigates the user project like a developer navigates a codebase.
@@ -70,7 +70,7 @@ A user is a **self-evolving software project** that lives in the agent's own wor
 2.  **Modularity by Life Domain.** Memory is partitioned into independent domain packages (travel, finance, health, etc.), each loadable and testable independently.
 3.  **Progressive Disclosure.** The Agent navigates via a compact manifest (always loaded) and retrieves domain-specific modules on demand.
 4.  **Unified Representation and Verification.** Code serves as both the storage format the LLM reads and the verification medium the interpreter executes.
-5.  **Agent-Native File System Abstraction.** The user project is a directory in the agent's own workspace. Modern coding agents (Claude, Cursor, OpenHands) already read, write, and execute files — User as Code requires no custom memory API, no special toolset. Memory operations are native file operations.
+5.  **Agent-Native File System Abstraction.** The user project is a directory in the agent's own workspace. Modern coding agents (OpenClaw, Cursor, Claude Code) already read, write, and execute files — User as Code requires no custom memory API, no special toolset. Memory operations are native file operations.
 
 ### 4.2 The User Project Structure
 
