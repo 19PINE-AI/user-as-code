@@ -541,10 +541,6 @@ layout: section
   </div>
 </div>
 
-<div class="mt-3 p-2 bg-gray-50 rounded-lg text-center text-xs">
-  Application of the <strong>"Infrastructure as Code"</strong> philosophy to Agent Personalization
-</div>
-
 ---
 
 # The User Project Structure
