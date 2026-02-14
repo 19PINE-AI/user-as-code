@@ -56,10 +56,6 @@ We propose a three-layer evaluation framework that decomposes user memory capabi
 *   **Challenges:** Proactive alerting (cross-reference a new flight with passport info stored months ago), comprehensive solution assembly (compile all relevant protection plans for a damaged phone).
 *   **Where existing approaches fail:** No retrieval sophistication can reliably compute that a passport expiring Feb 18 leaves only 34 days of validity for a Jan 15 departure — far short of the 180-day requirement. This is *arithmetic*, not a similarity match.
 
-### 3.4 Evaluation Protocol
-*   20 test cases per layer (60 total), each comprising 1–3 sessions of ~50 turns.
-*   Agent generates memory from initial sessions, updates without access to raw history, answers from memory alone. LLM-as-a-judge scoring.
-
 ## 4. Methodology: The User as Code Architecture
 
 A user is not a class — a user is a **self-evolving software project** that lives in the agent's own workspace. The agent reads, writes, and executes this project using the same file system and interpreter tools it already has. Code's value comes from a property no other format shares: **it unifies representation and verification in a single medium** — the agent can seamlessly transition from reading the user's state to writing and executing checks against it.
@@ -106,9 +102,14 @@ jessica_thompson/                      # One user = one project
 ```
 
 *   **Bounded Schema, Unbounded Data.** Domain modules are bounded (~10-20); `state.py` holds only current active state; history lives in the archive (Tier 3).
-*   **Domains are added, refactored, and retired — not hardcoded.** The agent creates new domains as needed, and periodically refactors existing ones — schemas restructured, domains split or merged, stale state archived — through the revision process (Section 4.9).
+*   **Domains are added, refactored, and retired — not hardcoded.** The agent creates new domains as needed, and periodically refactors existing ones — schemas restructured, domains split or merged, stale state archived — through the revision process (Section 4.6).
+*   **Cold start.** For a new user, the agent bootstraps the project from the first conversation — creating initial domains, populating schema and state from extracted information, and generating the first manifest. The project structure emerges organically from the user's actual life, not from a pre-defined template.
 
-### 4.3 The Memory Type Taxonomy
+### 4.3 Memory Organization
+
+Memory is organized along two dimensions: by *type* (what the information is and how the LLM interacts with it) and by *tier* (access pattern and scale).
+
+**Five memory types:**
 
 | Memory Type | Stored As | LLM Interaction | Example |
 |---|---|---|---|
@@ -120,7 +121,7 @@ jessica_thompson/                      # One user = one project
 
 The key distinction is between the *read path* and the *verify path*. Subjective preferences are read-only — the LLM reasons contextually. Factual relationships are verified — the interpreter handles arithmetic the LLM might hallucinate.
 
-### 4.4 The Three-Tier Memory Model
+**Three tiers by access pattern:**
 
 **Tier 1: Schema** — Class definitions, type annotations. O(number of domains), bounded. Loaded per domain on demand.
 
@@ -140,7 +141,7 @@ seat_notes = "Prefers aisle on flights > 6hrs, window otherwise. \
 
 **Tier 3: Archive** — All historical data, raw conversations, previous state versions. O(total interactions), unbounded. Never loaded into context; accessed via contextual-retrieval-enhanced RAG tool calls.
 
-### 4.5 Progressive Disclosure via the Manifest
+### 4.4 Progressive Disclosure via the Manifest
 
 The `manifest.py` is always in the agent's context (~200-300 tokens):
 
@@ -169,100 +170,83 @@ ACTIVE_ALERTS = [
 
 **Disclosure levels:** L0 (manifest, always) → L1 (domain schema, on topic) → L2 (domain state, on need) → L3 (archive search, via RAG tool).
 
-### 4.6 The Generate-and-Verify Loop
+**Self-documenting system.** The manifest doubles as the agent's bootstrap instruction — by reading it, the agent understands the project layout, available domains, and active concerns. No separate "how to use this memory system" prompt is needed; the project is its own documentation, just as a well-structured codebase is navigable from its directory layout.
 
-The core mechanism distinguishing User as Code from retrieval-based approaches:
+### 4.5 The Generate-and-Verify Loop
+
+The core mechanism distinguishing User as Code from retrieval-based approaches. When the LLM needs to reason about relationships between facts — especially those involving computation — it does not attempt the reasoning in natural language. Instead:
 
 1.  **Hypothesize:** LLM identifies a concern from the manifest or conversation context.
 2.  **Generate:** LLM writes a Python check against the code-represented state.
 3.  **Execute:** Interpreter runs the code in a sandbox. Result is deterministic.
 4.  **Act:** LLM incorporates the verified result into its response.
 
-The LLM handles *semantic reasoning* (what to check); the interpreter handles *computation* (the actual check). The code representation makes this frictionless — data is already Python objects, so the LLM directly references `passport.expiry`, `trip.departure_date`, etc., without parsing JSON or extracting values from text.
+The LLM handles *semantic reasoning* (what to check); the interpreter handles *computation* (the actual check). The code representation makes this frictionless — data is already Python objects, so the LLM directly references `passport.expiry`, `trip.departure_date`, etc.
 
-### 4.7 Autonomous Constraint Lifecycle
+**From ad-hoc checks to persistent constraints.** When an ad-hoc check proves generally useful — because the condition is time-dependent or the underlying state might change — the agent promotes it to a persistent constraint by writing it to `constraints/` as a `def check(project) -> List[Alert]` function. Persistent constraints re-evaluate automatically: after every state update that touches a relevant domain, and periodically for time-dependent conditions. Triggered alerts surface in the manifest's `ACTIVE_ALERTS`, so the agent sees them at the start of every future conversation. Constraints are not pre-authored by humans; they emerge organically from the LLM's own reasoning.
 
-Constraints are NOT pre-authored. They emerge through a three-phase lifecycle:
+### 4.6 The Write Path: Updates, Persistence, and Revision
 
-**Phase 1: Ad-hoc Genesis.** LLM generates one-time checks during conversation. Ephemeral.
+Since the user project lives in the agent's workspace, memory naturally separates into two layers:
 
-**Phase 2: Promotion.** If a check should be monitored continuously (time-dependent or state might change), the LLM promotes it to a persistent constraint in `constraints/`, validated by the runtime via syntax/type checking.
+*   **Working Directory (Session-Scoped):** During a session, the agent drafts patches, generates ad-hoc checks, and evaluates schema changes. These are ephemeral.
+*   **Persistent Storage (Cross-Session):** The committed project — source of truth for all future sessions. Changes cross this boundary only through validation.
 
-**Phase 3: Background Execution.** Persistent constraints re-evaluate automatically after relevant state updates and periodically for time-dependent conditions. Triggered alerts appear in the manifest's `ACTIVE_ALERTS`.
+**Autonomous save.** Persisting memory is an autonomous agent action — the agent decides when information warrants committing, like a developer choosing when to `git commit`. No explicit "save" command or system hook required.
 
-### 4.8 Memory Update as a CI/CD Pipeline
-
-When new information arrives:
+**The update pipeline.** When the agent decides to persist new information:
 
 1.  **Classify** which domain(s) are affected.
-2.  **Load** relevant schema (L1) and state (L2).
+2.  **Load** relevant schema and state.
 3.  **Diff** against existing state — new entity, update, or contradiction?
-4.  **Patch** — Agent generates a code diff. Schema definitions act as a cognitive checklist for required fields.
-5.  **Validate** — Run domain tests + triggered persistent constraints.
-6.  **Commit or Reject** — Pass → update state. Fail → prompt Agent to clarify.
+4.  **Patch** — edit the state file. Schema definitions act as a cognitive checklist for required fields.
+5.  **Validate** — run domain tests + triggered persistent constraints.
+6.  **Commit or Reject** — pass → persist the change. Fail → clarify with user.
 7.  **Regenerate Manifest** with updated summaries and alerts.
 
 Every patch is committed with a source-session reference, providing a deterministic audit trail for conflict resolution.
 
-### 4.9 Working Memory, Persistent Memory, and Periodic Revision
+**No bespoke toolset required.** The agent reads files, writes files, and executes code — the same primitives any coding agent already has. The validation pipeline itself lives inside the repo (e.g., a `validate.py` script), making it inspectable, version-controlled, and agent-editable. The only specialized infrastructure is a RAG backend for Tier 3 archive search.
 
-Since the user project lives in the agent's workspace (Section 1.3), memory naturally separates into two layers:
+**Periodic revision.** Beyond incremental patches, the agent performs periodic holistic revisions — schema evolution, domain splitting/merging, stale state archival, constraint pruning, cross-domain reference audits, and preference synthesis. Triggered by agent judgment, scheduled cycles, or threshold triggers.
 
-*   **Working Directory (Session-Scoped):** Ephemeral staging area. During a session, the agent drafts patches, generates ad-hoc checks, and evaluates schema changes here. Changes are not yet durable.
-*   **Persistent Storage (Cross-Session):** Changes cross this boundary only through the validated CI/CD pipeline (Section 4.8). The persistent project is the source of truth for all future sessions.
+**External knowledge.** Constraints can import versioned rule packages (`VisaPolicy`, `DrugInteractionChecker`), extending the user project into an open system connected to shared knowledge.
 
-**Autonomous Save.** Persisting memory is an autonomous agent action — the agent decides when information warrants committing, like a developer choosing when to `git commit`. No explicit "save" command or system hook required.
+## 5. Experiments and Evaluation
 
-**Periodic Revision.** Beyond incremental patches, the agent performs periodic holistic revisions — schema evolution, domain splitting/merging, stale state archival, constraint pruning, cross-domain reference audits, and preference synthesis (consolidating scattered annotations into coherent summaries). Triggered by agent judgment, scheduled cycles, or threshold triggers.
-
-## 5. System Implementation
-
-### 5.1 No Bespoke Toolset Required
-
-A key implementation insight: **the agent needs no custom memory API.** Because the user project is a directory in the agent's virtual file system (Section 4.9), every memory operation reduces to standard coding-agent primitives that already exist:
-
-*   **Reading memory** = reading files. The agent reads `manifest.py`, `domains/travel/state.py`, etc., the same way it reads any source file.
-*   **Writing memory** = writing files. Updating state is editing `state.py`; creating a domain is `mkdir` + writing `schema.py` and `state.py`; promoting a constraint is writing a file to `constraints/`.
-*   **Verifying memory** = executing code. The agent runs ad-hoc checks via the code interpreter or bash tool — the same tool it already uses for any computation.
-*   **Validating updates** = running tests. After editing state, the agent runs `python -m pytest tests/` and the constraint runner script — standard test execution.
-*   **Searching archive** = the one specialized component. Tier 3 requires a RAG backend (contextual-retrieval-enhanced vector search) exposed as a search tool. This is the only piece of infrastructure beyond what a coding agent already has.
-
-The validation pipeline itself can live inside the repo (e.g., a `validate.py` script that runs type checks, domain tests, and constraint evaluation), making it inspectable, version-controlled, and agent-editable.
-
-### 5.2 Integration with External Knowledge
-*   Constraints can import external versioned rule packages (`VisaPolicy`, `DrugInteractionChecker`), extending the user project into an open system connected to shared knowledge.
-
-## 6. Experiments and Evaluation
-
-### 6.1 Experimental Setup
-*   **Benchmark:** Three-Layer Framework (60 test cases) + LOCOMO for cross-validation.
+### 5.1 Experimental Setup
+*   **Benchmark:** Three-Layer Framework (Section 3): 20 test cases per layer (60 total), each comprising 1–3 sessions of ~50 turns. Cross-validated with LOCOMO.
+*   **Protocol:** The agent generates memory from initial sessions, updates without access to raw conversation history, and answers from memory alone. LLM-as-a-judge scoring against reference answers.
 *   **Baselines:** (1) Agentic RAG, (2) Agentic RAG + Contextual Retrieval, (3) Dual-Layer Memory (Advanced JSON Cards + Contextual RAG).
 
-### 6.2 Experiment 1: Basic Recall
+### 5.2 Experiment 1: Basic Recall
 *   **Metric:** Exact-match accuracy. **Hypothesis:** All approaches perform well; User as Code achieves parity.
 
-### 6.3 Experiment 2: Multi-session Retrieval and Conflict Resolution
+### 5.3 Experiment 2: Multi-session Retrieval and Conflict Resolution
 *   **Metric:** Accuracy in multi-entity retrieval, contradiction resolution, and multi-party conflict handling.
 *   **Hypothesis:** Near 100% conflict resolution via single-source-of-truth state and version-controlled patches.
 
-### 6.4 Experiment 3: Active Service
-*   **6.4a: Seen Constraints.** Pre-computed alerts already in manifest. Validates the persistent constraint pipeline.
-*   **6.4b: Unseen Constraints.** No pre-authored constraint exists; agent must generate ad-hoc checks on the fly. User as Code outperforms because code representation makes ad-hoc verification natural.
+### 5.4 Experiment 3: Active Service
+*   **5.4a: Seen Constraints.** Pre-computed alerts already in manifest. Validates the persistent constraint pipeline.
+*   **5.4b: Unseen Constraints.** No pre-authored constraint exists; agent must generate ad-hoc checks on the fly. User as Code outperforms because code representation makes ad-hoc verification natural.
 
-### 6.5 Experiment 4: Ablation — Code vs. JSON
-*   Replace `schema.py`/`state.py` with `schema.json`/`state.json`, keep everything else. **Hypothesis:** Code outperforms JSON on Layer 3 (verification), comparable on Layer 1 (read-only) — isolating the unification advantage.
+### 5.5 Experiment 4: Ablation — Code vs. JSON vs. Markdown
+*   Three conditions: (a) User as Code (Python), (b) JSON variant (`schema.json`/`state.json`), (c) Markdown variant (natural-language domain documents). All share the same project structure, manifest, progressive disclosure, and archive RAG. The agent can still generate and execute Python checks in all conditions.
+*   **Hypothesis:** Code > JSON > Markdown on Layer 3 (verification), because each additional parsing step adds friction and error surface. All three comparable on Layer 1 (read-only). The gap between JSON and Markdown isolates the cost of parsing natural language; the gap between Code and JSON isolates the unification advantage.
+*   **What this reveals:** If all three outperform the baselines on Layer 2, the project structure and version control are doing the work — not the format. If only Code outperforms on Layer 3, the unification property is specifically what matters for Active Service.
 
-### 6.6 Experiment 5: Scalability and Context Efficiency
+### 5.6 Experiment 5: Scalability and Context Efficiency
 *   Users with 5–100 active entities, 1K–100K historical records. **Hypothesis:** Progressive disclosure keeps context usage roughly constant regardless of user complexity.
 
-## 7. Discussion
+## 6. Discussion
 
-*   **The Formalization Boundary:** User as Code excels at the factual-to-computational end of the memory spectrum: typed attributes, date arithmetic, cross-domain constraint checking. However, a significant portion of personalization resides at the *hard-to-formalize* end: context-dependent preferences, implicit behavioral patterns, emotional context, and holistic personality. Hard-to-formalize memory lives as string annotations — benefiting from structure and version control, but not executable verification. User as Code provides a **unified home** where both types coexist. The periodic revision process (Section 4.9) enables consolidating soft memory into coherent summaries. Future work: LLM-synthesized personality profiles periodically regenerated from cross-domain review.
+*   **The Bitter Lesson and the Role of Code.** A natural objection is that typed schemas contradict Sutton's "Bitter Lesson" — that hand-crafted structure is eventually superseded by general methods leveraging computation. But User as Code's schemas are not human-imposed; they are **LLM-generated and self-evolving**. The agent designs `class Trip`, decides what fields it needs, and restructures domains during periodic revision as the user's life changes. This is *learned* structure — the model's own organizational decisions — not imposed features. Schemas serve as a **self-imposed cognitive scaffold**: they force the LLM to be systematic about what data exists rather than dumping unstructured text, acting as both an index for navigation and a constraint against disorganized writes. This is analogous to how a developer organizes code into classes — not because of external mandates, but because structure aids reasoning and prevents errors. The generate-and-verify loop further aligns with the Bitter Lesson: the interpreter is a *tool*, not a *rule*. The LLM retains full freedom in what to check; the interpreter guarantees correct computation. Using an interpreter for date arithmetic is analogous to using a calculator — delegating provably unreliable operations to deterministic tools while letting the general model handle reasoning. The ablation experiment (Section 5.5) tests a Markdown variant to measure what happens when schemas are removed: if the project structure alone outperforms baselines on Layer 2, architecture matters more than format; if Code specifically outperforms on Layer 3, the self-imposed structure provides measurable verification advantage.
+*   **The Formalization Boundary:** User as Code excels at the factual-to-computational end of the memory spectrum: typed attributes, date arithmetic, cross-domain constraint checking. However, a significant portion of personalization resides at the *hard-to-formalize* end: context-dependent preferences, implicit behavioral patterns, emotional context, and holistic personality. Hard-to-formalize memory lives as string annotations — benefiting from structure and version control, but not executable verification. User as Code provides a **unified home** where both types coexist. The periodic revision process (Section 4.6) enables consolidating soft memory into coherent summaries. Future work: LLM-synthesized personality profiles periodically regenerated from cross-domain review.
 *   **Agent-Native Architecture:** The user project is a directory in the agent's virtual file system. The agent reads, writes, and executes files using the same primitives it already has — no custom memory API, no special toolset, no new infrastructure beyond a RAG backend for the archive tier. This makes User as Code trivially adoptable by any coding agent framework. Saving memory is an autonomous agent decision, not a system hook.
 *   **Limitations:**
     *   **Compilation Overhead:** Generating valid code diffs is more expensive than appending text. Trade-off: paying at write time for deterministic correctness at read time.
     *   **Constraint Logic Errors:** The interpreter guarantees correct *computation* but not correct *logic* (e.g., wrong threshold). Same failure mode as any LLM judgment.
     *   **LLM Code Generation Quality:** Mitigated by strict type checking, test validation, and reject-and-retry loops.
 
-## 8. Conclusion
+## 7. Conclusion
 Transforming User Memory from a passive database into a modular software project provides the rigor, scalability, and proactive intelligence missing from current Agent systems. User as Code addresses this through a single unifying insight: **code is the only format that unifies readability and verifiability in a single medium**, enabling a generate-and-verify loop where the LLM writes executable assertions and the interpreter provides deterministic results. Constraints emerge autonomously — ad-hoc checks promoted to persistent monitors without human engineering. By situating the user project in the agent's own virtual file system, memory operations become native file operations with a two-layer working/persistent architecture. Supported by a three-tier memory model, progressive disclosure via manifest, and periodic revision, this enables Agents that are logically consistent, scalable, and proactively helpful.
