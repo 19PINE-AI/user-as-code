@@ -92,7 +92,9 @@ In Chinese, memory is **记忆** (Jìyì) — two characters that capture the tw
   </div>
 </div>
 
-User as Code contributes to **both**: structured code for memorizing, and executable retrieval via the generate-and-verify loop — the same code that stores knowledge serves as the substrate for computing answers no similarity search could produce.
+User as Code contributes to **both**:
+- **Memorizing** — knowledge extracted into structured, typed, version-controlled code
+- **Retrieval** — executing code against state computes answers no similarity search could produce
 
 </div>
 <div>
@@ -158,95 +160,42 @@ Current systems (VectorDBs, JSON stores, Knowledge Graphs) treat memory as a **l
 
 # The Representation Tension
 
-Existing strategies trade **simplicity** for **expressiveness**:
+Existing strategies trade **simplicity** for **expressiveness** — each solves some problems but introduces new limitations:
 
-<div class="mt-4"></div>
-
-<div class="flex items-center gap-2 mt-2 text-xs">
-  <div class="p-2 rounded-lg bg-gray-100 border border-gray-300 text-center flex-1">
-    <div class="font-bold">Atomic Facts</div>
-    <div class="opacity-70">Low overhead · No relationships</div>
+<div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+  <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-gray-400">
+    <div class="font-bold text-sm mb-1">Atomic Fact Notes</div>
+    <div class="text-green-700">✓ Low overhead, easy to append</div>
+    <div class="text-red-700">✗ No relationships between facts</div>
+    <div class="text-red-700">✗ No conflict detection across sessions</div>
+    <div class="text-red-700">✗ No structure for partial updates</div>
   </div>
-  <div class="text-gray-400 text-lg">→</div>
-  <div class="p-2 rounded-lg bg-gray-100 border border-gray-300 text-center flex-1">
-    <div class="font-bold">JSON Cards</div>
-    <div class="opacity-70">Structured · Partial updates</div>
+  <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-blue-400">
+    <div class="font-bold text-sm mb-1">JSON Cards</div>
+    <div class="text-green-700">✓ Structured, supports partial updates</div>
+    <div class="text-green-700">✓ Entity-level CRUD operations</div>
+    <div class="text-red-700">✗ No cross-entity relationships</div>
+    <div class="text-red-700">✗ Cannot express conditional logic</div>
   </div>
-  <div class="text-gray-400 text-lg">→</div>
-  <div class="p-2 rounded-lg bg-gray-100 border border-gray-300 text-center flex-1">
-    <div class="font-bold">Advanced JSON + Metadata</div>
-    <div class="opacity-70">Timestamps · Disambiguation</div>
+  <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-purple-400">
+    <div class="font-bold text-sm mb-1">Advanced JSON + Metadata</div>
+    <div class="text-green-700">✓ Timestamps, entity disambiguation</div>
+    <div class="text-green-700">✓ Strongest structured approach</div>
+    <div class="text-red-700">✗ Still cannot express executable rules</div>
+    <div class="text-red-700">✗ <em>"if passport expires within 180 days of travel, alert"</em> is inexpressible</div>
   </div>
-  <div class="text-gray-400 text-lg">→</div>
-  <div class="p-2 rounded-lg bg-green-100 border-2 border-green-500 text-center flex-1">
-    <div class="font-bold text-green-800">User as Code</div>
-    <div class="opacity-70">Executable logic · Unified verification</div>
+  <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-amber-400">
+    <div class="font-bold text-sm mb-1">Knowledge Graphs</div>
+    <div class="text-green-700">✓ Entity-relation structure</div>
+    <div class="text-green-700">✓ Graph traversal for related facts</div>
+    <div class="text-red-700">✗ Rigid schema, hard to evolve</div>
+    <div class="text-red-700">✗ Conditional logic degrades into triples</div>
   </div>
 </div>
 
+<div class="mt-3 p-2 bg-red-50 rounded-lg border-l-4 border-red-400 text-xs">
 
-<div class="mt-3 grid grid-cols-2 gap-6">
-<div>
-
-### What structured approaches *can* do
-- Store `passport_expiry = "2025-02-18"`
-- Tag with timestamps and entity IDs
-- Perform CRUD operations
-
-</div>
-<div>
-
-### What they *cannot* do
-- Express: *"if passport expires within 180 days of travel, raise alert"*
-- Generate executable logic **on the fly** as novel situations arise
-- Unify data and verification
-
-</div>
-</div>
-
----
-
-# The User as Code Proposal
-
-Model a user's entire memory as a **self-evolving software project**.
-
-<div class="mt-3 grid grid-cols-2 gap-6">
-<div>
-
-### Core Insight
-
-The same Python that stores:
-
-```python
-passport_expiry = date(2025, 2, 18)
-```
-
-can also express — and **execute**:
-
-```python
-assert (passport_expiry - flight_date).days >= 180
-```
-
-**No other format unifies storage and verification.**
-
-</div>
-<div>
-
-### Architectural Fit
-
-Modern AI agents (Claude, Cursor, OpenHands) are fundamentally **coding agents** built on virtual file systems.
-
-- They read, write, and execute files
-- The user project is a **directory in the agent's own workspace**
-- No custom memory API needed
-
-</div>
-</div>
-
-
-<div class="mt-3 p-3 bg-blue-50 rounded-lg">
-
-**The Generate-and-Verify Loop** reduces LLM hallucination by design: the LLM handles *semantic reasoning* ("should I check passport validity?"); the interpreter handles *computation* ("is 34 < 180?") — delegating exactly the operations where LLMs are unreliable to deterministic execution.
+**The common limitation:** All formats separate *representation* from *verification*. None can express — and execute — <code>assert (passport.expiry - flight.date).days >= 180</code>.
 
 </div>
 
@@ -274,7 +223,8 @@ layout: section
 
 <div class="mt-4 p-4 bg-amber-50 rounded-lg">
 
-**State of the art (Dual-Layer):** Advanced JSON Cards (structured core, always in context) + Contextual-Retrieval-enhanced RAG (on-demand details). But even this cannot compute: *"passport expires in 34 days — below 180-day requirement."*
+**State of the art (Dual-Layer):** Advanced JSON Cards + Contextual-Retrieval-enhanced RAG.
+But even this cannot compute: *"passport expires in 34 days — below 180-day requirement."*
 
 </div>
 
@@ -513,6 +463,54 @@ layout: section
 
 ---
 
+# The User as Code Proposal
+
+Model a user's entire memory as a **self-evolving software project**.
+
+<div class="mt-3 grid grid-cols-2 gap-6">
+<div>
+
+### Core Insight
+
+The same Python that stores:
+
+```python
+passport_expiry = date(2025, 2, 18)
+```
+
+can also express — and **execute**:
+
+```python
+assert (passport_expiry - flight_date).days >= 180
+```
+
+**No other format unifies storage and verification.**
+
+</div>
+<div>
+
+### Architectural Fit
+
+Modern AI agents (Claude, Cursor, OpenHands) are fundamentally **coding agents** built on virtual file systems.
+
+- They read, write, and execute files
+- The user project is a **directory in the agent's own workspace**
+- No custom memory API needed
+
+</div>
+</div>
+
+<div class="mt-3 p-3 bg-blue-50 rounded-lg">
+
+**The Generate-and-Verify Loop** reduces LLM hallucination by design:
+- LLM handles *semantic reasoning* — "should I check passport validity?"
+- Interpreter handles *computation* — "is 34 < 180?"
+- Operations where LLMs are unreliable → delegated to deterministic execution
+
+</div>
+
+---
+
 # Design Principles
 
 <div class="mt-3 grid grid-cols-3 gap-3 text-xs">
@@ -643,10 +641,17 @@ The agent performs **periodic revision**: schema evolution, domain splitting/mer
 | **Narrative Context** | Conversation chunks in archive | **Search** via RAG | `archive.search("why Jessica chose JAL")` |
 
 
-<div class="mt-2 p-3 bg-blue-50 rounded-lg">
-
-**The Key Distinction:** *Read path* vs. *Verify path* — **Subjective preferences** → read-only, LLM reasons contextually | **Factual relationships** → verified by interpreter, deterministic arithmetic
-
+<div class="mt-2 flex gap-3 text-xs">
+  <div class="flex-1 p-2 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+    <div class="font-bold text-sm mb-1">Read Path</div>
+    <div><strong>Subjective preferences</strong> — read-only, LLM reasons contextually</div>
+    <div class="mt-1 opacity-70 italic">"Prefers aisle on long flights, window on Japan routes"</div>
+  </div>
+  <div class="flex-1 p-2 rounded-lg bg-green-50 border-l-4 border-green-400">
+    <div class="font-bold text-sm mb-1">Verify Path</div>
+    <div><strong>Factual relationships</strong> — verified by interpreter, deterministic</div>
+    <div class="mt-1 opacity-70 italic">"(passport.expiry - trip.date).days >= 180"</div>
+  </div>
 </div>
 
 ---
@@ -927,7 +932,7 @@ Every patch committed with a **source-session reference** for audit trail.
 
 ### Periodic Revision — "Dreaming"
 
-Like the human brain during sleep — consolidating memories, pruning irrelevant details, strengthening connections, synthesizing patterns — the agent periodically steps back to **holistically restructure** its understanding:
+Like dreaming — the brain consolidates memories during sleep. The agent periodically steps back to **holistically restructure** its understanding:
 
 - Schema evolution and restructuring
 - Domain splitting / merging
@@ -1081,11 +1086,11 @@ The user project is a **directory in the agent's virtual file system**.
 
 - Reads, writes, and executes files
 - Same primitives the agent already has
-- **No custom memory API**
-- **No special toolset**
-- **No new infrastructure** (except RAG for archive)
+- **No custom memory API** or special toolset
 
-Saving memory is an **autonomous agent decision**, not a system hook. **Trivially adoptable** by any coding agent framework.
+**RL-trainable:** Memory ops are standard file-system actions, so foundation models can be **trained via RL** to improve memory:
+- When to summarize, what to extract, how to retrieve
+- Custom APIs are opaque to RL; file ops are natural actions RL optimizes end-to-end
 
 </div>
 <div>
@@ -1093,7 +1098,7 @@ Saving memory is an **autonomous agent decision**, not a system hook. **Triviall
 ### Limitations
 
 **1. Verification Overhead**
-Generating structured code and verifying it (tests, type checks) is more expensive than appending text. *Trade-off: pay at write time for correctness at read time — a favorable exchange.*
+More expensive than appending text. *Pay at write time for correctness at read time.*
 
 **2. Constraint Logic Errors**
 Interpreter guarantees correct *computation* but not correct *logic* (e.g., wrong threshold). Same failure mode as any LLM judgment.
@@ -1117,7 +1122,7 @@ layout: section
 
 <div class="mt-2"></div>
 
-The core claim is not that code is a *nice* format for user memory. It is that code is the **only** format where the agent can seamlessly transition from reading a user's state to writing and executing checks against it — with no translation step.
+Code is the **only** format where the agent can seamlessly transition from reading a user's state to writing and executing checks against it — **no translation step**.
 
 <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
   <div class="p-3 rounded-lg bg-gray-100 border border-gray-300">
@@ -1151,7 +1156,10 @@ The core claim is not that code is a *nice* format for user memory. It is that c
 
 ### Architecture in One Sentence
 
-A user is a **self-evolving software project** in the agent's own workspace — manipulated with the same file and interpreter primitives the agent already has, structured by three-tier progressive disclosure, and kept consistent by version-controlled patches and executable tests.
+A user is a **self-evolving software project** in the agent's workspace:
+- Same file and interpreter primitives the agent already has
+- Three-tier progressive disclosure
+- Version-controlled patches and executable tests
 
 </div>
 </div>
