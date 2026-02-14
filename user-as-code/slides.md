@@ -414,10 +414,12 @@ layout: section
 - High-density, unambiguous representation
 - Allows **Active Knowledge**: `if x: do y` is more robust than text
 - Already the LLM's native output medium
+- **Verifiable** — the interpreter guarantees correctness of computation
 
 ### The LLM + Interpreter Paradigm
 
-ChatGPT Code Interpreter and sandboxed agents demonstrated LLMs can **generate code** for computation.
+- All modern agents are essentially **coding agents** — Manus, Claude Code, OpenClaw, Cursor, etc.
+- Coding is the most advanced capability of foundation models, closest to human expertise
 
 **User as Code applies this paradigm to user memory.**
 
@@ -613,34 +615,6 @@ The agent performs **periodic revision**: schema evolution, domain splitting/mer
 
 ---
 
-# Memory Organization: Five Types
-
-<div class="mt-4 text-sm"></div>
-
-| Memory Type | Stored As | LLM Interaction | Example |
-|---|---|---|---|
-| **Factual State** | Typed attributes in `state.py` | **Read** | `passport_expiry = date(2025, 2, 18)` |
-| **Subjective Preferences** | String fields in `state.py` | **Read** (not computable) | `seat_notes = "Aisle on long flights..."` |
-| **Persistent Constraints** | Functions in `constraints/` | **Auto-Execute** after updates | `travel_readiness.check(project)` |
-| **Ad-hoc Verification** | LLM-generated at query time | **Generate-and-Execute** | `print((passport.expiry - trip.date).days)` |
-| **Narrative Context** | Conversation chunks in archive | **Search** via RAG | `archive.search("why Jessica chose JAL")` |
-
-
-<div class="mt-2 flex gap-3 text-xs">
-  <div class="flex-1 p-2 rounded-lg bg-blue-50 border-l-4 border-blue-400">
-    <div class="font-bold text-sm mb-1">Read Path</div>
-    <div><strong>Subjective preferences</strong> — read-only, LLM reasons contextually</div>
-    <div class="mt-1 opacity-70 italic">"Prefers aisle on long flights, window on Japan routes"</div>
-  </div>
-  <div class="flex-1 p-2 rounded-lg bg-green-50 border-l-4 border-green-400">
-    <div class="font-bold text-sm mb-1">Verify Path</div>
-    <div><strong>Factual relationships</strong> — verified by interpreter, deterministic</div>
-    <div class="mt-1 opacity-70 italic">"(passport.expiry - trip.date).days >= 180"</div>
-  </div>
-</div>
-
----
-
 # Memory Organization: Three Tiers
 
 <div class="mt-2"></div>
@@ -682,6 +656,34 @@ upcoming_trips = [
 seat_notes = "Prefers aisle on flights > 6hrs, window otherwise. Always window on Japan routes."
 ```
 
+</div>
+
+---
+
+# Memory Organization: Five Types
+
+<div class="mt-4 text-sm"></div>
+
+| Memory Type | Stored As | LLM Interaction | Example |
+|---|---|---|---|
+| **Factual State** | Typed attributes in `state.py` | **Read** | `passport_expiry = date(2025, 2, 18)` |
+| **Subjective Preferences** | String fields in `state.py` | **Read** (not computable) | `seat_notes = "Aisle on long flights..."` |
+| **Persistent Constraints** | Functions in `constraints/` | **Auto-Execute** after updates | `travel_readiness.check(project)` |
+| **Ad-hoc Verification** | LLM-generated at query time | **Generate-and-Execute** | `print((passport.expiry - trip.date).days)` |
+| **Narrative Context** | Conversation chunks in archive | **Search** via RAG | `archive.search("why Jessica chose JAL")` |
+
+
+<div class="mt-2 flex gap-3 text-xs">
+  <div class="flex-1 p-2 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+    <div class="font-bold text-sm mb-1">Read Path</div>
+    <div><strong>Subjective preferences</strong> — read-only, LLM reasons contextually</div>
+    <div class="mt-1 opacity-70 italic">"Prefers aisle on long flights, window on Japan routes"</div>
+  </div>
+  <div class="flex-1 p-2 rounded-lg bg-green-50 border-l-4 border-green-400">
+    <div class="font-bold text-sm mb-1">Verify Path</div>
+    <div><strong>Factual relationships</strong> — verified by interpreter, deterministic</div>
+    <div class="mt-1 opacity-70 italic">"(passport.expiry - trip.date).days >= 180"</div>
+  </div>
 </div>
 
 ---
@@ -772,51 +774,40 @@ By reading it, the agent understands:
 
 ---
 
-# The Generate-and-Verify Loop
+# The Generate-Verify-Review Loop
 
-The core mechanism for **reducing LLM hallucination** in user memory. LLMs are unreliable at arithmetic and multi-step logic in natural language — so we don't ask them to do it.
+The core mechanism for **reducing LLM hallucination** in user memory — a continuous loop driven by the coding agent.
 
-<div class="mt-4"></div>
-
-<div class="flex items-center gap-1 mt-2 text-xs">
-  <div class="p-2 rounded-lg bg-blue-100 border-2 border-blue-400 text-center flex-1">
-    <div class="font-bold">1. Hypothesize</div>
-    <div class="opacity-70">LLM identifies concern from manifest/context</div>
+<div class="mt-3 flex items-center justify-center gap-2 text-xs">
+  <div class="p-3 rounded-lg bg-purple-100 border-2 border-purple-400 text-center" style="min-width:140px">
+    <div class="font-bold text-sm">1. Generate</div>
+    <div class="opacity-70 mt-1">Coding agent writes Python code — constraints, checks, state updates</div>
   </div>
-  <div class="text-gray-400">→</div>
-  <div class="p-2 rounded-lg bg-purple-100 border-2 border-purple-400 text-center flex-1">
-    <div class="font-bold">2. Generate</div>
-    <div class="opacity-70">LLM writes Python check against code state</div>
+  <div class="text-gray-400 text-lg">→</div>
+  <div class="p-3 rounded-lg bg-green-100 border-2 border-green-400 text-center" style="min-width:140px">
+    <div class="font-bold text-sm">2. Verify</div>
+    <div class="opacity-70 mt-1">Execute constraint code (like test cases) — deterministic results</div>
   </div>
-  <div class="text-gray-400">→</div>
-  <div class="p-2 rounded-lg bg-green-100 border-2 border-green-400 text-center flex-1">
-    <div class="font-bold">3. Execute</div>
-    <div class="opacity-70">Interpreter runs code in sandbox</div>
+  <div class="text-gray-400 text-lg">→</div>
+  <div class="p-3 rounded-lg bg-blue-100 border-2 border-blue-400 text-center" style="min-width:140px">
+    <div class="font-bold text-sm">3. Review</div>
+    <div class="opacity-70 mt-1">Coding agent reviews results, decides next action</div>
   </div>
-  <div class="text-gray-400">→</div>
-  <div class="p-2 rounded-lg bg-amber-100 border-2 border-amber-400 text-center flex-1">
-    <div class="font-bold">4. Act</div>
-    <div class="opacity-70">LLM incorporates verified result</div>
-  </div>
-  <div class="text-gray-400">⇢</div>
-  <div class="p-2 rounded-lg bg-red-100 border-2 border-red-400 text-center flex-1">
-    <div class="font-bold">Persist</div>
-    <div class="opacity-70">Promote to constraints/</div>
-  </div>
+  <div class="text-gray-400 text-lg">↩</div>
 </div>
 
-
-<div class="mt-3 grid grid-cols-2 gap-6">
+<div class="mt-4 grid grid-cols-2 gap-6">
 <div>
 
-### Division of Labor — Anti-Hallucination by Design
+### Anti-Hallucination by Design
 
-| | LLM | Interpreter |
+| | Coding Agent | Interpreter |
 |---|---|---|
 | **Role** | Semantic reasoning | Computation |
 | **Decides** | *What* to check | *Correctness* of check |
 | **Hallucination risk** | Low (judgment) | **Zero** (deterministic) |
-| **Example** | "Check passport?" | "Is 34 < 180?" → `True` |
+
+The loop iterates: generate code → execute to verify → review results → refine or persist.
 
 </div>
 <div>
@@ -829,7 +820,7 @@ When an ad-hoc check proves useful:
 3. **Auto-evaluates** after relevant state updates
 4. Alerts surface in `ACTIVE_ALERTS`
 
-Constraints are **not pre-authored** — they emerge from the LLM's own reasoning.
+Constraints are **not pre-authored** — they emerge from the coding agent's own reasoning.
 
 </div>
 </div>
