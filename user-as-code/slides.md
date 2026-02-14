@@ -10,30 +10,27 @@ lineNumbers: true
 drawings:
   persist: false
 colorSchema: light
+layout: cover
+background: https://cover.sli.dev
+class: text-center
 ---
 
 # User as Code
 
 ## Executable Memory for Personalized Agents
 
-<div class="pt-8">
-  <span class="px-2 py-1">
-    A novel paradigm where an agent's understanding of a user is maintained as a <strong>modular, version-controlled software project</strong>
-  </span>
+<div class="pt-4 text-base opacity-90">
+  A novel paradigm where an agent's understanding of a user is maintained as a <strong>modular, version-controlled software project</strong>
 </div>
 
-<div class="mt-8 text-sm">
+<div class="mt-6 text-sm">
   <strong>Bojie Li</strong><br/>
   <span class="opacity-70">Chief Scientist, Pine AI</span>
 </div>
 
-<div class="abs-br m-6 flex gap-2">
+<div class="abs-br m-6">
   <span class="text-sm opacity-50">February 2026</span>
 </div>
-
-<!--
-Core thesis: Code is the only representation format that unifies readability and verifiability in a single medium.
--->
 
 ---
 layout: center
@@ -249,7 +246,7 @@ Modern AI agents (Claude, Cursor, OpenHands) are fundamentally **coding agents**
 
 <div class="mt-3 p-3 bg-blue-50 rounded-lg">
 
-**The Generate-and-Verify Loop:** The LLM handles *semantic reasoning* ("should I check passport validity?"); the interpreter handles *computation* ("is 34 < 180?").
+**The Generate-and-Verify Loop** reduces LLM hallucination by design: the LLM handles *semantic reasoning* ("should I check passport validity?"); the interpreter handles *computation* ("is 34 < 180?") — delegating exactly the operations where LLMs are unreliable to deterministic execution.
 
 </div>
 
@@ -518,36 +515,34 @@ layout: section
 
 # Design Principles
 
-<div class="mt-3 grid grid-cols-2 gap-6">
-<div>
-
-### 1. Separation of Structure and Data
-
-Schema (class definitions) is separated from state (instance data) and archive (historical records).
-
-### 2. Modularity by Life Domain
-
-Memory is partitioned into independent domain packages — `travel/`, `finance/`, `health/` — each loadable and testable independently.
-
-</div>
-<div>
-
-### 3. Progressive Disclosure
-
-The agent navigates via a compact **manifest** (always loaded, ~200-300 tokens) and retrieves domain-specific modules on demand.
-
-### 4. Unified Representation and Verification
-
-Code serves as both the **storage format** the LLM reads and the **verification medium** the interpreter executes.
-
-</div>
+<div class="mt-3 grid grid-cols-3 gap-3 text-xs">
+  <div class="p-3 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+    <div class="font-bold text-sm mb-1">1. Separation of Structure & Data</div>
+    <div>Schema (class definitions) is separated from state (instance data) and archive (historical records). Each layer evolves independently.</div>
+  </div>
+  <div class="p-3 rounded-lg bg-green-50 border-l-4 border-green-400">
+    <div class="font-bold text-sm mb-1">2. Modularity by Life Domain</div>
+    <div>Memory is partitioned into independent domain packages — <code>travel/</code>, <code>finance/</code>, <code>health/</code> — each loadable and testable independently.</div>
+  </div>
+  <div class="p-3 rounded-lg bg-purple-50 border-l-4 border-purple-400">
+    <div class="font-bold text-sm mb-1">3. Progressive Disclosure</div>
+    <div>The agent navigates via a compact <strong>manifest</strong> (~200-300 tokens, always loaded) and retrieves domain modules on demand.</div>
+  </div>
 </div>
 
+<div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+  <div class="p-3 rounded-lg bg-amber-50 border-l-4 border-amber-400">
+    <div class="font-bold text-sm mb-1">4. Unified Representation & Verification</div>
+    <div>Code serves as both the <strong>storage format</strong> the LLM reads and the <strong>verification medium</strong> the interpreter executes — no translation step between knowing a fact and computing with it.</div>
+  </div>
+  <div class="p-3 rounded-lg bg-red-50 border-l-4 border-red-400">
+    <div class="font-bold text-sm mb-1">5. Agent-Native File System Abstraction</div>
+    <div>The user project is a <strong>directory in the agent's own workspace</strong>. Modern coding agents (Claude, Cursor, OpenHands) already read, write, and execute files — User as Code requires <strong>no custom memory API</strong>, no special toolset. Memory operations are native file operations.</div>
+  </div>
+</div>
 
-<div class="mt-4 p-3 bg-green-50 rounded-lg text-center">
-
-Application of the <strong>"Infrastructure as Code"</strong> philosophy to Agent Personalization
-
+<div class="mt-3 p-2 bg-gray-50 rounded-lg text-center text-xs">
+  Application of the <strong>"Infrastructure as Code"</strong> philosophy to Agent Personalization
 </div>
 
 ---
@@ -793,7 +788,7 @@ By reading it, the agent understands:
 
 # The Generate-and-Verify Loop
 
-The core mechanism distinguishing User as Code from retrieval-based approaches.
+The core mechanism for **reducing LLM hallucination** in user memory. LLMs are unreliable at arithmetic and multi-step logic in natural language — so we don't ask them to do it.
 
 <div class="mt-4"></div>
 
@@ -828,12 +823,13 @@ The core mechanism distinguishing User as Code from retrieval-based approaches.
 <div class="mt-3 grid grid-cols-2 gap-6">
 <div>
 
-### Division of Labor
+### Division of Labor — Anti-Hallucination by Design
 
 | | LLM | Interpreter |
 |---|---|---|
 | **Role** | Semantic reasoning | Computation |
 | **Decides** | *What* to check | *Correctness* of check |
+| **Hallucination risk** | Low (judgment) | **Zero** (deterministic) |
 | **Example** | "Check passport?" | "Is 34 < 180?" → `True` |
 
 </div>
@@ -933,9 +929,9 @@ Every patch committed with a **source-session reference** for audit trail.
 <div class="mt-2 grid grid-cols-2 gap-6">
 <div>
 
-### Periodic Revision
+### Periodic Revision — "Dreaming"
 
-Beyond incremental patches, the agent performs **holistic revisions**:
+Like the human brain during sleep — consolidating memories, pruning irrelevant details, strengthening connections, synthesizing patterns — the agent periodically steps back to **holistically restructure** its understanding:
 
 - Schema evolution and restructuring
 - Domain splitting / merging
