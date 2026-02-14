@@ -8,6 +8,10 @@ Current personalization in AI agents primarily relies on Retrieval-Augmented Gen
 
 ### 1.1 The Memory Challenge for Personalized Agents
 *   To build truly personalized, continuous-service AI Agents, a User Memory system is indispensable. Memory is not simply recording every word the user says — it is gradually forming a model of the user through sustained interaction: their personality, hobbies, habits, values.
+*   **Memory consists of two fundamental components:** In Chinese, the word for memory is "记忆" (Jìyì) — and the two characters capture the two halves precisely:
+    *   **记 (Jì) — Memorizing (Knowledge Extraction):** Extracting structured knowledge from raw interactions and persisting it in an organized form.
+    *   **忆 (Yì) — Retrieval (Knowledge Retrieval):** Recalling the right knowledge at the right time to serve the user.
+    *   All memory systems must address both halves. User as Code contributes to **both**: on the memorizing side, knowledge is extracted into structured, typed, version-controlled code; on the retrieval side, executing code against the state is itself a form of retrieval — the generate-and-verify loop *computes* answers that no similarity search could produce. The same code that stores knowledge also serves as the substrate for executable retrieval.
 *   Agent memory spans multiple layers: working memory (single-session trajectory), long-term memory (persistent cross-session knowledge), and business state (task-phase abstractions). This paper focuses on long-term user memory.
 *   The essence of user memory is an active, continuous learning process — the Agent continually refines its internal user model to explain all known observations with the most compact structure.
 
@@ -58,7 +62,7 @@ We propose a three-layer evaluation framework that decomposes user memory capabi
 
 ## 4. Methodology: The User as Code Architecture
 
-A user is not a class — a user is a **self-evolving software project** that lives in the agent's own workspace. The agent reads, writes, and executes this project using the same file system and interpreter tools it already has. Code's value comes from a property no other format shares: **it unifies representation and verification in a single medium** — the agent can seamlessly transition from reading the user's state to writing and executing checks against it.
+A user is a **self-evolving software project** that lives in the agent's own workspace. The agent reads, writes, and executes this project using the same file system and interpreter tools it already has. Code's value comes from a property no other format shares: the agent can seamlessly transition from reading the user's state to writing and executing checks against it — with no translation step.
 
 ### 4.1 Design Principles
 
@@ -244,7 +248,7 @@ Every patch is committed with a source-session reference, providing a determinis
 *   **The Formalization Boundary:** User as Code excels at the factual-to-computational end of the memory spectrum: typed attributes, date arithmetic, cross-domain constraint checking. However, a significant portion of personalization resides at the *hard-to-formalize* end: context-dependent preferences, implicit behavioral patterns, emotional context, and holistic personality. Hard-to-formalize memory lives as string annotations — benefiting from structure and version control, but not executable verification. User as Code provides a **unified home** where both types coexist. The periodic revision process (Section 4.6) enables consolidating soft memory into coherent summaries. Future work: LLM-synthesized personality profiles periodically regenerated from cross-domain review.
 *   **Agent-Native Architecture:** The user project is a directory in the agent's virtual file system. The agent reads, writes, and executes files using the same primitives it already has — no custom memory API, no special toolset, no new infrastructure beyond a RAG backend for the archive tier. This makes User as Code trivially adoptable by any coding agent framework. Saving memory is an autonomous agent decision, not a system hook.
 *   **Limitations:**
-    *   **Compilation Overhead:** Generating valid code diffs is more expensive than appending text. Trade-off: paying at write time for deterministic correctness at read time.
+    *   **Verification Overhead:** Generating structured code and verifying it (e.g., writing and running unit tests, type checking) is more expensive than appending text. Trade-off: paying at write time for deterministic correctness at read time — a favorable exchange.
     *   **Constraint Logic Errors:** The interpreter guarantees correct *computation* but not correct *logic* (e.g., wrong threshold). Same failure mode as any LLM judgment.
     *   **LLM Code Generation Quality:** Mitigated by strict type checking, test validation, and reject-and-retry loops.
 
