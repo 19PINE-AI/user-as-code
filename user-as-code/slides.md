@@ -29,7 +29,7 @@ class: text-center
 </div>
 
 <div class="abs-br m-6">
-  <span class="text-sm opacity-50">February 2026</span>
+  <span class="text-sm opacity-50">January 2026</span>
 </div>
 
 ---
@@ -165,7 +165,7 @@ Current systems (VectorDBs, JSON stores, Knowledge Graphs) treat memory as a **l
 
 <div class="mt-4 p-4 bg-red-50 rounded-lg border-l-4 border-red-400">
 
-**The fundamental limitation:** All existing formats — natural language, JSON, knowledge graphs — **separate representation from verification**. No amount of retrieval sophistication can reliably compute <code>(expiry - departure).days >= 180</code>.
+**The fundamental limitations:** All existing formats — natural language, JSON, knowledge graphs — (1) **separate representation from verification**, so no retrieval sophistication can compute <code>(expiry - departure).days >= 180</code>, and (2) **tolerate referential ambiguity**, so "my car" can persist unresolved across sessions.
 
 </div>
 
@@ -192,10 +192,10 @@ Existing strategies trade **simplicity** for **expressiveness** — each solves 
   </div>
   <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-purple-400">
     <div class="font-bold text-sm mb-1">Advanced JSON + Metadata</div>
-    <div class="text-green-700">✓ Timestamps, entity disambiguation</div>
+    <div class="text-green-700">✓ Timestamps, IDs for partial disambiguation</div>
     <div class="text-green-700">✓ Strongest structured approach</div>
     <div class="text-red-700">✗ Still cannot express executable rules</div>
-    <div class="text-red-700">✗ <em>"if passport expires within 180 days of travel, alert"</em> is inexpressible</div>
+    <div class="text-red-700">✗ Disambiguation is convention, not enforced by the format</div>
   </div>
   <div class="p-3 rounded-lg bg-gray-50 border-l-4 border-amber-400">
     <div class="font-bold text-sm mb-1">Knowledge Graphs</div>
@@ -208,7 +208,7 @@ Existing strategies trade **simplicity** for **expressiveness** — each solves 
 
 <div class="mt-3 p-2 bg-red-50 rounded-lg border-l-4 border-red-400 text-xs">
 
-**The common limitation:** All formats separate *representation* from *verification*. None can express — and execute — <code>assert (passport.expiry - flight.date).days >= 180</code>.
+**Two common limitations:** (1) All formats separate *representation* from *verification* — none can express and execute <code>assert (passport.expiry - flight.date).days >= 180</code>. (2) All tolerate **ontological ambiguity** — "my car" can persist unresolved across sessions, deferring disambiguation to error-prone retrieval.
 
 </div>
 
@@ -237,7 +237,7 @@ We propose a three-layer framework decomposing user memory capability into progr
   <div class="p-3 rounded-lg bg-amber-100 border-2 border-amber-400 text-center flex-1">
     <div class="font-bold text-sm">Layer 2</div>
     <div class="text-xs mt-1">Multi-session Retrieval</div>
-    <div class="text-xs opacity-70">Cross-session reasoning & conflict resolution</div>
+    <div class="text-xs opacity-70">Ontological commitment & conflict resolution</div>
   </div>
   <div class="text-gray-400 text-xl">→</div>
   <div class="p-3 rounded-lg bg-red-100 border-2 border-red-400 text-center flex-1">
@@ -256,7 +256,7 @@ We propose a three-layer framework decomposing user memory capability into progr
 </div>
 <div class="p-3 bg-amber-50 rounded-lg text-center">
 
-**Agentic RAG** handles some cases but struggles with conflicts
+**Agentic RAG** handles some cases but defers ambiguity to retrieval
 
 </div>
 <div class="p-3 bg-red-50 rounded-lg text-center">
@@ -342,8 +342,62 @@ Multi-party conflicting instructions over time (Patricia says X, James says Y).
 
 <div class="mt-6 p-4 bg-blue-50 rounded-lg">
 
-**User as Code advantage:** Single-source-of-truth state files with version-controlled patches provide deterministic conflict resolution. Each update carries a session reference for audit.
+**User as Code advantage:** Code forces **ontological commitment** — the agent must resolve "my car" into a distinct typed object at write time, structurally eliminating referential ambiguity. Version-controlled patches with session references provide deterministic conflict resolution and audit.
 
+</div>
+
+---
+
+# Layer 2: Ontological Commitment Through Code
+
+Writing code compels the agent to **commit to what exists** — resolving ambiguities that other representations tolerate silently.
+
+<div class="mt-3 grid grid-cols-2 gap-6">
+<div>
+
+### The Core Mechanism
+
+In knowledge representation, an **ontological commitment** is the set of entities a formalism asserts to exist (Quine, 1948; Guarino, 1998). Code enforces this through:
+
+1. **Entity identity** — each object is a distinct reference; "my car" *must* resolve to `vehicles[0]` or `vehicles[1]`
+2. **Categorical structure** — typed classes define what *kinds* of entities exist and what properties are essential
+3. **Compositional relations** — parts, wholes, and cross-references are explicit, not implied
+
+<div class="mt-3 p-2 bg-amber-50 rounded-lg text-xs">
+
+Natural language and JSON tolerate unresolved ambiguity indefinitely. Code does not — **writing a schema is an act of disambiguation**.
+
+</div>
+
+</div>
+<div>
+
+### Disambiguation by Construction
+
+```python
+# "my car" → code MUST resolve:
+vehicles = [
+    Vehicle("Honda Accord", year=2020),
+    Vehicle("Tesla Model 3", year=2023),
+]
+
+# "the LA trip" → explicit composition:
+la_trip = Trip(
+    dest="Los Angeles",
+    flights=[flights["AA-1234"]],
+    hotels=[hotels["marriott_0312"]],
+    car_rentals=[rentals["hertz_0312"]],
+)
+
+# Conflicting authority → typed provenance:
+# Patricia (2025-02-10): cancel trip
+# James (2025-02-12): keep trip
+# → schema enforces: who has authority?
+```
+
+The schema serves as a **formal ontology** — ambiguity is structurally eliminated at write time, not deferred to retrieval.
+
+</div>
 </div>
 
 ---
@@ -404,6 +458,48 @@ layout: section
 
 ---
 
+# Solving Ambiguity and Hallucination with Ontology and Executable Knowledge
+
+The three-layer framework surfaces two fundamental challenges. User as Code addresses each with a distinct design principle.
+
+<div class="mt-4"></div>
+
+<div class="grid grid-cols-2 gap-6">
+  <div class="p-4 rounded-lg bg-red-50 border-l-4 border-red-400">
+    <div class="text-xs font-bold text-red-600 uppercase tracking-wide">Challenge</div>
+    <div class="font-bold text-lg mt-1">Ambiguity</div>
+    <div class="text-sm mt-1 opacity-80">Referential ambiguity persists unresolved across sessions — "my car," "the trip," conflicting instructions.</div>
+    <div class="text-xs mt-2 opacity-60">Surfaces at Layer 2: Multi-session Retrieval</div>
+  </div>
+  <div class="p-4 rounded-lg bg-red-50 border-l-4 border-red-400">
+    <div class="text-xs font-bold text-red-600 uppercase tracking-wide">Challenge</div>
+    <div class="font-bold text-lg mt-1">Hallucination</div>
+    <div class="text-sm mt-1 opacity-80">LLMs perform unreliable arithmetic and constraint checking on factual state — "is 34 < 180?"</div>
+    <div class="text-xs mt-2 opacity-60">Surfaces at Layer 3: Active Service</div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-3">
+  <div class="p-4 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+    <div class="text-xs font-bold text-blue-600 uppercase tracking-wide">Principle</div>
+    <div class="font-bold text-lg mt-1">Ontological Commitment</div>
+    <div class="text-sm mt-1 opacity-80">Typed schemas force entity identity, categorical structure, and compositional relations — disambiguation at write time.</div>
+  </div>
+  <div class="p-4 rounded-lg bg-green-50 border-l-4 border-green-400">
+    <div class="text-xs font-bold text-green-600 uppercase tracking-wide">Principle</div>
+    <div class="font-bold text-lg mt-1">Executable Knowledge</div>
+    <div class="text-sm mt-1 opacity-80">Code unifies representation and verification — the interpreter guarantees computation the LLM cannot.</div>
+  </div>
+</div>
+
+<div class="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-center">
+
+Most design elements serve **both** principles simultaneously. The following slides elaborate how.
+
+</div>
+
+---
+
 # Code as Knowledge Representation
 
 <div class="mt-2 grid grid-cols-2 gap-6">
@@ -411,15 +507,15 @@ layout: section
 
 ### Why Code?
 
-- High-density, unambiguous representation
-- Allows **Active Knowledge**: `if x: do y` is more robust than text
-- Already the LLM's native output medium
-- **Verifiable** — the interpreter guarantees correctness of computation
+<div class="text-xs">
 
-### The LLM + Interpreter Paradigm
+<span class="inline-block px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold">Ontological Commitment</span> Typed schemas force entity identity and categorical structure — referential ambiguity is eliminated at write time
 
-- All modern agents are essentially **coding agents** — Manus, Claude Code, OpenClaw, Cursor, etc.
-- Coding is the most advanced capability of foundation models, closest to human expertise
+<span class="inline-block px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold">Executable Knowledge</span> `if x: do y` is executable, not merely descriptive — the interpreter guarantees correct *computation*; the LLM handles correct *judgment*
+
+<span class="inline-block px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 font-bold">Both</span> Coding is the LLM's **native output medium**; all modern agents (Manus, Claude Code, OpenClaw, Cursor) are coding agents
+
+</div>
 
 **User as Code applies this paradigm to user memory.**
 
@@ -502,8 +598,8 @@ Modern AI agents (OpenClaw, Cursor, Claude Code, etc.) are fundamentally **codin
 
 <div class="mt-3 grid grid-cols-3 gap-3 text-xs">
   <div class="p-3 rounded-lg bg-blue-50 border-l-4 border-blue-400">
-    <div class="font-bold text-sm mb-1">1. Separation of Structure & Data</div>
-    <div>Schema (class definitions) is separated from state (instance data) and archive (historical records). Each layer evolves independently.</div>
+    <div class="font-bold text-sm mb-1">1. Separation of Structure & Data <span class="inline-block px-1 py-0 rounded bg-blue-100 text-blue-700 text-[10px] font-bold align-middle">Ontology</span></div>
+    <div>Schema (class definitions) is separated from state (instance data) and archive (historical records). Schemas embody the ontological commitment; each layer evolves independently.</div>
   </div>
   <div class="p-3 rounded-lg bg-green-50 border-l-4 border-green-400">
     <div class="font-bold text-sm mb-1">2. Modularity by Life Domain</div>
@@ -517,7 +613,7 @@ Modern AI agents (OpenClaw, Cursor, Claude Code, etc.) are fundamentally **codin
 
 <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
   <div class="p-3 rounded-lg bg-amber-50 border-l-4 border-amber-400">
-    <div class="font-bold text-sm mb-1">4. Unified Representation & Verification</div>
+    <div class="font-bold text-sm mb-1">4. Unified Representation & Verification <span class="inline-block px-1 py-0 rounded bg-green-100 text-green-700 text-[10px] font-bold align-middle">Executable</span></div>
     <div>Code serves as both the <strong>storage format</strong> the LLM reads and the <strong>verification medium</strong> the interpreter executes — no translation step between knowing a fact and computing with it.</div>
   </div>
   <div class="p-3 rounded-lg bg-red-50 border-l-4 border-red-400">
@@ -532,36 +628,31 @@ Modern AI agents (OpenClaw, Cursor, Claude Code, etc.) are fundamentally **codin
 
 <div class="mt-2"></div>
 
+<div class="flex gap-3 text-xs mb-2">
+  <span class="inline-block px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold">Ontology</span> <span class="opacity-70"><code>schema.py</code> — typed classes enforce entity identity and categorical structure</span>
+  &nbsp;&nbsp;
+  <span class="inline-block px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold">Executable</span> <span class="opacity-70"><code>constraints/</code> + <code>tests/</code> — executable verification and invariant checking</span>
+</div>
+
 ````md magic-move
 ```text
-jessica_thompson/                      # One user = one project
-├── manifest.py                        # Compact index — ALWAYS in context
-├── domains/                           # Domain modules (one per life area)
+jessica_thompson/                    # One user = one project
+├── manifest.py                      # Compact index — ALWAYS in context
+├── domains/                         # One module per life area
 │   ├── identity/
-│   │   ├── schema.py                  # PersonalInfo, ContactInfo class defs
-│   │   └── state.py                   # Current name, DOB, contacts
+│   │   ├── schema.py                # Class defs              ← Ontology
+│   │   └── state.py                 # Current instance data
 │   ├── travel/
-│   │   ├── schema.py                  # Trip, PassportInfo class defs
-│   │   └── state.py                   # Passport, trips, preferences
-│   ├── finance/
-│   │   ├── schema.py                  # Account, Transaction class defs
-│   │   └── state.py                   # Active accounts, pending transfers
+│   │   ├── schema.py                # Trip, PassportInfo      ← Ontology
+│   │   └── state.py                 # Passport, trips, prefs
+│   ├── finance/                     # ... more domains
 │   ├── vehicles/
-│   │   ├── schema.py                  # Vehicle, MaintenanceSchedule class defs
-│   │   └── state.py                   # Honda Accord, Tesla Model 3
 │   ├── health/
-│   │   ├── schema.py                  # MedicalProfile, Allergy class defs
-│   │   └── state.py                   # Allergies, current medications
 │   └── family/
-│       ├── schema.py                  # FamilyMember, Relationship class defs
-│       └── state.py                   # Husband James, Daughter Sarah (8)
-├── constraints/                       # Persistent cross-domain constraints
-│   ├── travel_readiness.py            # LLM-generated, promoted from ad-hoc
-│   ├── financial_authorization.py     # LLM-generated, promoted from ad-hoc
-│   └── health_safety.py              # LLM-generated, promoted from ad-hoc
-└── tests/                             # Invariant tests — CI for memory
-    ├── test_identity.py
-    ├── test_travel.py
+├── constraints/                     # Cross-domain checks     ← Executable
+│   ├── travel_readiness.py
+│   └── financial_authorization.py
+└── tests/                           # Invariant tests         ← Executable
     └── test_cross_domain.py
 ```
 ````
@@ -675,12 +766,12 @@ seat_notes = "Prefers aisle on flights > 6hrs, window otherwise. Always window o
 
 <div class="mt-2 flex gap-3 text-xs">
   <div class="flex-1 p-2 rounded-lg bg-blue-50 border-l-4 border-blue-400">
-    <div class="font-bold text-sm mb-1">Read Path</div>
-    <div><strong>Subjective preferences</strong> — read-only, LLM reasons contextually</div>
+    <div class="font-bold text-sm mb-1">Read Path <span class="inline-block px-1 py-0 rounded bg-blue-100 text-blue-700 text-[10px] font-bold align-middle">Ontology</span></div>
+    <div><strong>Subjective preferences</strong> — read-only, LLM reasons contextually. Typed schema provides unambiguous context.</div>
     <div class="mt-1 opacity-70 italic">"Prefers aisle on long flights, window on Japan routes"</div>
   </div>
   <div class="flex-1 p-2 rounded-lg bg-green-50 border-l-4 border-green-400">
-    <div class="font-bold text-sm mb-1">Verify Path</div>
+    <div class="font-bold text-sm mb-1">Verify Path <span class="inline-block px-1 py-0 rounded bg-green-100 text-green-700 text-[10px] font-bold align-middle">Executable</span></div>
     <div><strong>Factual relationships</strong> — verified by interpreter, deterministic</div>
     <div class="mt-1 opacity-70 italic">"(passport.expiry - trip.date).days >= 180"</div>
   </div>
@@ -774,7 +865,7 @@ By reading it, the agent understands:
 
 ---
 
-# The Generate-Verify-Review Loop
+# The Generate-Verify-Review Loop <span class="inline-block px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-bold align-middle">Executable Knowledge</span>
 
 The core mechanism for **reducing LLM hallucination** in user memory — a continuous loop driven by the coding agent.
 
@@ -997,54 +1088,59 @@ The interpreter is a **tool**, not a **rule**. The LLM retains full freedom in *
 
 ---
 
-# The Formalization Boundary
+# A Unified Home for Factual and Preferential Knowledge
 
-<div class="mt-2"></div>
+Code accommodates **both** factual knowledge and subjective preferences — formalism where it helps, natural language where it must.
 
-<div class="flex items-center gap-3 mt-2">
+<div class="mt-3 flex items-center gap-3">
   <div class="p-3 rounded-lg bg-green-100 border-2 border-green-400 text-center flex-1">
-    <div class="font-bold text-sm text-green-800">Factual / Computational</div>
+    <div class="font-bold text-sm text-green-800">Factual Knowledge</div>
     <div class="text-xs opacity-70 mt-1">Typed attributes · Date arithmetic · Cross-domain constraints</div>
+    <div class="text-xs mt-1">Formalism → <strong>verified by interpreter</strong></div>
   </div>
-  <div class="text-center flex-shrink-0 px-2">
-    <div class="text-xs opacity-60">← User as Code excels</div>
-    <div class="text-gray-400 text-lg">⟷</div>
-    <div class="text-xs opacity-60">Soft memory as strings →</div>
-  </div>
+  <div class="text-gray-400 text-lg flex-shrink-0">+</div>
   <div class="p-3 rounded-lg bg-amber-100 border-2 border-amber-400 text-center flex-1">
-    <div class="font-bold text-sm text-amber-800">Hard-to-Formalize</div>
+    <div class="font-bold text-sm text-amber-800">Preferences & Context</div>
     <div class="text-xs opacity-70 mt-1">Context-dependent preferences · Behavioral patterns · Emotional context</div>
+    <div class="text-xs mt-1">Natural language → <strong>expressive freedom</strong></div>
   </div>
 </div>
-
 
 <div class="mt-3 grid grid-cols-2 gap-6">
 <div>
 
-### Hard-to-Formalize Memory
-
-Lives as **string annotations** — benefiting from structure and version control, but not executable verification.
+### Both in the Same File
 
 ```python
-# Soft memory example
+# Factual — typed, verified
+passport = PassportInfo(
+    expiry=date(2025, 2, 18), country="US")
+
+# Preference — natural language, expressive
 seat_notes = """Prefers aisle on flights 
 > 6hrs, window otherwise. Exception: 
 always window on Japan routes 
 for Mt. Fuji view."""
 ```
 
+Each gets the representation it deserves: formalism for facts that need verification, natural language for preferences that need expressive freedom.
+
 </div>
 <div>
 
-### A Unified Home
+### Shared Infrastructure
 
-User as Code provides a **unified home** where both types coexist:
+Both types benefit from the same architecture:
 
-- Factual state → typed, verified
-- Soft preferences → annotated strings
-- Both benefit from version control, domain organization, and progressive disclosure
+- **Version control** — preferences evolve over time, just like facts
+- **Domain organization** — seat preferences live in `travel/`, not scattered across sessions
+- **Progressive disclosure** — loaded on demand, not bloating every context window
 
-**Future work:** LLM-synthesized personality profiles periodically regenerated from cross-domain review.
+<div class="mt-2 p-2 bg-gray-50 rounded-lg text-xs">
+
+**Future work:** LLM-synthesized personality profiles periodically regenerated from cross-domain review of preference strings.
+
+</div>
 
 </div>
 </div>
@@ -1098,34 +1194,39 @@ layout: section
 
 <div class="mt-2"></div>
 
-Code is the **only** format where the agent can seamlessly transition from reading a user's state to writing and executing checks against it — **no translation step**.
+Code is the **only** format that simultaneously enforces **ontological commitment** (entities must be named, typed, and distinguished) and enables **seamless verification** (the same file the agent reads is the file the interpreter executes).
 
 <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
   <div class="p-3 rounded-lg bg-gray-100 border border-gray-300">
     <div class="font-bold text-sm mb-1">Natural Language / Markdown</div>
-    <div>Read ✓ &nbsp; Verify ✗</div>
-    <div class="opacity-70 mt-1">The LLM must <em>reason</em> about "34 < 180" in prose — and gets it wrong.</div>
+    <div>Read ✓ &nbsp; Disambiguate ✗ &nbsp; Verify ✗</div>
+    <div class="opacity-70 mt-1">"My car" persists unresolved. "34 < 180" must be <em>reasoned</em> in prose — error-prone.</div>
   </div>
   <div class="p-3 rounded-lg bg-gray-100 border border-gray-300">
     <div class="font-bold text-sm mb-1">JSON / Knowledge Graph</div>
-    <div>Read ✓ &nbsp; Verify requires translation</div>
-    <div class="opacity-70 mt-1">Data must be parsed, loaded into code, <em>then</em> checked — friction + error surface.</div>
+    <div>Read ✓ &nbsp; Disambiguate ✗ (partial) &nbsp; Verify requires translation</div>
+    <div class="opacity-70 mt-1">IDs possible but not enforced — disambiguation is convention. Verification requires translation to code.</div>
   </div>
   <div class="p-3 rounded-lg bg-green-100 border-2 border-green-500">
     <div class="font-bold text-sm mb-1 text-green-800">Python (User as Code)</div>
-    <div>Read ✓ &nbsp; Execute ✓ &nbsp; <strong>Same file</strong></div>
-    <div class="opacity-70 mt-1">The agent reads <code>passport.expiry</code> and writes <code>assert (expiry - date).days >= 180</code> — zero translation.</div>
+    <div>Read ✓ &nbsp; Disambiguate ✓ &nbsp; Execute ✓ &nbsp; <strong>Same file</strong></div>
+    <div class="opacity-70 mt-1">Typed schemas force ontological commitment; the interpreter verifies computation — zero translation, zero ambiguity.</div>
   </div>
 </div>
 
 <div class="mt-4 grid grid-cols-2 gap-6">
 <div>
 
-### What This Enables
+### <span class="inline-block px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold">Ontology</span> vs. Ambiguity
 
-- **Generate-and-verify loop**: LLM reasons *what* to check; interpreter guarantees the *computation* — no hallucinated arithmetic
-- **Emergent constraints**: ad-hoc checks promoted to persistent monitors, autonomously — no human authoring
-- **Active Service (Layer 3)**: the only approach that solves proactive alerting, because it's arithmetic, not retrieval
+- Typed schemas force entity disambiguation **at write time**
+- Eliminates referential ambiguity that retrieval-based systems defer indefinitely
+
+### <span class="inline-block px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-bold">Executable</span> vs. Hallucination
+
+- Generate-and-verify loop: LLM reasons *what* to check; interpreter guarantees the *computation*
+- Emergent constraints promoted to persistent monitors — no human authoring
+- Active Service (Layer 3): arithmetic, not retrieval
 
 </div>
 <div>
@@ -1136,6 +1237,64 @@ A user is a **self-evolving software project** in the agent's workspace:
 - Same file and interpreter primitives the agent already has
 - Three-tier progressive disclosure
 - Version-controlled patches and executable tests
+
+<div class="mt-3 p-2 bg-gray-50 rounded-lg text-xs">
+
+**Two challenges → two principles:** ontological commitment eliminates ambiguity; executable knowledge eliminates hallucination. Most design elements serve both.
+
+</div>
+
+</div>
+</div>
+
+---
+
+# Beyond User Memory: Code as Knowledge Representation
+
+User as Code suggests a broader hypothesis: **self-evolving code may be a third paradigm for knowledge representation**, distinct from both external knowledge bases and post-training.
+
+<div class="mt-4 grid grid-cols-3 gap-4 text-xs">
+  <div class="p-3 rounded-lg bg-gray-100 border border-gray-300">
+    <div class="font-bold text-sm mb-2">Textual KBs</div>
+    <div class="text-green-700">✓ Inspectable, low update cost</div>
+    <div class="text-green-700">✓ Declarative, structured</div>
+    <div class="text-red-700">✗ Not executable — read-only</div>
+    <div class="text-red-700">✗ No built-in verification</div>
+    <div class="mt-2 opacity-60 italic">Files, databases, knowledge graphs</div>
+  </div>
+  <div class="p-3 rounded-lg bg-gray-100 border border-gray-300">
+    <div class="font-bold text-sm mb-2">Post-Training</div>
+    <div class="text-green-700">✓ High capacity, implicit patterns</div>
+    <div class="text-green-700">✓ End-to-end optimizable</div>
+    <div class="text-red-700">✗ Opaque — not inspectable</div>
+    <div class="text-red-700">✗ Expensive to update (training run)</div>
+    <div class="mt-2 opacity-60 italic">SFT, RLHF, knowledge in weights</div>
+  </div>
+  <div class="p-3 rounded-lg bg-green-100 border-2 border-green-500">
+    <div class="font-bold text-sm mb-2 text-green-800">Self-Evolving Code</div>
+    <div class="text-green-700">✓ Inspectable + low update cost</div>
+    <div class="text-green-700">✓ Executable + verifiable</div>
+    <div class="text-green-700">✓ Declarative + procedural</div>
+    <div class="text-green-700">✓ LLM-generated structure (Bitter Lesson)</div>
+    <div class="mt-2 opacity-60 italic">User as Code, agent-maintained repos</div>
+  </div>
+</div>
+
+<div class="mt-4 grid grid-cols-2 gap-6">
+<div>
+
+### The Third Path
+
+Textual KBs are inspectable but inert. Weights are expressive but opaque. Code is **both inspectable and executable** — the structure is LLM-generated (satisfying the Bitter Lesson), while the medium is verifiable (leveraging computation for correctness, not just storage).
+
+</div>
+<div>
+
+### Open Questions
+
+- Can self-evolving code scale beyond personal memory to **domain knowledge** (medical protocols, legal rules, financial regulations)?
+- How does code KR interact with **continual learning** — can weight updates and code updates be co-optimized?
+- What are the **theoretical limits** of LLM-generated ontologies?
 
 </div>
 </div>
@@ -1155,7 +1314,7 @@ class: text-center
 
 <div class="mt-6 text-base opacity-80">
 
-*Code closes the gap between knowing and computing —<br/>the same Python the agent reads is the Python the interpreter executes.*
+*Code closes the gap between knowing and computing —<br/>typed schemas eliminate ambiguity, and the interpreter eliminates hallucination.*
 
 </div>
 
