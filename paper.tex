@@ -1,18 +1,53 @@
-\documentclass[sigconf]{acmart}
+\documentclass[sigconf,nonacm]{acmart}
 
 \usepackage[english]{babel}
-\usepackage{blindtext}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+% Python code listing style
+\definecolor{codebg}{rgb}{0.95,0.95,0.97}
+\definecolor{codegreen}{rgb}{0.0,0.5,0.0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    language=Python,
+    showstringspaces=false,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{codegray},
+    tabsize=4,
+    morekeywords={dataclass, List, Optional, date, assert, Dict}
+}
+
+\lstdefinestyle{treestyle}{
+    basicstyle=\ttfamily\small,
+    frame=none,
+    numbers=none,
+    breaklines=false,
+    backgroundcolor=\color{codebg},
+}
+
+\lstset{style=pythonstyle}
 
 % Copyright
-\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference info
+\renewcommand\footnotetextcopyrightpermission[1]{}
 \setcopyright{none}
-%\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-%\setcopyright{rightsretained}
-%\setcopyright{usgov}
-%\setcopyright{usgovmixed}
-%\setcopyright{cagov}
-%\setcopyright{cagovmixed}
 
 \settopmatter{printacmref=false, printccs=false, printfolios=true}
 
@@ -22,39 +57,22 @@
 % ISBN
 \acmISBN{}
 
-%Conference
-%\acmConference[Submitted for review to SIGCOMM]{}
-%\acmYear{2018}
-%\copyrightyear{}
-
-%% {} with no args suppresses printing of the price
 \acmPrice{}
 
 
 \begin{document}
-\title{A \LaTeX\ Template for SIGCOMM 18}
+\title{User as Code: Executable Memory for Personalized Agents}
 
-%\titlenote{Produces the permission block, and copyright information}
-%\subtitle{Extended Abstract}
+\author{Bojie Li}
+\affiliation{%
+  \institution{Pine AI}
+}
+\email{boj@19pine.ai}
 
-\author{Paper \# XXX, XXX pages}
-% \author{Firstname Lastname}
-% \authornote{Note}
-% \orcid{1234-5678-9012}
-% \affiliation{%
-%   \institution{Affiliation}
-%   \streetaddress{Address}
-%   \city{City} 
-%   \state{State} 
-%   \postcode{Zipcode}
-% }
-% \email{email@domain.com}
-
-% The default list of authors is too long for headers}
-\renewcommand{\shortauthors}{X.et al.}
+\renewcommand{\shortauthors}{Li}
 
 \begin{abstract}
-    \blindtext
+Current personalization in AI agents primarily relies on Retrieval-Augmented Generation (RAG) over unstructured text, structured knowledge graphs, or flat fact stores. While effective for basic recall, these ``Bag of Facts'' approaches struggle with the specific challenges of user memory: resolving conflicting information, managing temporal dependencies, and enforcing logical constraints (e.g., ``passport expiration'' vs. ``flight date''). This paper introduces \textbf{User as Code}, a novel paradigm where an agent's understanding of a user is maintained as a \textbf{modular, version-controlled software project}. Our core observation is that \textbf{code is the only representation format that unifies readability and verifiability in a single medium}: the same Python that stores a user's passport expiry date can also express---and execute---the assertion that the expiry is too close to a booked flight. This unification enables a \textbf{generate-verify-review loop} that directly \textbf{reduces LLM hallucination}: the coding agent generates Python checks against the code-represented state, the interpreter verifies the computation deterministically, and the agent reviews results to refine or persist---turning unreliable natural-language arithmetic into deterministic results. Constraints are not pre-authored by humans; the LLM generates them autonomously, promoting useful checks to persistent background monitors. We evaluate on established benchmarks (LOCOMO, LongMemEval, LoCoMo-Plus) and against concrete baselines (Mem0, A-MEM, Zep/Graphiti, Hindsight, ENGRAM), demonstrating that User as Code achieves competitive performance on standard recall and retrieval tasks while uniquely enabling proactive alerting based on logical constraints---a capability where all retrieval-based approaches fundamentally fail.
 \end{abstract}
 
 \maketitle

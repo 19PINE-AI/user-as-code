@@ -1,0 +1,1164 @@
+{
+  "evaluation_protocol": {
+    "name": "Active Service Evaluation Protocol",
+    "version": "1.0",
+    "date": "2026-04-15",
+    "description": "Evaluates the ability of a memory system to generate unsolicited alerts based on logical constraints over stored personal state. Each scenario distributes facts across multiple sessions and requires computation, constraint checking, or cross-referencing that pure similarity-based retrieval cannot perform.",
+    "categories": [
+      "travel_document_validity",
+      "drug_interactions_health_safety",
+      "financial_authorization_conflicts",
+      "scheduling_conflicts",
+      "warranty_deadline_expiration"
+    ],
+    "scoring": {
+      "alert_generated": "Did the system generate an unsolicited alert? (binary)",
+      "severity_correct": "Was the severity level appropriate? (critical / warning / info)",
+      "timing_correct": "Was the alert triggered at the right session? (binary)",
+      "reasoning_correct": "Did the alert include correct computation or logic? (binary)",
+      "message_actionable": "Was the alert message actionable and specific? (1-5 scale)"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "travel_01",
+      "category": "travel_document_validity",
+      "description": "Passport expires within the 6-month validity window required by Japan",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-10-15",
+          "conversation": "User: Hey, just picked up my renewed passport today. New expiry is March 5, 2025. What a relief to finally get that sorted.\nAssistant: Great that you got it taken care of! I've noted your new passport expiration date of March 5, 2025. Let me know if there's anything else I can help with."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-01-10",
+          "conversation": "User: So exciting \u2014 I just booked flights to Tokyo! Departing February 20th, coming back March 1st. Can you help me think about what to pack?\nAssistant: That sounds wonderful! I'd love to help with packing. Before we get to that though, I need to flag something important..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 5,
+        "description": "Trip booking triggers constraint check against stored passport expiration date and Japan's entry requirements"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "passport_validity",
+        "message": "Your passport expires March 5, 2025 -- only 13 days after your February 20 departure to Japan. Japan requires at least 6 months (180 days) of passport validity from date of entry. You need a passport valid until at least August 19, 2025.",
+        "computation": "(2025-03-05) - (2025-02-20) = 13 days remaining validity; required = 180 days; 13 < 180 = VIOLATION"
+      },
+      "why_retrieval_fails": "Requires date arithmetic (computing days between expiry and departure), knowledge of Japan's 6-month validity rule, and comparing the result. No embedding similarity search can perform calendar math."
+    },
+    {
+      "id": "travel_02",
+      "category": "travel_document_validity",
+      "description": "Transit through China requires a transit visa the user does not have",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-11-03",
+          "conversation": "User: I hold a Canadian passport, if that matters for anything travel-related.\nAssistant: Good to know! I've noted that you hold a Canadian passport. That'll be helpful for any future travel planning."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2025-02-14",
+          "conversation": "User: Found an amazing deal on flights to Bangkok! It has a 14-hour layover in Beijing though. Flight is April 5th. Worth it for the savings?\nAssistant: That's a long layover! Before you decide, I should mention something important..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "Flight booking with Beijing layover triggers transit visa requirement check for Canadian passport holders"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "transit_visa_required",
+        "message": "A 14-hour layover in Beijing requires a Chinese transit visa for Canadian passport holders unless you qualify for the 24/72/144-hour visa-free transit policy. You would need to confirm eligibility for the visa-free transit, which requires staying in designated transit areas or cities. Without proper documentation, you could be denied boarding.",
+        "computation": "Canadian passport + 14-hour Beijing layover = transit visa or visa-free transit eligibility required"
+      },
+      "why_retrieval_fails": "Requires cross-referencing nationality (stored in session 2) with transit country requirements (world knowledge) and layover duration. Similarity search for 'Bangkok flights' would not surface passport nationality or visa rules."
+    },
+    {
+      "id": "travel_03",
+      "category": "travel_document_validity",
+      "description": "Schengen visa single-entry already used, second trip planned",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-09-20",
+          "conversation": "User: My Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\nAssistant: Congratulations! That opens up a lot of travel options across Europe. I've noted your single-entry Schengen visa with validity from October 1 to December 31, 2024."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-11-05",
+          "conversation": "User: Just got back from an amazing week in Paris. The croissants were unreal.\nAssistant: That sounds fantastic! Paris is incredible. Glad you had a great trip."
+        },
+        {
+          "session_id": 10,
+          "timestamp": "2024-12-01",
+          "conversation": "User: I'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?\nAssistant: Berlin on New Year's Eve is legendary! However, I need to flag a concern..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 10,
+        "description": "Second Schengen trip planned but single-entry visa already used for Paris trip"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "visa_already_used",
+        "message": "Your Schengen visa is single-entry and was already used for your Paris trip in November. You cannot enter the Schengen area again with this visa. You would need to apply for a new visa for the Berlin trip.",
+        "computation": "single-entry visa + 1 prior entry (Paris, November) = 0 entries remaining; Berlin trip requires 1 entry = VIOLATION"
+      },
+      "why_retrieval_fails": "Requires tracking state changes across sessions: visa issuance (session 3), visa consumption via Paris trip (session 6), and new trip request (session 10). The system must infer that the Paris trip consumed the single entry."
+    },
+    {
+      "id": "travel_04",
+      "category": "travel_document_validity",
+      "description": "Child's passport has mother's maiden name but flight booked under married name",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-08-10",
+          "conversation": "User: We just got Lily's first passport! She's listed as Lily Chen on it -- that's my maiden name since we applied before the wedding.\nAssistant: How exciting for Lily! I've noted that her passport is under the name Lily Chen."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2024-09-15",
+          "conversation": "User: The wedding was beautiful! We're officially the Andersons now. I've changed my name to Sarah Anderson.\nAssistant: Congratulations on the wedding! Noted your new name, Sarah Anderson."
+        },
+        {
+          "session_id": 12,
+          "timestamp": "2025-01-20",
+          "conversation": "User: Just booked the whole family for a trip to Mexico -- me, Tom, and little Lily Anderson. Departing March 10.\nAssistant: A family trip to Mexico sounds lovely! I want to flag something about Lily's booking..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 12,
+        "description": "Flight booked under 'Lily Anderson' but passport reads 'Lily Chen'"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "name_mismatch",
+        "message": "Lily's passport is under the name 'Lily Chen' (from session on August 10), but the flight was booked under 'Lily Anderson.' Airlines require the ticket name to match the passport exactly. You'll need to either update the flight booking to 'Lily Chen' or get Lily's passport reissued under 'Lily Anderson.'",
+        "computation": "passport_name('Lily Chen') != booking_name('Lily Anderson') = NAME MISMATCH"
+      },
+      "why_retrieval_fails": "Requires connecting a name change event (wedding) to the implication that the child's documents are now mismatched. The booking under 'Anderson' seems normal post-wedding, but the passport was never updated."
+    },
+    {
+      "id": "travel_05",
+      "category": "travel_document_validity",
+      "description": "Passport has fewer than 2 blank pages required by destination country",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-07-22",
+          "conversation": "User: My passport is getting so full! I think I only have one blank page left. I've been to so many places this year.\nAssistant: That's a testament to your travels! You might want to think about renewal soon since some countries require blank pages for entry stamps."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-12-05",
+          "conversation": "User: I'm planning a trip to India for a friend's wedding. Flying out February 15th. Need to get the visa sorted.\nAssistant: India is beautiful for a wedding! I do need to raise a concern about your passport before you apply for the visa..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "India trip requires visa (full page) plus entry stamp page, but only 1 blank page remains"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "insufficient_passport_pages",
+        "message": "Your passport has only 1 blank page remaining (mentioned July 22). India requires at least 2 blank pages -- one for the visa sticker and one for entry/exit stamps. You should renew your passport before applying for the Indian visa.",
+        "computation": "blank_pages(1) < required_pages(2 for India: 1 visa + 1 stamps) = VIOLATION"
+      },
+      "why_retrieval_fails": "Requires recalling a casual mention of passport pages from months ago and applying country-specific page requirements. A search for 'India trip' would not surface the passport pages conversation."
+    },
+    {
+      "id": "travel_06",
+      "category": "travel_document_validity",
+      "description": "EU Digital COVID Certificate expired for country still requiring it",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-06-10",
+          "conversation": "User: Finally got my booster and the EU Digital COVID Certificate. It's valid for 270 days from today.\nAssistant: Great, you're all set! I've noted your EU Digital COVID Certificate valid for 270 days from June 10, 2024, so it expires around March 7, 2025."
+        },
+        {
+          "session_id": 11,
+          "timestamp": "2025-02-28",
+          "conversation": "User: Thinking of a quick getaway to a country that still checks COVID certs at the border. Maybe departing March 15.\nAssistant: Sounds like a nice break! I should mention something about your COVID certificate..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 11,
+        "description": "Travel planned after COVID certificate expiry"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "health_certificate_expiry",
+        "message": "Your EU Digital COVID Certificate expires around March 7, 2025 (270 days from June 10, 2024). Your planned departure on March 15 would be 8 days past expiration. If your destination still requires a valid certificate, you'll need to get a new booster or certificate.",
+        "computation": "cert_expiry(2024-06-10 + 270 days = 2025-03-07); departure(2025-03-15); 2025-03-15 > 2025-03-07 = EXPIRED"
+      },
+      "why_retrieval_fails": "Requires computing an expiration date from a duration ('270 days from June 10') and comparing it against a future travel date. Pure retrieval cannot perform this date arithmetic."
+    },
+    {
+      "id": "travel_07",
+      "category": "travel_document_validity",
+      "description": "Visa validity window starts after the planned departure date",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-10-30",
+          "conversation": "User: Applied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025.\nAssistant: Good luck with the application! I've noted the expected validity period: December 1, 2024 to May 31, 2025."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-11-18",
+          "conversation": "User: Change of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?\nAssistant: Sydney in late November is gorgeous! But I need to flag a problem with your travel dates..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Departure date precedes visa validity start date"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "visa_not_yet_valid",
+        "message": "Your Australian visa is valid starting December 1, 2024, but you're planning to depart November 25 -- 6 days before your visa becomes active. You would be denied entry if you arrive before December 1.",
+        "computation": "departure(2024-11-25) < visa_start(2024-12-01); difference = 6 days early = VIOLATION"
+      },
+      "why_retrieval_fails": "Requires comparing a departure date against a visa start date, not just an expiry date. Most systems check expiry but not the start of validity windows."
+    },
+    {
+      "id": "travel_08",
+      "category": "travel_document_validity",
+      "description": "Schengen 90/180 day rule will be exceeded by planned trip",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-06-01",
+          "conversation": "User: Just got back from 45 days in Europe -- spent time in France, Italy, and Spain. Left on April 15 and came back today.\nAssistant: Sounds like an incredible European adventure! 45 days across three countries."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2024-07-20",
+          "conversation": "User: Did another 30-day Europe trip. Left July 1, just got home. Germany and Netherlands this time.\nAssistant: Two European trips in one summer, nice! That's some serious exploring."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-08-25",
+          "conversation": "User: I want to go back to Europe for 3 weeks starting September 5. Thinking Portugal this time.\nAssistant: Portugal is beautiful in September! However, I'm concerned about your Schengen stay limits..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Third Schengen trip would exceed 90-day limit within 180-day rolling window"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "schengen_overstay",
+        "message": "You've already spent approximately 75 days in the Schengen area in the last 180 days (45 days from April 15 - June 1, and 30 days from July 1 - July 20). A 21-day trip starting September 5 would bring your total to 96 days, exceeding the 90-day limit within any 180-day period. You can only stay up to 15 more days before October 12, 2024.",
+        "computation": "days_used = 45 + 30 = 75; planned = 21; total = 96; limit = 90; 96 > 90 = VIOLATION; remaining = 90 - 75 = 15 days"
+      },
+      "why_retrieval_fails": "Requires aggregating stay durations across multiple sessions, computing a rolling 180-day window, and performing arithmetic to determine remaining allowance. This is multi-session state accumulation plus date math."
+    },
+    {
+      "id": "health_01",
+      "category": "drug_interactions_health_safety",
+      "description": "Newly prescribed SSRI conflicts with existing MAOI",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-08-15",
+          "conversation": "User: My psychiatrist put me on phenelzine for my depression. It's an older medication but she thinks it might work better for me.\nAssistant: I hope it helps! Phenelzine is a monoamine oxidase inhibitor -- it can be quite effective. I've noted this as a current medication."
+        },
+        {
+          "session_id": 14,
+          "timestamp": "2025-02-10",
+          "conversation": "User: Saw a different doctor while traveling and she prescribed sertraline (Zoloft) for anxiety. Should I start taking it?\nAssistant: I need to urgently flag a serious safety concern before you take sertraline..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 14,
+        "description": "New SSRI prescription triggers interaction check against existing MAOI"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "drug_interaction",
+        "message": "DANGEROUS INTERACTION: Sertraline (SSRI) combined with phenelzine (MAOI) can cause serotonin syndrome, a potentially fatal condition. These two medications should never be taken together. There should be at least a 14-day washout period after stopping phenelzine before starting sertraline. Contact your psychiatrist immediately before taking the sertraline.",
+        "computation": "phenelzine(MAOI) + sertraline(SSRI) = serotonin_syndrome_risk = CRITICAL CONTRAINDICATION"
+      },
+      "why_retrieval_fails": "Requires pharmacological knowledge to identify drug classes (MAOI + SSRI) and their interaction risk. Embedding similarity between 'phenelzine' and 'sertraline' is low -- they are different drug names mentioned months apart."
+    },
+    {
+      "id": "health_02",
+      "category": "drug_interactions_health_safety",
+      "description": "Prescribed antibiotic conflicts with known penicillin allergy",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-05-20",
+          "conversation": "User: Quick question -- do you know any good non-penicillin antibiotics? I'm allergic to penicillin. Found out the hard way as a kid, got hives everywhere.\nAssistant: Sorry to hear about the allergy! Yes, there are many alternatives. I've noted your penicillin allergy. Some common alternatives include azithromycin, fluoroquinolones, and others depending on the infection."
+        },
+        {
+          "session_id": 11,
+          "timestamp": "2025-01-08",
+          "conversation": "User: Got a sinus infection. The urgent care doc prescribed amoxicillin. Picking it up from the pharmacy later today.\nAssistant: Wait -- I need to alert you about something critical before you fill that prescription..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 11,
+        "description": "Amoxicillin prescription triggers allergy check; amoxicillin is a penicillin-type antibiotic"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "allergy_violation",
+        "message": "Amoxicillin is a penicillin-type antibiotic, and you have a documented penicillin allergy (hives). There is significant cross-reactivity between amoxicillin and penicillin. Do NOT take amoxicillin. Contact the prescribing doctor and mention your penicillin allergy to get an alternative antibiotic.",
+        "computation": "amoxicillin \u2208 penicillin_class; user_allergy = penicillin; cross_reactivity = HIGH = CONTRAINDICATED"
+      },
+      "why_retrieval_fails": "Requires knowing that amoxicillin belongs to the penicillin drug class. The user said 'penicillin allergy' and was prescribed 'amoxicillin' -- these are different words with no surface-level similarity, but pharmacologically they are in the same class."
+    },
+    {
+      "id": "health_03",
+      "category": "drug_interactions_health_safety",
+      "description": "Grapefruit consumption interacts with statin medication",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-07-12",
+          "conversation": "User: Doctor put me on simvastatin for cholesterol. 40mg daily. Hoping to get my numbers down without changing my diet too much.\nAssistant: Simvastatin is a common choice for cholesterol management. I've noted your prescription -- 40mg daily. Regular follow-ups to check your levels would be a good idea."
+        },
+        {
+          "session_id": 15,
+          "timestamp": "2025-03-01",
+          "conversation": "User: I'm starting a new health kick! Going to drink fresh grapefruit juice every morning. Already bought a juicer and a case of grapefruits.\nAssistant: I love the healthy initiative! But I need to flag an important interaction..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 15,
+        "description": "Grapefruit consumption plan triggers food-drug interaction check against simvastatin"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "food_drug_interaction",
+        "message": "Grapefruit juice significantly increases simvastatin levels in your blood by inhibiting the CYP3A4 enzyme that metabolizes the drug. This can increase the risk of serious side effects including muscle damage (rhabdomyolysis). You should avoid grapefruit and grapefruit juice while taking simvastatin, or ask your doctor about switching to a statin that isn't affected (like rosuvastatin or pravastatin).",
+        "computation": "simvastatin(CYP3A4 substrate) + grapefruit(CYP3A4 inhibitor) = elevated_drug_levels = RISK"
+      },
+      "why_retrieval_fails": "Requires connecting a dietary change to a stored medication via enzyme metabolism pathways. 'Grapefruit juice' and 'simvastatin' have zero semantic similarity, but their interaction is clinically significant."
+    },
+    {
+      "id": "health_04",
+      "category": "drug_interactions_health_safety",
+      "description": "Restaurant booking with shellfish for user with severe shellfish allergy",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-06-05",
+          "conversation": "User: Almost died last year from eating shrimp. Turns out I have a severe shellfish allergy -- anaphylaxis level. I carry an EpiPen now.\nAssistant: That sounds terrifying. I've noted your severe shellfish allergy (anaphylaxis risk). Always important to have that EpiPen accessible."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-10-22",
+          "conversation": "User: My wife's birthday is next week. I'm booking us a table at The Crab Shack -- she's been wanting to go for months. It's a seafood-focused restaurant. Can you help me pick a wine pairing?\nAssistant: Happy early birthday to your wife! Before we pick wines, I want to make sure you've thought about something..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Restaurant booking at a shellfish-focused restaurant triggers allergy safety check"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "allergy_environment_risk",
+        "message": "You have a severe shellfish allergy with anaphylaxis risk, and 'The Crab Shack' is a seafood-focused restaurant. Even if you order non-shellfish items, cross-contamination risk is very high in shellfish-centric kitchens. This could be life-threatening. Consider calling ahead to discuss your allergy with the kitchen, or choosing a restaurant where shellfish cross-contamination is less likely. Make sure your EpiPen is with you.",
+        "computation": "allergy(shellfish, severity=anaphylaxis) + restaurant(shellfish-focused) = HIGH cross_contamination_risk"
+      },
+      "why_retrieval_fails": "Requires connecting 'The Crab Shack' (a restaurant name) to shellfish via common sense, then cross-referencing against a stored allergy from months prior. No direct textual overlap between the allergy discussion and the restaurant booking."
+    },
+    {
+      "id": "health_05",
+      "category": "drug_interactions_health_safety",
+      "description": "Dosage exceeds safe limit given user's recorded body weight",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-09-01",
+          "conversation": "User: Just had my annual physical. I weigh 52 kg -- doctor says I'm on the lighter side but healthy.\nAssistant: Glad to hear you're healthy! 52 kg is noted."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-11-15",
+          "conversation": "User: I have a terrible toothache. The dentist prescribed ibuprofen 800mg three times a day. That seems like a lot to me -- is it?\nAssistant: I want to check on that dosage given your body weight..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "description": "Ibuprofen dosage triggers weight-based safety check"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "dosage_exceeds_weight_guideline",
+        "message": "At 52 kg body weight, your prescribed ibuprofen dose of 2400 mg/day (800mg x 3) is at the absolute maximum adult daily limit regardless of weight. For your weight, a more typical therapeutic dose would be around 1200-1600 mg/day. While 2400 mg/day is technically within FDA limits for short-term use, you should confirm with your dentist that this high dose is intentional for your body weight, and ensure you take it with food to protect your stomach.",
+        "computation": "dose_daily = 800mg * 3 = 2400mg; max_adult_daily = 3200mg; weight_adjusted_typical = ~10mg/kg * 3 doses = 1560mg; 2400 > 1560 = elevated for weight"
+      },
+      "why_retrieval_fails": "Requires recalling body weight from a different medical context (annual physical) and applying weight-based dosing guidelines to a dental prescription. The two sessions are thematically unrelated."
+    },
+    {
+      "id": "health_06",
+      "category": "drug_interactions_health_safety",
+      "description": "Planned scuba diving is contraindicated with asthma medication",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-08-20",
+          "conversation": "User: My asthma has been acting up lately. Doctor increased my Advair dose and added montelukast. Using my rescue inhaler about twice a week.\nAssistant: Sorry to hear the asthma is flaring up. I've noted the Advair increase and montelukast addition. Twice-weekly rescue inhaler use suggests it's not fully controlled -- hopefully the new regimen helps."
+        },
+        {
+          "session_id": 10,
+          "timestamp": "2025-01-05",
+          "conversation": "User: I signed up for a PADI scuba diving certification course in Cozumel next month! Always been on my bucket list.\nAssistant: Scuba diving is an amazing experience! But I need to raise a health concern..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 10,
+        "description": "Scuba diving plan triggers asthma contraindication check"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "activity_health_contraindication",
+        "message": "Scuba diving with poorly controlled asthma is considered a significant risk. As of your last update, you were using your rescue inhaler twice weekly, which indicates your asthma is not fully controlled. Diving with asthma increases the risk of air trapping, pulmonary barotrauma, and arterial gas embolism. Most dive medical authorities require asthma to be well-controlled (no rescue inhaler use for 48+ hours, normal spirometry) before clearing someone to dive. You should get a dive medical clearance from a physician familiar with dive medicine before the course.",
+        "computation": "asthma(poorly_controlled, rescue_inhaler_2x/week) + scuba_diving = ELEVATED risk of barotrauma"
+      },
+      "why_retrieval_fails": "Requires connecting recreational activity planning to a medical condition discussed in a completely different context. 'Scuba diving' and 'asthma inhaler' have no semantic overlap for retrieval."
+    },
+    {
+      "id": "health_07",
+      "category": "drug_interactions_health_safety",
+      "description": "Warfarin patient starts taking high-dose vitamin K supplements",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-07-30",
+          "conversation": "User: Been on warfarin for about two years now after the blood clot. INR has been stable at 2.5 -- doc is happy with it.\nAssistant: Good to hear your INR is stable. Consistent warfarin management is important. I've noted your warfarin use and stable INR."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2024-11-12",
+          "conversation": "User: My friend told me about this amazing supplement stack for bone health. I just ordered vitamin K2 (200mcg), calcium, and vitamin D3. Should arrive tomorrow.\nAssistant: Bone health is important! However, I need to warn you about one of those supplements..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "Vitamin K supplement directly antagonizes warfarin therapy"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "supplement_drug_interaction",
+        "message": "Vitamin K directly counteracts warfarin. Warfarin works by inhibiting vitamin K-dependent clotting factors, so supplementing with vitamin K2 (200mcg) could significantly reduce warfarin's effectiveness, destabilize your INR, and increase your risk of blood clots. Do NOT start the vitamin K2 supplement without consulting the doctor managing your warfarin therapy. The calcium and vitamin D3 are generally fine.",
+        "computation": "warfarin(vitamin_K_antagonist) + vitamin_K2_supplement(200mcg) = therapeutic_antagonism = CONTRAINDICATED"
+      },
+      "why_retrieval_fails": "Requires understanding that vitamin K is the specific mechanism warfarin inhibits -- a pharmacological relationship, not a textual one. 'Bone health supplements' and 'blood clot medication' are completely different topics in embedding space."
+    },
+    {
+      "id": "health_08",
+      "category": "drug_interactions_health_safety",
+      "description": "Pregnancy announcement conflicts with category X medication",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-06-15",
+          "conversation": "User: Dermatologist put me on isotretinoin (Accutane) for my severe acne. 40mg daily for the next 5 months. Hopefully it clears things up.\nAssistant: Isotretinoin can be very effective for severe acne. I've noted your prescription -- 40mg daily. Make sure to follow up on the required monthly bloodwork."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-09-20",
+          "conversation": "User: Oh my god, I just found out I'm pregnant! We weren't planning it but we're so excited!\nAssistant: Congratulations on the wonderful news! However, I need to raise an extremely urgent medical concern..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Pregnancy announcement triggers teratogenicity check against current medications"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "teratogenic_medication",
+        "message": "URGENT: Isotretinoin (Accutane) is FDA Pregnancy Category X -- it causes severe birth defects and is absolutely contraindicated during pregnancy. You should stop taking isotretinoin IMMEDIATELY and contact your dermatologist and OB/GYN right away. Based on your prescription from June, you may still be actively taking it. This requires immediate medical attention.",
+        "computation": "isotretinoin(category_X_teratogen) + pregnancy = SEVERE birth_defect_risk; prescription_start(June) + 5_month_course = still_active(September) = IMMEDIATE ACTION REQUIRED"
+      },
+      "why_retrieval_fails": "Requires connecting a dermatology prescription to pregnancy safety categories, and computing whether the medication course is still active. 'Pregnancy' and 'acne medication' are semantically distant topics."
+    },
+    {
+      "id": "finance_01",
+      "category": "financial_authorization_conflicts",
+      "description": "Two family members give conflicting wire transfer instructions",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-09-05",
+          "conversation": "User: My mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\nAssistant: Got it. I've noted the wire transfer instruction: $5,000 from the family trust to Chase account ending 4477 for the kitchen renovation, per your mother's request."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2024-09-06",
+          "conversation": "User: Hey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant.\nAssistant: I need to flag a conflict with a previous instruction..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 4,
+        "description": "Father's freeze instruction conflicts with mother's wire transfer request from previous session"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "conflicting_financial_instructions",
+        "message": "Conflict detected: Yesterday your mother requested a $5,000 wire transfer from the family trust account to Chase account ending 4477. Today your father instructed that no money should leave the family trust this month due to restructuring. These instructions directly contradict each other. You should resolve this between your parents before any transfer is executed.",
+        "computation": "instruction_1(wire $5K from trust) CONFLICTS WITH instruction_2(freeze trust outflows) = CONTRADICTION"
+      },
+      "why_retrieval_fails": "Requires detecting logical contradiction between two instructions stored across sessions. Neither instruction mentions the other, and their conflict is semantic (send money vs. don't send money from same account)."
+    },
+    {
+      "id": "finance_02",
+      "category": "financial_authorization_conflicts",
+      "description": "Transaction exceeds the user's stated authorization limit",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-07-10",
+          "conversation": "User: Just so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process.\nAssistant: Understood. I've noted your corporate card limit: $3,000 per transaction, with VP approval required above that."
+        },
+        {
+          "session_id": 12,
+          "timestamp": "2025-01-15",
+          "conversation": "User: Need to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?\nAssistant: I'd be happy to help with the booking, but I want to flag something about the payment method..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 12,
+        "description": "Venue cost exceeds stated corporate card per-transaction limit"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "authorization_limit_exceeded",
+        "message": "The venue cost of $4,200 exceeds your corporate card per-transaction limit of $3,000 (which you mentioned requires VP approval to exceed). You'll either need VP approval, need to split the payment, or use an alternative payment method.",
+        "computation": "transaction_amount($4,200) > card_limit($3,000) = EXCEEDS by $1,200"
+      },
+      "why_retrieval_fails": "Requires recalling a spending limit mentioned in a completely different context (general information sharing) and applying it to a specific transaction request months later."
+    },
+    {
+      "id": "finance_03",
+      "category": "financial_authorization_conflicts",
+      "description": "Recurring payment to a service the user cancelled",
+      "sessions": [
+        {
+          "session_id": 5,
+          "timestamp": "2024-08-22",
+          "conversation": "User: I cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15.\nAssistant: Noted! Adobe Creative Cloud cancelled, effective September 15. Are you switching to any alternatives?"
+        },
+        {
+          "session_id": 13,
+          "timestamp": "2025-01-20",
+          "conversation": "User: Looking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?\nAssistant: Yes, you did mention cancelling Adobe Creative Cloud back in August..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 13,
+        "description": "User notices charge from cancelled service, system should have proactively flagged this"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "cancelled_service_charge",
+        "message": "You cancelled Adobe Creative Cloud on August 22, 2024, effective September 15, 2024. A $59.99 charge from Adobe on January 15, 2025 suggests the cancellation may not have gone through, or there's a different Adobe subscription still active. You should contact Adobe to dispute the charge and confirm the cancellation status.",
+        "computation": "cancellation_date(2024-09-15) < charge_date(2025-01-15) = charge_after_cancellation = UNEXPECTED"
+      },
+      "why_retrieval_fails": "Requires tracking the state transition of a subscription (active -> cancelled) and detecting that a subsequent charge violates the expected state. The charge mention uses 'Adobe' but the cancellation used 'Adobe Creative Cloud' -- partial match requires entity resolution."
+    },
+    {
+      "id": "finance_04",
+      "category": "financial_authorization_conflicts",
+      "description": "Insurance lapse before planned high-risk activity",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-10-01",
+          "conversation": "User: Got a notice that my health insurance policy expires December 31 and I need to re-enroll during open enrollment. I'll deal with it later.\nAssistant: Important to keep in mind! Open enrollment deadlines can sneak up on you. I've noted your health insurance expires December 31."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2024-12-28",
+          "conversation": "User: I signed up for a backcountry skiing trip on January 8! It's going to be epic -- heli-skiing in the Rockies.\nAssistant: That sounds like an incredible adventure! But I have a concern about your insurance coverage..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "High-risk activity planned during potential insurance gap"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "insurance_lapse_risk",
+        "message": "Your health insurance expires December 31, and you mentioned needing to re-enroll but hadn't done so as of October. Your heli-skiing trip is January 8 -- a high-risk activity that could result in serious injury. If you haven't completed re-enrollment, you would be uninsured during an extremely dangerous activity. Please confirm your insurance status immediately.",
+        "computation": "insurance_expiry(2024-12-31) < activity_date(2025-01-08); re_enrollment_status = UNKNOWN/PENDING; activity_risk = HIGH = CRITICAL CONCERN"
+      },
+      "why_retrieval_fails": "Requires connecting insurance expiration to a future high-risk recreational activity, and inferring that the user may not have completed re-enrollment based on their dismissive attitude ('I'll deal with it later')."
+    },
+    {
+      "id": "finance_05",
+      "category": "financial_authorization_conflicts",
+      "description": "Payment scheduled after the user mentioned closing that bank account",
+      "sessions": [
+        {
+          "session_id": 6,
+          "timestamp": "2024-09-18",
+          "conversation": "User: I'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees.\nAssistant: I understand the frustration with fees. Schwab is a popular choice. I've noted you're closing your Wells Fargo checking account."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-10-02",
+          "conversation": "User: Can you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month.\nAssistant: I should flag something about that autopay setup..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Autopay from Wells Fargo triggers check against planned account closure"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "payment_from_closed_account",
+        "message": "You mentioned closing your Wells Fargo checking account (planned for late September). Your $1,500 monthly rent autopay is set up to draw from that Wells Fargo account. If the account is already closed or will be closed, your November 1 rent payment will fail, potentially resulting in late fees or lease violations. You need to switch the autopay to your new Schwab account.",
+        "computation": "account_status(Wells Fargo) = CLOSING/CLOSED; autopay_source = Wells Fargo; next_payment = Nov 1; PAYMENT WILL FAIL"
+      },
+      "why_retrieval_fails": "Requires connecting account closure plans to existing autopay configurations. The two pieces of information are mentioned in different conversational contexts with no overlapping keywords."
+    },
+    {
+      "id": "finance_06",
+      "category": "financial_authorization_conflicts",
+      "description": "Investment instruction contradicts stated risk tolerance after life change",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-08-10",
+          "conversation": "User: I'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\nAssistant: Congratulations! That's wonderful news. I've noted your preference to shift to more conservative investments."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-11-05",
+          "conversation": "User: My buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x.\nAssistant: I appreciate the excitement, but I want to check this against something you mentioned earlier..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Speculative investment contradicts stated conservative risk stance"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "risk_tolerance_contradiction",
+        "message": "In August, after learning about your pregnancy, you explicitly stated a preference for conservative investments -- 'no more risky investments.' This $15,000 speculative biotech stock purchase (described as 'super volatile') directly contradicts that stated preference. With a baby due in March, you may want to reconsider whether this aligns with your family's financial goals.",
+        "computation": "stated_risk_tolerance = CONSERVATIVE (since pregnancy); proposed_investment = SPECULATIVE/HIGH_RISK; CONSERVATIVE != HIGH_RISK = CONTRADICTION"
+      },
+      "why_retrieval_fails": "Requires recalling a stated financial policy and detecting that a new instruction violates it. The pregnancy context and the stock tip context have no semantic overlap."
+    },
+    {
+      "id": "finance_07",
+      "category": "financial_authorization_conflicts",
+      "description": "Tax-loss harvesting sell would trigger wash sale with recent purchase",
+      "sessions": [
+        {
+          "session_id": 5,
+          "timestamp": "2024-11-20",
+          "conversation": "User: Just bought 100 shares of VTI in my Roth IRA. Figured it was a good time to add to my position.\nAssistant: Nice, VTI is a solid total market fund. I've noted your purchase of 100 shares in your Roth IRA."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2024-12-10",
+          "conversation": "User: I want to sell my VTI shares in my taxable brokerage account to harvest tax losses before year-end. I'm sitting on about a $3,000 loss there.\nAssistant: Tax-loss harvesting is a smart strategy, but I need to flag a potential issue..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "Tax-loss harvesting sale triggers wash sale rule check against recent purchase of same security"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "wash_sale_violation",
+        "message": "Selling VTI in your taxable account for a tax loss would likely trigger a wash sale violation. You purchased 100 shares of VTI in your Roth IRA on November 20 -- only 20 days ago. The IRS wash sale rule disallows the tax loss if you buy a substantially identical security within 30 days before or after the sale, and this applies across account types (taxable + IRA). You'd need to wait until at least December 20 to sell, or the $3,000 loss would be disallowed.",
+        "computation": "VTI_buy(2024-11-20, Roth IRA) to VTI_sell(2024-12-10, taxable) = 20 days; wash_sale_window = 30 days; 20 < 30 = WASH SALE; cross_account = YES (IRS includes IRAs)"
+      },
+      "why_retrieval_fails": "Requires matching the same security across different accounts, computing the number of days between transactions, and knowing the wash sale rule applies across account types. The Roth IRA purchase and taxable sale are completely different sessions and intents."
+    },
+    {
+      "id": "finance_08",
+      "category": "financial_authorization_conflicts",
+      "description": "Large charitable donation when user previously mentioned cash flow concerns",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-10-15",
+          "conversation": "User: Cash is really tight right now. My checking account balance is down to about $2,000 and I don't get paid again until November 1. Still have rent and utilities to cover.\nAssistant: That does sound tight. Do you want to look at ways to manage expenses until your next paycheck?"
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-10-22",
+          "conversation": "User: My alma mater is doing a fundraising drive. I want to donate $1,500 today to support the new library. Can you help me set that up?\nAssistant: Supporting your alma mater is generous! But I want to check something with you first..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "description": "Large donation request triggers cash flow viability check"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "cash_flow_risk",
+        "message": "A week ago you mentioned your checking account was at about $2,000 with rent and utilities still to cover before your November 1 paycheck. A $1,500 donation today would leave roughly $500 for those remaining obligations. You might want to consider a smaller donation now and a larger one after payday, or ask the university if you can schedule the donation for November.",
+        "computation": "checking_balance(~$2,000) - donation($1,500) = ~$500 remaining; pending_obligations(rent + utilities) likely > $500 = CASH FLOW RISK"
+      },
+      "why_retrieval_fails": "Requires recalling a cash flow situation mentioned casually in conversation and applying it as a constraint on a new financial action. The donation request has no textual connection to the earlier cash flow discussion."
+    },
+    {
+      "id": "schedule_01",
+      "category": "scheduling_conflicts",
+      "description": "Flight departure during a previously mentioned meeting",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-09-10",
+          "conversation": "User: I have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM.\nAssistant: Noted -- recurring board meeting every Tuesday, 2-4 PM, mandatory attendance."
+        },
+        {
+          "session_id": 10,
+          "timestamp": "2025-01-14",
+          "conversation": "User: Found a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?\nAssistant: Before you book, I should point out a conflict..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 10,
+        "description": "Tuesday afternoon flight conflicts with recurring board meeting"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "scheduling_conflict",
+        "message": "Your flight to Chicago departs at 2:30 PM on Tuesday, January 21. You have a mandatory board meeting every Tuesday from 2-4 PM. You'd need to be at the airport well before 2:30 PM, meaning you'd miss the board meeting entirely. Consider a later flight or a different departure day.",
+        "computation": "flight_departure(Tue 2:30 PM) OVERLAPS board_meeting(Tue 2:00-4:00 PM); airport_arrival_needed ~1:00 PM = FULL CONFLICT"
+      },
+      "why_retrieval_fails": "Requires matching a specific day-of-week (Tuesday) from a recurring event against a calendar date (January 21, 2025 = Tuesday). Similarity search for 'Chicago flights' would not surface 'board meeting' context."
+    },
+    {
+      "id": "schedule_02",
+      "category": "scheduling_conflicts",
+      "description": "Double-booked dinner reservations on the same evening",
+      "sessions": [
+        {
+          "session_id": 5,
+          "timestamp": "2024-10-28",
+          "conversation": "User: Made a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special.\nAssistant: How lovely! Anniversary dinner at Chez Laurent, Saturday November 15 at 7 PM. Noted!"
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-11-10",
+          "conversation": "User: My college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up.\nAssistant: Sounds great to reconnect! Though I need to mention something about that date..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Second dinner reservation on same evening as anniversary dinner"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "double_booking",
+        "message": "You already have your anniversary dinner reservation at Chez Laurent on November 15 at 7 PM. The dinner with your college roommate at Steakhouse 55 at 7:30 PM on the same evening conflicts directly. You'll need to reschedule one of them.",
+        "computation": "reservation_1(Nov 15, 7:00 PM, Chez Laurent) OVERLAPS reservation_2(Nov 15, 7:30 PM, Steakhouse 55) = DOUBLE BOOKING"
+      },
+      "why_retrieval_fails": "Requires matching dates across two different social contexts (anniversary vs. college reunion). The conversations have completely different topics and participants."
+    },
+    {
+      "id": "schedule_03",
+      "category": "scheduling_conflicts",
+      "description": "Child's school play conflicts with business trip",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-09-15",
+          "conversation": "User: So proud of Emma -- she got the lead role in her school play! The performance is December 12 at 6 PM. I promised her I'd be in the front row.\nAssistant: That's amazing for Emma! I've noted her school play -- December 12 at 6 PM, and you'll be in the front row."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2024-11-25",
+          "conversation": "User: Boss wants me in New York for a client meeting. I'd fly out December 11 and come back December 13. Can you find me hotels near Midtown?\nAssistant: I can help with hotels, but I want to flag something important first..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "Business trip overlaps with daughter's school play"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "family_commitment_conflict",
+        "message": "Your New York business trip (December 11-13) overlaps with Emma's school play on December 12 at 6 PM, where she has the lead role and you promised to be in the front row. If the client meeting is during the day on December 12, you might be able to take a late afternoon flight back, but it would be very tight. You should discuss with your boss about adjusting the trip dates or attending the meeting remotely on December 12.",
+        "computation": "business_trip(Dec 11-13, New York) CONTAINS school_play(Dec 12 6PM, local) = CONFLICT with promised attendance"
+      },
+      "why_retrieval_fails": "Requires matching a date range (Dec 11-13) against a specific date (Dec 12) across very different contexts (business travel vs. child's school event). The emotional weight of a promise adds urgency that pure date matching wouldn't capture."
+    },
+    {
+      "id": "schedule_04",
+      "category": "scheduling_conflicts",
+      "description": "Car service appointment conflicts with when the car is needed",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-10-05",
+          "conversation": "User: Booked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM.\nAssistant: Noted -- car service on Monday November 4, all day (8 AM to after 5 PM). Make sure you have alternate transportation arranged."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-10-20",
+          "conversation": "User: I need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM.\nAssistant: I should flag a conflict with your November 4th plans..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "description": "Airport pickup requires car on the same day it's at the mechanic"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "resource_unavailable",
+        "message": "Your car will be at the mechanic all day on November 4 (8 AM to after 5 PM) for its major service. You won't have it available to pick up your parents from the airport at 2 PM. You'll need to either reschedule the car service, arrange a rental car, use a ride-share, or ask someone else to pick up your parents.",
+        "computation": "car_at_mechanic(Nov 4, 8AM-5PM+) OVERLAPS airport_pickup(Nov 4, ~2PM) = CAR UNAVAILABLE"
+      },
+      "why_retrieval_fails": "Requires inferring that 'drive to the airport' needs a car, and that the car is unavailable because it's at the mechanic. The connection is through the shared resource (the car), not any textual similarity."
+    },
+    {
+      "id": "schedule_05",
+      "category": "scheduling_conflicts",
+      "description": "Hotel checkout time is after the return flight departure",
+      "sessions": [
+        {
+          "session_id": 5,
+          "timestamp": "2024-11-01",
+          "conversation": "User: Booked my return flight from Miami -- March 15, departing at 7 AM. Red-eye kind of timing but it was way cheaper.\nAssistant: Early morning flight! I've noted your March 15 departure from Miami at 7 AM."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-12-15",
+          "conversation": "User: Just booked the Fontainebleau in Miami Beach for March 12-15. Checkout is at noon on the 15th. Gorgeous hotel!\nAssistant: The Fontainebleau is stunning! I should mention something about your checkout timing though..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Hotel checkout at noon is after 7 AM flight departure on the same day"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "logistics_timing_conflict",
+        "message": "Your return flight from Miami departs at 7 AM on March 15, which means you'd need to leave for the airport by approximately 5 AM. But your hotel checkout isn't until noon on March 15. You'll need to check out extremely early (or the night before) and won't use that last morning. Consider changing your hotel reservation to check out March 14, or see if you can get a late checkout on March 14 and skip the last night.",
+        "computation": "flight_departure(Mar 15, 7:00 AM) requires airport_arrival(~5:00 AM); hotel_checkout(Mar 15, 12:00 PM); 5:00 AM << 12:00 PM = WASTED NIGHT + early departure logistics"
+      },
+      "why_retrieval_fails": "Requires comparing a flight departure time against a hotel checkout time on the same date, and understanding the practical implication (need to leave hotel hours before checkout). These were booked in different sessions with no shared context."
+    },
+    {
+      "id": "schedule_06",
+      "category": "scheduling_conflicts",
+      "description": "Contractor visit scheduled when user will be on vacation",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-10-10",
+          "conversation": "User: Vacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks.\nAssistant: What an amazing way to end the year! I've noted your Costa Rica vacation: December 20 through January 3."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-11-28",
+          "conversation": "User: The plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?\nAssistant: I should point out a problem with that date..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Plumber visit scheduled during vacation when user won't be home"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "absence_conflict",
+        "message": "You'll be in Costa Rica on December 27 (your vacation runs December 20 through January 3). The plumber is scheduled to visit that day. Unless someone else can let them in and oversee the work, you'll need to reschedule. The plumber said he's only available on December 27, so this might require finding the next available date after January 3.",
+        "computation": "vacation(Dec 20 - Jan 3, Costa Rica) CONTAINS plumber_visit(Dec 27) = USER NOT HOME"
+      },
+      "why_retrieval_fails": "Requires checking a service appointment date against a vacation date range. The topics (plumbing and vacation) have zero semantic overlap."
+    },
+    {
+      "id": "schedule_07",
+      "category": "scheduling_conflicts",
+      "description": "Marathon training long run conflicts with friend's wedding",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-08-15",
+          "conversation": "User: My best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\nAssistant: How exciting! I've noted Jake's wedding weekend: October 25-27 (rehearsal dinner Friday, wedding Saturday, brunch Sunday). You're a groomsman!"
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-09-20",
+          "conversation": "User: Starting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it.\nAssistant: Marathon training is exciting! But I notice a conflict with October 26..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "description": "Critical training run scheduled on same day as friend's wedding where user is groomsman"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "commitment_conflict",
+        "message": "Your 20-mile training run is scheduled for Saturday, October 26 -- the same day as Jake's wedding where you're a groomsman. A 20-mile run would take 3-4 hours and leave you exhausted for the wedding. You should either move the long run to an adjacent day (Sunday October 27 after brunch, or earlier in the week), or adjust your training plan. Missing the wedding isn't an option since you're in the wedding party.",
+        "computation": "training_run(Oct 26, Saturday, ~3-4 hours) CONFLICTS WITH wedding(Oct 26, Saturday, groomsman duties all day)"
+      },
+      "why_retrieval_fails": "Requires matching dates across two completely different life domains (fitness training plan vs. social commitment). The system must also understand that groomsman duties and a 20-mile run are both full-day commitments."
+    },
+    {
+      "id": "schedule_08",
+      "category": "scheduling_conflicts",
+      "description": "Moving day overlaps with a booked vacation rental guest arriving",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-09-01",
+          "conversation": "User: We listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting.\nAssistant: Congratulations on your first Airbnb booking! Guest arriving November 15, departing November 20. Noted!"
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2024-10-10",
+          "conversation": "User: Big news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything.\nAssistant: Congratulations on the new house! I need to flag something about the moving dates..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 4,
+        "description": "Moving out of current home overlaps with Airbnb guest arrival"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "logistics_conflict",
+        "message": "Your movers are coming November 14-15, but you have an Airbnb guest arriving November 15. The house will be in chaos during the move with furniture being taken out while a guest is expecting to check in. You'll need to either cancel/reschedule the Airbnb booking or push the movers to different dates. Keep in mind Airbnb cancellation policies may result in penalties if you cancel close to the guest's arrival.",
+        "computation": "moving_day(Nov 14-15) OVERLAPS airbnb_checkin(Nov 15) = guest arrives during move-out"
+      },
+      "why_retrieval_fails": "Requires connecting a home purchase and moving timeline with a short-term rental commitment at the current home. These are separate life events that interact through the shared physical space."
+    },
+    {
+      "id": "deadline_01",
+      "category": "warranty_deadline_expiration",
+      "description": "Warranty about to expire on a product with an unresolved issue",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2024-06-15",
+          "conversation": "User: My new LG refrigerator has been making this weird clicking noise. Bought it January 10 this year, so it should still be under the 1-year warranty. I'll deal with it later when I have time.\nAssistant: That clicking noise should definitely be looked at. I've noted the issue and that your LG refrigerator warranty runs through approximately January 10, 2025. Don't wait too long!"
+        },
+        {
+          "session_id": 12,
+          "timestamp": "2024-12-20",
+          "conversation": "User: What's on my to-do list? I feel like I'm forgetting something.\nAssistant: There's something important that I should remind you about..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 12,
+        "description": "General check-in triggers proactive warranty expiration reminder for unresolved product issue"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "warranty_expiring_unresolved_issue",
+        "message": "Your LG refrigerator warranty expires around January 10, 2025 -- just 21 days away. You reported a clicking noise back in June but said you'd 'deal with it later.' If you haven't had it serviced, you should file a warranty claim now before it expires. After January 10, you'll be responsible for repair costs.",
+        "computation": "warranty_expiry(~2025-01-10) - today(2024-12-20) = 21 days remaining; issue_status = UNRESOLVED; APPROACHING DEADLINE"
+      },
+      "why_retrieval_fails": "Requires tracking an unresolved issue over time and computing proximity to a warranty deadline. The user's 'to-do list' query has no semantic connection to refrigerator warranties."
+    },
+    {
+      "id": "deadline_02",
+      "category": "warranty_deadline_expiration",
+      "description": "Tax filing deadline approaching with no mention of filing",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-11-05",
+          "conversation": "User: Tax season is going to be complicated this year. I started freelancing in addition to my W-2 job, plus I sold some stocks. I should probably find a CPA.\nAssistant: That does sound like it'll be more complex than a standard return. Finding a CPA is a great idea, especially with freelance income and capital gains. I've noted you'll need to address freelance income and stock sales for this tax year."
+        },
+        {
+          "session_id": 10,
+          "timestamp": "2025-04-01",
+          "conversation": "User: Hey, what should I have for dinner tonight?\nAssistant: Happy to help with dinner ideas! But first, I want to flag something time-sensitive..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 10,
+        "description": "Date proximity to April 15 tax deadline triggers reminder for complex unfiled taxes"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "tax_filing_deadline",
+        "message": "The US tax filing deadline is April 15 -- only 14 days away. Back in November, you mentioned your taxes would be complicated this year (freelance income, stock sales) and that you should find a CPA. If you haven't filed yet, you need to act immediately. If you can't file in time, you should at least file for an extension (Form 4868) before April 15 to avoid failure-to-file penalties. Note that an extension to file is not an extension to pay -- you'll still owe estimated taxes by April 15.",
+        "computation": "tax_deadline(2025-04-15) - today(2025-04-01) = 14 days; filing_status = UNKNOWN/LIKELY UNFILED; complexity = HIGH"
+      },
+      "why_retrieval_fails": "Requires calendar awareness (knowing April 15 is the tax deadline), recalling the user's complicated tax situation from months ago, and proactively raising it when the deadline approaches -- even though the user asked about dinner."
+    },
+    {
+      "id": "deadline_03",
+      "category": "warranty_deadline_expiration",
+      "description": "Lease renewal deadline approaching with user wanting to negotiate",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-08-20",
+          "conversation": "User: My apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\nAssistant: Important timeline! I've noted your lease expiry January 31, 2025, with a 60-day notice requirement. So you'd need to notify your landlord by December 2, 2024 to negotiate renewal terms."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-11-25",
+          "conversation": "User: I'm so busy with the holidays. Can't even think straight.\nAssistant: The holidays are always hectic! Speaking of deadlines, I should remind you about something urgent..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Date proximity to lease notice deadline triggers reminder"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "lease_renewal_deadline",
+        "message": "Your 60-day lease renewal notice deadline is December 2, 2024 -- just 7 days away. You mentioned wanting to negotiate renewal terms. If you don't notify your landlord by December 2, your lease will auto-convert to month-to-month at a higher rate after January 31. You should contact your landlord this week to begin negotiations.",
+        "computation": "lease_expiry(2025-01-31) - notice_period(60 days) = notice_deadline(2024-12-02); today(2024-11-25); days_remaining = 7 = URGENT"
+      },
+      "why_retrieval_fails": "Requires computing a notice deadline (lease expiry minus notice period), then comparing that computed date against the current date. The user's casual comment about being busy provides no retrieval hook for lease information."
+    },
+    {
+      "id": "deadline_04",
+      "category": "warranty_deadline_expiration",
+      "description": "Subscription auto-renewal the user wanted to cancel",
+      "sessions": [
+        {
+          "session_id": 6,
+          "timestamp": "2024-09-10",
+          "conversation": "User: I need to cancel my gym membership before it auto-renews. It renews annually on November 1 and they require 30 days written notice to cancel. The membership is $600/year and I haven't gone in months.\nAssistant: Got it. To cancel before the November 1 renewal, you'd need to submit written notice by October 1. I've noted this deadline."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2024-09-28",
+          "conversation": "User: Any good podcasts about productivity?\nAssistant: I have some great recommendations! But first, a time-sensitive reminder..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "description": "Approaching gym cancellation notice deadline triggers reminder"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "cancellation_deadline",
+        "message": "You wanted to cancel your gym membership ($600/year) before its November 1 auto-renewal. The 30-day written notice deadline is October 1 -- just 3 days away. If you haven't submitted the written cancellation notice yet, you need to do it immediately to avoid being charged for another year.",
+        "computation": "auto_renewal(2024-11-01) - notice_required(30 days) = cancel_deadline(2024-10-01); today(2024-09-28); days_remaining = 3 = URGENT"
+      },
+      "why_retrieval_fails": "Requires computing a cancellation deadline from renewal date minus notice period, tracking whether the user has completed the action, and proactively alerting as the computed deadline approaches."
+    },
+    {
+      "id": "deadline_05",
+      "category": "warranty_deadline_expiration",
+      "description": "Return window closing for a purchase the user was unhappy with",
+      "sessions": [
+        {
+          "session_id": 5,
+          "timestamp": "2024-10-08",
+          "conversation": "User: Bought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\nAssistant: I've noted the purchase and the 30-day return window. Your return deadline would be approximately November 1. Let me know how it goes!"
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2024-10-29",
+          "conversation": "User: Morning! What's the weather like today?\nAssistant: I can look that up! But first, I have a reminder about a deadline coming up..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "description": "Approaching return deadline for product user was uncertain about"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "return_window_closing",
+        "message": "The 30-day return window for your Williams-Sonoma espresso machine ($400, purchased October 2) closes approximately November 1 -- just 3 days away. You mentioned the milk frother was weak and you wanted more time to decide. If you're still unhappy with it, you need to initiate the return in the next couple of days.",
+        "computation": "purchase_date(2024-10-02) + return_window(30 days) = return_deadline(~2024-11-01); today(2024-10-29); days_remaining = 3; satisfaction = UNCERTAIN"
+      },
+      "why_retrieval_fails": "Requires tracking a purchase with expressed dissatisfaction, computing the return deadline, and proactively raising it as the window closes. The weather query provides no retrieval signal."
+    },
+    {
+      "id": "deadline_06",
+      "category": "warranty_deadline_expiration",
+      "description": "Driver's license expiring before planned road trip",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2024-07-18",
+          "conversation": "User: Just noticed my driver's license expires on December 15, 2024. Ugh, I hate going to the DMV. I'll get around to it eventually.\nAssistant: DMV visits are no fun, but it's important to renew on time! I've noted your license expiration: December 15, 2024."
+        },
+        {
+          "session_id": 11,
+          "timestamp": "2024-12-01",
+          "conversation": "User: Planning a road trip for the holidays! Driving from LA to Vegas on December 20 with some friends. Any recommendations for stops along the way?\nAssistant: A road trip to Vegas sounds fun! But I need to flag a potential problem..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 11,
+        "description": "Road trip planned after driver's license expiration date"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "license_expiration",
+        "message": "Your driver's license expires December 15, 2024, and your road trip to Vegas is December 20 -- 5 days after expiration. Driving with an expired license is illegal and your car insurance may not cover you in an accident. You said back in July you'd 'get around to' renewing it. You need to visit the DMV or renew online before December 15.",
+        "computation": "license_expiry(2024-12-15) < road_trip(2024-12-20); difference = 5 days expired = ILLEGAL TO DRIVE"
+      },
+      "why_retrieval_fails": "Requires connecting a casually mentioned license expiration to a future driving activity, and computing that the activity date falls after the expiration. The road trip query is about route recommendations, not ID validity."
+    },
+    {
+      "id": "deadline_07",
+      "category": "warranty_deadline_expiration",
+      "description": "Home inspection contingency deadline about to expire during house purchase",
+      "sessions": [
+        {
+          "session_id": 4,
+          "timestamp": "2024-10-25",
+          "conversation": "User: Our offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\nAssistant: Congratulations! That's a tight timeline -- your inspection contingency expires November 9, 2024. Have you scheduled the inspector?"
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2024-10-30",
+          "conversation": "User: The home inspector can't come until November 7. Is that too late? What if he finds something?\nAssistant: November 7 is cutting it very close..."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2024-11-06",
+          "conversation": "User: So stressed about this house purchase. What are some good relaxation techniques?\nAssistant: I can help with relaxation tips! But first, a critical reminder about your house purchase timeline..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "description": "Approaching inspection contingency deadline with tight inspection timing"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "contingency_deadline",
+        "message": "Your home inspection contingency expires November 9 -- just 3 days away. The inspector is scheduled for November 7, giving you only 2 days after the inspection to review findings and formally respond (accept, negotiate repairs, or back out). If the inspector finds significant issues, you'll have almost no time to get repair estimates or negotiate. Consider whether you need to request a contingency extension from the seller now, before the inspection.",
+        "computation": "contingency_expiry(2024-11-09) - today(2024-11-06) = 3 days; inspection_date(Nov 7) leaves only 2 days for response = EXTREMELY TIGHT"
+      },
+      "why_retrieval_fails": "Requires tracking a complex real estate timeline across sessions, computing remaining days, and understanding the practical implications of having only 2 days between inspection and contingency expiry. The 'relaxation techniques' query provides no retrieval signal."
+    },
+    {
+      "id": "deadline_08",
+      "category": "warranty_deadline_expiration",
+      "description": "Credit card promotional 0% APR period ending with large balance",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2024-04-10",
+          "conversation": "User: I opened a new Chase Sapphire card with a 0% APR promotional rate for 15 months. Put $8,000 on it for furniture for the new apartment. The plan is to pay it off gradually.\nAssistant: Smart use of a 0% intro rate! I've noted your Chase Sapphire with 0% APR for 15 months from April 2024, with an $8,000 balance for furniture."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2024-11-20",
+          "conversation": "User: How's my spending looking? I feel like I should be more on top of things.\nAssistant: Good instinct to check in. There's something specific I want to bring to your attention..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "description": "Spending check-in triggers reminder about approaching end of 0% APR promotional period"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "promotional_rate_expiry",
+        "message": "Your Chase Sapphire 0% APR promotional period (15 months from April 2024) expires around July 2025. That gives you about 8 months to pay off the remaining balance. If you started with $8,000 and haven't been paying aggressively, the remaining balance will start accruing interest at the regular APR (likely 20-25%) after the promo ends. To pay it off in time, you'd need to pay roughly $1,000/month for the next 8 months. You should check your current balance and create a payoff plan.",
+        "computation": "promo_start(2024-04) + 15_months = promo_end(2025-07); today(2024-11-20); months_remaining = ~8; initial_balance = $8,000; monthly_payment_needed = ~$1,000"
+      },
+      "why_retrieval_fails": "Requires computing a promotional period end date (start + 15 months), estimating remaining balance, and calculating a payoff schedule. The user's general spending question has no direct connection to a specific credit card promo."
+    }
+  ]
+}

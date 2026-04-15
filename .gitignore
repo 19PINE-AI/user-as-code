@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.log
+*.aux
+*.bbl
+*.blg
+*.out
+*.pdf
+.DS_Store
+lancedb_*/
+experiments/results/
+benchmarks/
