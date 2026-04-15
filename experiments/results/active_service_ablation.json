@@ -1,0 +1,27 @@
+{
+  "v5_with_alerts": {
+    "alerts": 27,
+    "total": 40,
+    "rate": 0.675
+  },
+  "v5_no_alerts": {
+    "alerts": 14,
+    "total": 40,
+    "rate": 0.35
+  },
+  "v4_code_notes": {
+    "alerts": 16,
+    "total": 40,
+    "rate": 0.4
+  },
+  "v3_flat_facts": {
+    "alerts": 15,
+    "total": 40,
+    "rate": 0.375
+  },
+  "v2_basic": {
+    "alerts": 12,
+    "total": 40,
+    "rate": 0.3
+  }
+}

@@ -1,0 +1,520 @@
+{
+  "locomo": {
+    "uac_v5": {
+      "f1": 0.3001,
+      "judge": 0.8167,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1436,
+          "judge": 0.65,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3639,
+          "judge": 0.9394,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1433,
+          "judge": 0.6,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3347,
+          "judge": 0.8197,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.0,
+          "judge": 1.0,
+          "n": 1
+        }
+      }
+    },
+    "uac_v2": {
+      "f1": 0.3357,
+      "judge": 0.6583,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1603,
+          "judge": 0.35,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3717,
+          "judge": 0.7576,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1371,
+          "judge": 0.6,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3792,
+          "judge": 0.7213,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 1.0,
+          "judge": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "full_context": {
+      "f1": 0.3234,
+      "judge": 0.8667,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1771,
+          "judge": 0.75,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3601,
+          "judge": 0.9394,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1092,
+          "judge": 0.8,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3743,
+          "judge": 0.8852,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.0,
+          "judge": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "amem": {
+      "f1": 0.1692,
+      "judge": 0.6917,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1189,
+          "judge": 0.55,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.1153,
+          "judge": 0.6667,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.088,
+          "judge": 0.6,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.2232,
+          "judge": 0.7705,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.069,
+          "judge": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "mem0": {
+      "f1": 0.1317,
+      "judge": 0.4417,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.0853,
+          "judge": 0.45,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.0265,
+          "judge": 0.0909,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.0644,
+          "judge": 0.8,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.2114,
+          "judge": 0.5902,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.0,
+          "judge": 1.0,
+          "n": 1
+        }
+      }
+    }
+  },
+  "longmemeval": {
+    "uac_v5": {
+      "accuracy": 0.7917,
+      "n": 48,
+      "per_type": {
+        "knowledge-update": {
+          "accuracy": 0.75,
+          "n": 8
+        },
+        "multi-session": {
+          "accuracy": 0.625,
+          "n": 8
+        },
+        "single-session-assistant": {
+          "accuracy": 1.0,
+          "n": 8
+        },
+        "single-session-preference": {
+          "accuracy": 0.625,
+          "n": 8
+        },
+        "single-session-user": {
+          "accuracy": 1.0,
+          "n": 8
+        },
+        "temporal-reasoning": {
+          "accuracy": 0.75,
+          "n": 8
+        }
+      }
+    },
+    "uac_v2": {
+      "accuracy": 0.625,
+      "n": 48,
+      "per_type": {
+        "knowledge-update": {
+          "accuracy": 0.375,
+          "n": 8
+        },
+        "multi-session": {
+          "accuracy": 0.25,
+          "n": 8
+        },
+        "single-session-assistant": {
+          "accuracy": 1.0,
+          "n": 8
+        },
+        "single-session-preference": {
+          "accuracy": 0.625,
+          "n": 8
+        },
+        "single-session-user": {
+          "accuracy": 0.875,
+          "n": 8
+        },
+        "temporal-reasoning": {
+          "accuracy": 0.625,
+          "n": 8
+        }
+      }
+    },
+    "full_context": {
+      "accuracy": 0.7917,
+      "n": 48,
+      "per_type": {
+        "knowledge-update": {
+          "accuracy": 0.875,
+          "n": 8
+        },
+        "multi-session": {
+          "accuracy": 0.5,
+          "n": 8
+        },
+        "single-session-assistant": {
+          "accuracy": 1.0,
+          "n": 8
+        },
+        "single-session-preference": {
+          "accuracy": 0.75,
+          "n": 8
+        },
+        "single-session-user": {
+          "accuracy": 0.875,
+          "n": 8
+        },
+        "temporal-reasoning": {
+          "accuracy": 0.75,
+          "n": 8
+        }
+      }
+    },
+    "amem": {
+      "accuracy": 0.6458,
+      "n": 48,
+      "per_type": {
+        "knowledge-update": {
+          "accuracy": 0.5,
+          "n": 8
+        },
+        "multi-session": {
+          "accuracy": 0.375,
+          "n": 8
+        },
+        "single-session-assistant": {
+          "accuracy": 0.875,
+          "n": 8
+        },
+        "single-session-preference": {
+          "accuracy": 0.625,
+          "n": 8
+        },
+        "single-session-user": {
+          "accuracy": 0.75,
+          "n": 8
+        },
+        "temporal-reasoning": {
+          "accuracy": 0.75,
+          "n": 8
+        }
+      }
+    },
+    "mem0": {
+      "accuracy": 0.3958,
+      "n": 48,
+      "per_type": {
+        "knowledge-update": {
+          "accuracy": 0.25,
+          "n": 8
+        },
+        "multi-session": {
+          "accuracy": 0.375,
+          "n": 8
+        },
+        "single-session-assistant": {
+          "accuracy": 0.5,
+          "n": 8
+        },
+        "single-session-preference": {
+          "accuracy": 0.5,
+          "n": 8
+        },
+        "single-session-user": {
+          "accuracy": 0.375,
+          "n": 8
+        },
+        "temporal-reasoning": {
+          "accuracy": 0.375,
+          "n": 8
+        }
+      }
+    }
+  },
+  "active_service": {
+    "uac_v5_with_alerts": {
+      "alert_rate": 1.0,
+      "n": 40,
+      "per_category": {
+        "drug_interactions_health_safety": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "financial_authorization_conflicts": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "scheduling_conflicts": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "travel_document_validity": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "warranty_deadline_expiration": {
+          "alert_rate": 1.0,
+          "n": 8
+        }
+      }
+    },
+    "uac_v5_no_alerts": {
+      "alert_rate": 0.525,
+      "n": 40,
+      "per_category": {
+        "drug_interactions_health_safety": {
+          "alert_rate": 0.875,
+          "n": 8
+        },
+        "financial_authorization_conflicts": {
+          "alert_rate": 0.25,
+          "n": 8
+        },
+        "scheduling_conflicts": {
+          "alert_rate": 0.5,
+          "n": 8
+        },
+        "travel_document_validity": {
+          "alert_rate": 0.375,
+          "n": 8
+        },
+        "warranty_deadline_expiration": {
+          "alert_rate": 0.625,
+          "n": 8
+        }
+      }
+    },
+    "amem": {
+      "alert_rate": 0.85,
+      "n": 40,
+      "per_category": {
+        "drug_interactions_health_safety": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "financial_authorization_conflicts": {
+          "alert_rate": 0.75,
+          "n": 8
+        },
+        "scheduling_conflicts": {
+          "alert_rate": 0.875,
+          "n": 8
+        },
+        "travel_document_validity": {
+          "alert_rate": 0.75,
+          "n": 8
+        },
+        "warranty_deadline_expiration": {
+          "alert_rate": 0.875,
+          "n": 8
+        }
+      }
+    },
+    "mem0": {
+      "alert_rate": 0.925,
+      "n": 40,
+      "per_category": {
+        "drug_interactions_health_safety": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "financial_authorization_conflicts": {
+          "alert_rate": 1.0,
+          "n": 8
+        },
+        "scheduling_conflicts": {
+          "alert_rate": 0.875,
+          "n": 8
+        },
+        "travel_document_validity": {
+          "alert_rate": 0.875,
+          "n": 8
+        },
+        "warranty_deadline_expiration": {
+          "alert_rate": 0.875,
+          "n": 8
+        }
+      }
+    }
+  },
+  "ablation": {
+    "uac_v5": {
+      "f1": 0.3001,
+      "judge": 0.8167,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1436,
+          "judge": 0.65,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3639,
+          "judge": 0.9394,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1433,
+          "judge": 0.6,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3347,
+          "judge": 0.8197,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.0,
+          "judge": 1.0,
+          "n": 1
+        }
+      }
+    },
+    "uac_v2": {
+      "f1": 0.3357,
+      "judge": 0.6583,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1603,
+          "judge": 0.35,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3717,
+          "judge": 0.7576,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1371,
+          "judge": 0.6,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3792,
+          "judge": 0.7213,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 1.0,
+          "judge": 0.0,
+          "n": 1
+        }
+      }
+    },
+    "full_context": {
+      "f1": 0.3234,
+      "judge": 0.8667,
+      "n": 120,
+      "per_category": {
+        "cat_1": {
+          "f1": 0.1771,
+          "judge": 0.75,
+          "n": 20
+        },
+        "cat_2": {
+          "f1": 0.3601,
+          "judge": 0.9394,
+          "n": 33
+        },
+        "cat_3": {
+          "f1": 0.1092,
+          "judge": 0.8,
+          "n": 5
+        },
+        "cat_4": {
+          "f1": 0.3743,
+          "judge": 0.8852,
+          "n": 61
+        },
+        "cat_5": {
+          "f1": 0.0,
+          "judge": 0.0,
+          "n": 1
+        }
+      }
+    }
+  }
+}
