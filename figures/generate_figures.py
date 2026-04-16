@@ -142,9 +142,9 @@ def fig_architecture():
 def fig_benchmarks():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
 
-    # LOCOMO
+    # LOCOMO (5 conversations for UaC v5 and Full Context)
     systems = ['UaC v5\n(ours)', 'Full\nContext', 'A-MEM', 'UaC v2', 'Mem0']
-    locomo = [81.7, 86.7, 69.2, 65.8, 44.2]
+    locomo = [84.3, 88.3, 69.2, 65.8, 44.2]
     colors_l = [BLUE, GRAY, ORANGE, LIGHTBLUE, RED]
 
     bars = ax1.bar(range(len(systems)), locomo, color=colors_l, edgecolor='white', linewidth=0.5, width=0.7)

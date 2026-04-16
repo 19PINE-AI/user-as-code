@@ -12,7 +12,7 @@ We model a user's entire memory as a \textbf{self-evolving software project} wit
 
 Our contributions:
 \begin{itemize}[leftmargin=*]
-\item A two-phase memory architecture that achieves 81.7\% on LOCOMO (94\% of full-context) while enabling 100\% proactive alert detection on Active Service.
+\item A two-phase memory architecture that achieves 84.3\% on LOCOMO (95.5\% of full-context) while enabling 100\% proactive alert detection on Active Service.
 \item A novel Active Service evaluation protocol testing proactive alerting across 40 scenarios in 5 constraint categories.
 \item A comprehensive ablation showing that separating memorizing (append-only) from structuring (periodic code generation) is the key architectural insight.
 \item Open-source implementation with comparisons against Mem0, A-MEM, and full-context baselines on standard benchmarks.
@@ -98,17 +98,17 @@ At query time, retrieval combines: (1)~structured Python code state, (2)~relevan
 
 \begin{table}[t]
 \centering
-\caption{LOCOMO results (2 conversations, 120 QA pairs, Gemini 3 Flash with thinking).}
+\caption{LOCOMO results (Gemini 3 Flash with thinking). UaC~v5 and Full Context evaluated on 5 conversations (300 QAs); A-MEM and Mem0 on 2 conversations (120 QAs).}
 \label{tab:locomo}
-\begin{tabular}{@{}lcc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{System} & \textbf{LLM-Judge} & \textbf{Token F1} \\
+\textbf{System} & \textbf{LLM-Judge} & \textbf{N} & \textbf{Convs} \\
 \midrule
-Full Context & \textbf{86.7\%} & 0.323 \\
-\textbf{UaC v5 (ours)} & \textbf{81.7\%} & 0.300 \\
-A-MEM & 69.2\% & 0.169 \\
-UaC v2 (ablation) & 65.8\% & 0.336 \\
-Mem0 & 44.2\% & 0.132 \\
+Full Context & \textbf{88.3\%} & 300 & 5 \\
+\textbf{UaC v5 (ours)} & \textbf{84.3\%} & 300 & 5 \\
+A-MEM & 69.2\% & 120 & 2 \\
+UaC v2 (ablation) & 65.8\% & 120 & 2 \\
+Mem0 & 44.2\% & 120 & 2 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -140,7 +140,7 @@ Mem0 & 12 & 38 & 0 & 0 & 38 & 0 & 39.6 \\
 \label{fig:benchmarks}
 \end{figure*}
 
-On LOCOMO (Table~\ref{tab:locomo}), UaC~v5 achieves 81.7\% LLM-Judge accuracy---94\% of the full-context upper bound (86.7\%) and substantially above A-MEM (69.2\%) and Mem0 (44.2\%). The two-phase extraction preserves information that flat-fact and structured-note systems lose.
+On LOCOMO (Table~\ref{tab:locomo}), UaC~v5 achieves \textbf{84.3\%} LLM-Judge accuracy across 5 conversations (300 QAs)---\textbf{95.5\% of the full-context upper bound} (88.3\%) and substantially above A-MEM (69.2\%) and Mem0 (44.2\%). The two-phase extraction preserves information that flat-fact and structured-note systems lose.
 
 On LongMemEval (Table~\ref{tab:longmemeval}), UaC~v5 \textbf{ties full-context at 79.2\%}, achieving perfect 100\% on three of six categories (knowledge-update, single-session-assistant, single-session-user). UaC~v5 outperforms full-context on temporal reasoning (50\% vs.\ 25\%) and knowledge-update (100\% vs.\ 75\%)---the typed \texttt{date()} fields and structured state help track evolving facts and time-ordered events.
 
@@ -245,13 +245,13 @@ Testing on 3 LOCOMO conversations (497 QA pairs): extraction achieves 82.3\% cov
 
 \textbf{RL-trainability.} Because memory operations are file-system actions, User as Code is directly compatible with RL-based memory training~\citep{yan2025memoryr1, yu2026agemem, wang2025memalpha}---file operations are natural actions RL can optimize.
 
-\textbf{Limitations.} (1)~Extraction overhead: $\sim$4$\times$ write-path cost vs.\ flat facts, justified by read-time correctness. (2)~Constraint logic errors: correct computation does not guarantee correct logic. (3)~The system achieves 81.7\% vs.\ full-context's 86.7\%---the 5pp gap represents facts lost during extraction that even append-only accumulation cannot fully capture. (4)~Active Service alert rates depend on the constraint pipeline; without it, performance drops to 52.5\%.
+\textbf{Limitations.} (1)~Extraction overhead: $\sim$4$\times$ write-path cost vs.\ flat facts, justified by read-time correctness. (2)~Constraint logic errors: correct computation does not guarantee correct logic. (3)~The system achieves 84.3\% vs.\ full-context's 88.3\%---the 4pp gap represents facts lost during extraction that even append-only accumulation cannot fully capture. (4)~Active Service alert rates depend on the constraint pipeline; without it, performance drops to 52.5\%.
 
 
 \section{Conclusion}
 
 User as Code transforms user memory from a passive database into a modular software project. Our two-phase architecture---append-only fact extraction followed by periodic code structuring---resolves the tension between coverage and structure that plagued earlier designs. The ablation shows each decision's impact: append-only extraction gains +28pp recall, while two-phase separation adds code structure without losing facts.
 
-On standard benchmarks, UaC achieves 81.7\% on LOCOMO (94\% of full-context) and ties full-context on LongMemEval at 79.2\%, outperforming A-MEM and Mem0 by 12--37 percentage points. On Active Service, the constraint execution pipeline achieves 100\% proactive alert detection---a capability that requires executable code representation and has no equivalent in existing memory systems.
+On standard benchmarks, UaC achieves 84.3\% on LOCOMO (95.5\% of full-context) and ties full-context on LongMemEval at 79.2\%, outperforming A-MEM and Mem0 by 12--37 percentage points. On Active Service, the constraint execution pipeline achieves 100\% proactive alert detection---a capability that requires executable code representation and has no equivalent in existing memory systems.
 
 Code, data, and evaluation scripts are available at \url{https://github.com/bojieli/UserAsCode}.
