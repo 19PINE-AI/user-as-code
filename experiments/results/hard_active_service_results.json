@@ -1,0 +1,22 @@
+{
+  "v5_alerts": {
+    "alerts": 17,
+    "total": 20,
+    "rate": 0.85
+  },
+  "v5_no_alerts": {
+    "alerts": 9,
+    "total": 20,
+    "rate": 0.45
+  },
+  "full_ctx": {
+    "alerts": 11,
+    "total": 20,
+    "rate": 0.55
+  },
+  "mem0": {
+    "alerts": 13,
+    "total": 20,
+    "rate": 0.65
+  }
+}

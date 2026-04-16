@@ -1,0 +1,727 @@
+{
+  "evaluation_protocol": {
+    "name": "Hard Active Service Evaluation Protocol",
+    "version": "1.0",
+    "date": "2026-04-15",
+    "description": "20 evaluation scenarios specifically designed to defeat LLM reasoning. These scenarios REQUIRE deterministic computation via code execution -- an LLM attempting to reason through them will reliably produce incorrect answers due to multi-step arithmetic, compounding numerical errors, ambiguous temporal resolution, or combinatorial constraint satisfaction across 3+ domains.",
+    "design_principle": "Each scenario targets a known LLM failure mode: (1) chained date arithmetic with edge cases, (2) compound multi-domain constraint satisfaction, (3) precise numerical threshold calculations, (4) temporal ordering with ambiguous relative references. The key insight: Gemini 3 Flash scores 92.5% on existing scenarios because it can reason about cross-domain issues from flat text. These scenarios include computation steps where reasoning produces plausible but WRONG answers.",
+    "categories": [
+      "multi_step_date_arithmetic",
+      "compound_multi_domain_constraints",
+      "numerical_threshold_calculations",
+      "temporal_ordering_ambiguity"
+    ],
+    "scoring": {
+      "alert_generated": "Did the system generate an unsolicited alert? (binary)",
+      "severity_correct": "Was the severity level appropriate? (critical / warning / info)",
+      "timing_correct": "Was the alert triggered at the right session? (binary)",
+      "reasoning_correct": "Did the alert include correct computation or logic? (binary)",
+      "message_actionable": "Was the alert message actionable and specific? (1-5 scale)",
+      "computation_correct": "Did the system arrive at the numerically correct answer? (binary -- this is the key differentiator)"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "hard_01",
+      "category": "multi_step_date_arithmetic",
+      "difficulty": "hard",
+      "description": "Passport validity check with transit country requiring validity from TRANSIT date, not destination arrival date, complicated by a date-line-crossing flight itinerary",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-06-10",
+          "conversation": "User: Got my passport renewed finally. New expiry date is July 23, 2026.\nAssistant: Great to hear! I've noted your passport expiration as July 23, 2026."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-09-14",
+          "conversation": "User: Planning a big trip! Flying from LA to Tokyo via Beijing. The LA to Beijing leg departs January 24, 2026 at 11:30 PM, arrives Beijing January 26 at 5:30 AM local time. Then the Beijing to Tokyo connecting flight is January 27 at 9:00 AM.\nAssistant: That sounds like an exciting itinerary! Let me review the details..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 3,
+        "user_message": "Planning a big trip! Flying from LA to Beijing to Tokyo."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "passport_validity_transit",
+        "message": "Your passport expires July 23, 2026. China requires passport validity of at least 6 months (180 days) from the date of ENTRY into China, not from your final destination arrival. You enter China on January 26, 2026 -- 180 days from that date is July 25, 2026. Your passport expires July 23, 2026, which is 2 days SHORT of the requirement. Additionally, Japan requires 6 months validity from entry on January 27 -- that's July 26, 2026, and your passport falls 3 days short for Japan as well. You need to renew your passport before this trip."
+      },
+      "computation": "Step 1: Determine China entry date. Depart LA Jan 24 at 23:30 PST, flight ~13hrs, arrive Beijing Jan 26 05:30 CST. China entry = Jan 26, 2026. Step 2: China 180-day requirement from entry. Jan 26 + 180 days = July 25, 2026. Passport expires July 23 -- FAILS by 2 days. Step 3: Japan entry date = Jan 27, 2026. Jan 27 + 180 = July 26, 2026. Passport expires July 23 -- FAILS by 3 days. The trap: LLMs often compute from departure date (Jan 24) rather than arrival/entry dates, and frequently miscalculate 180 days from late-January dates.",
+      "why_llm_fails": "LLMs make three common errors: (1) computing validity from departure date Jan 24 instead of entry date Jan 26, (2) miscounting 180 days from January (must cross Feb with 28 days, March 31, April 30, May 31, June 30 = 28+31+30+31+30+5+25=180), (3) not recognizing that the transit country has its OWN validity requirement separate from the destination. The margin is only 2-3 days, so approximate reasoning says 'about 6 months, probably fine.'"
+    },
+    {
+      "id": "hard_02",
+      "category": "multi_step_date_arithmetic",
+      "difficulty": "hard",
+      "description": "Business-days-only deadline calculation spanning a holiday-heavy period",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2025-10-20",
+          "conversation": "User: Just got a notice from my landlord. I have 30 business days to respond to the lease renewal offer, starting from today. If I miss it, I lose the below-market rate.\nAssistant: That's important -- I've noted the 30 business day deadline starting October 20, 2025."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-11-10",
+          "conversation": "User: Things are hectic with the holidays coming up. I'm taking PTO from December 22 through January 2. I'll deal with the lease stuff when I get back from vacation in early January.\nAssistant: Enjoy the holidays! Though I should flag something about your lease deadline..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 4,
+        "user_message": "I'll deal with the lease stuff when I get back from vacation in early January."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "deadline_before_return",
+        "message": "Your 30 business day deadline expires BEFORE you return from vacation. Starting from October 20, 2025, counting only business days (excluding weekends, Thanksgiving Nov 27, Black Friday Nov 28, Christmas Dec 25, and New Year's Day Jan 1): the 30th business day falls on December 1, 2025. You're planning to address this after January 2, 2026 -- that's 22 business days past the deadline. You need to respond before December 1.",
+        "computation_detail": "Oct 20 (Mon, day 0 start). Oct 20-24 = 5 business days (days 1-5). Oct 27-31 = 5 business days (days 6-10). Nov 3-7 = 5 business days (days 11-15). Nov 10-14 = 5 business days (days 16-20). Nov 17-21 = 5 business days (days 21-25). Nov 24-26 = 3 business days (days 26-28, Thanksgiving Nov 27 and Black Friday Nov 28 are holidays). Dec 1-2 = 2 business days (days 29-30). 30th business day = December 2, 2025. User returns January 2/3 = way past deadline."
+      },
+      "computation": "Must count exactly 30 business days from Oct 20, 2025, excluding weekends AND US holidays (Thanksgiving = 4th Thursday of Nov = Nov 27, 2025; Black Friday Nov 28; Christmas Dec 25; New Year's Jan 1). Week-by-week count required. The 30th business day is approximately Dec 1-2, 2025.",
+      "why_llm_fails": "LLMs struggle with business day counting over multi-week periods, especially when holidays must be excluded. Common errors: (1) approximating 30 business days as 6 calendar weeks (42 days) = Dec 1, which happens to be close but for the wrong reason, (2) forgetting that Thanksgiving falls in this window, (3) miscounting whether Black Friday is a federal holiday vs a bank holiday. The correct answer requires day-by-day enumeration."
+    },
+    {
+      "id": "hard_03",
+      "category": "multi_step_date_arithmetic",
+      "difficulty": "hard",
+      "description": "Leap year edge case in medication refill scheduling across February boundary",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2027-11-05",
+          "conversation": "User: Doctor prescribed a new blood pressure medication. I take one pill daily, and the prescription is for 90 pills with no refills. I picked up the prescription today.\nAssistant: Got it -- 90-day supply of blood pressure medication starting November 5, 2027."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2028-01-15",
+          "conversation": "User: I need to go overseas for work. I'll be in rural Indonesia from February 10 through March 20. No pharmacies nearby. Should I pack extra sunscreen?\nAssistant: Definitely bring sunscreen! But I need to flag something more urgent about your medication..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 5,
+        "user_message": "I'll be in rural Indonesia from February 10 through March 20."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "medication_supply_gap",
+        "message": "Your 90-day blood pressure medication supply from November 5, 2027 runs out on February 2, 2028. (Nov: 25 remaining days, Dec: 31 days, Jan: 31 days = 87 days through Jan 31, plus 3 more days = Feb 3, 2028). You'll be in rural Indonesia from February 10 to March 20 with no pharmacy access, but your medication runs out around February 3 -- a full week before you even leave. Also note: 2028 IS a leap year, so February has 29 days. You need to get a new prescription and fill it before your trip, covering at least through March 20 (46 additional days beyond your current supply end date).",
+        "computation_detail": "Start: Nov 5, 2027. Nov remaining: Nov 5-30 = 26 days (including Nov 5). Dec: 31 days. Jan: 31 days. Total through Jan 31 = 26+31+31 = 88. Remaining pills: 90-88 = 2. So pills last through Feb 2, 2028. 2028 is leap year (divisible by 4, not a century year). Trip: Feb 10 - Mar 20. Gap = Feb 3 through Mar 20 = 46 days uncovered."
+      },
+      "computation": "90 pills starting Nov 5, 2027. Nov 5-30 = 26 days. Dec = 31. Jan = 31. 26+31+31 = 88. 90-88 = 2 pills left for February. Last pill = Feb 2, 2028. Trip starts Feb 10. Gap of 8 days before trip + 39 days during trip = 47 days without medication. 2028 is a leap year (Feb has 29 days), which affects the day count for the trip period.",
+      "why_llm_fails": "Multiple failure points: (1) Counting remaining days in November from the 5th (is it 25 or 26? -- inclusive vs exclusive of start date), (2) Whether 2028 is a leap year (it is: divisible by 4, not a century exception), (3) Chaining the subtraction across month boundaries. LLMs often get the pill run-out date wrong by 1-3 days, which matters because the margin between running out and the trip is tight."
+    },
+    {
+      "id": "hard_04",
+      "category": "multi_step_date_arithmetic",
+      "difficulty": "hard",
+      "description": "Timezone-crossing deadline where a filing is due in one timezone but the user will be in another",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2026-02-18",
+          "conversation": "User: My tax accountant said my amended return needs to be e-filed by April 15, 2026, 11:59 PM Eastern Time. It's a hard IRS deadline -- no extensions possible for this one.\nAssistant: Noted -- hard deadline of April 15, 2026 at 11:59 PM ET for your amended return."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2026-03-20",
+          "conversation": "User: Great news! I'm going to a tech conference in Tokyo. I fly out April 13 and I'm booked through April 19. I'll have my laptop so I can keep working remotely.\nAssistant: That sounds like a great opportunity! Just want to make sure you're aware of a timing issue..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "I fly out April 13 and I'm booked through April 19. I'll have my laptop."
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "timezone_deadline_conflict",
+        "message": "Your amended tax return is due April 15, 2026 at 11:59 PM Eastern Time. You'll be in Tokyo (JST = UTC+9, EDT = UTC-4). When it's 11:59 PM ET on April 15, it will be 12:59 PM on April 16 in Tokyo (13-hour difference during daylight saving time). This means your 'April 15 deadline' effectively becomes an April 16 afternoon deadline in your local time. While this gives you MORE time than you might think, be aware: (1) you must account for the 13-hour offset, not the intuitive 14-hour offset since the US will be on EDT (UTC-4) in April, and (2) if your e-filing system checks your IP location and restricts foreign submissions, you may need a VPN. Make sure to file before you leave on April 13 to be safe.",
+        "computation_detail": "April 2026: US is on EDT (UTC-4). Japan is JST (UTC+9). Offset = 9-(-4) = 13 hours. April 15 23:59 EDT = April 16 12:59 JST. US DST starts second Sunday of March 2026 = March 8, 2026, so April is definitely EDT."
+      },
+      "computation": "Key: must determine if DST is active in April 2026. US DST starts 2nd Sunday of March. March 2026: March 1 is Sunday... actually March 1, 2026 is a Sunday. So 2nd Sunday = March 8, 2026. EDT = UTC-4. JST = UTC+9. Offset = 13 hours. 11:59 PM EDT = 12:59 PM+1day JST. The trap is that LLMs often use EST (UTC-5) giving a 14-hour offset, or confuse the direction of the offset.",
+      "why_llm_fails": "LLMs reliably fail at: (1) determining whether DST is active on a specific date in a specific year (requires knowing the 2nd Sunday of March 2026), (2) computing the correct offset direction (is Tokyo ahead or behind?), (3) handling the day-boundary crossing. Common LLM error: using EST instead of EDT gives UTC-5, making the offset 14 hours instead of 13, placing the Tokyo time at 1:59 PM instead of 12:59 PM. While the practical difference is small, it demonstrates computational imprecision."
+    },
+    {
+      "id": "hard_05",
+      "category": "multi_step_date_arithmetic",
+      "difficulty": "hard",
+      "description": "Multiple overlapping visa stay-day calculations with a rolling window that resets based on exit dates",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-08-01",
+          "conversation": "User: I'm a US citizen and I travel to the UK a lot for work. Here's my history this year: Trip 1 was January 5 to February 15 (42 days). Trip 2 was March 20 to April 28 (40 days). Trip 3 was June 1 to June 25 (25 days). UK allows 180 days in any rolling 12-month period.\nAssistant: That's quite a bit of UK travel! I've logged all three trips."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2025-09-10",
+          "conversation": "User: I need to go back to London for another project. Thinking October 1 through December 31. That should be about 92 days. I love spending the holidays there.\nAssistant: London at Christmas is magical! Let me check your visa situation though..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "user_message": "Thinking October 1 through December 31."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "uk_overstay_risk",
+        "message": "Your planned 92-day stay (Oct 1 - Dec 31) would put you significantly over the UK's 180-day rolling limit. In the 12-month window ending December 31, 2025, your cumulative UK days would be: Trip 1 (Jan 5 - Feb 15) = 42 days, Trip 2 (Mar 20 - Apr 28) = 40 days, Trip 3 (Jun 1 - Jun 25) = 25 days, Trip 4 (Oct 1 - Dec 31) = 92 days. Total = 199 days. This exceeds the 180-day limit by 19 days. Your maximum stay starting October 1 would be 73 days (until December 12), to stay within 180 days in the rolling 12-month window.",
+        "computation_detail": "Trip 1: Jan 5 to Feb 15 inclusive = 42 days. Trip 2: Mar 20 to Apr 28 inclusive = 40 days. Trip 3: Jun 1 to Jun 25 inclusive = 25 days. Prior total = 42+40+25 = 107 days. Proposed Trip 4: Oct 1 to Dec 31 = 92 days. Grand total = 199. Limit = 180. Over by 19 days. Max allowed for Trip 4: 180-107 = 73 days, meaning latest return is Dec 12."
+      },
+      "computation": "Day counting for each trip (inclusive): Trip 1 = 42 days, Trip 2 = 40 days, Trip 3 = 25 days. Subtotal = 107. Proposed = 92. Total = 199 > 180. Overage = 19 days. Max trip 4 = 73 days from Oct 1 = Dec 12, 2025.",
+      "why_llm_fails": "LLMs struggle with: (1) correctly counting inclusive days for date ranges (off-by-one errors are extremely common), (2) summing 4 separate trip durations correctly, (3) computing the rolling 12-month window correctly (does Trip 1 in January fall within the window if we're computing for a December end?), (4) reverse-computing the maximum allowed stay. Each individual calculation is simple, but errors compound across the chain."
+    },
+    {
+      "id": "hard_06",
+      "category": "compound_multi_domain_constraints",
+      "difficulty": "hard",
+      "description": "Insurance coverage gap + adventure activity + pre-existing medical condition + altitude + medication interaction (5 domains)",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-05-12",
+          "conversation": "User: Just switched jobs! My new health insurance kicks in after a 90-day waiting period starting June 1. My old COBRA coverage ends May 31.\nAssistant: Congrats on the new job! I've noted the insurance gap. Your new coverage starts September 1 after the 90-day waiting period from June 1."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-06-15",
+          "conversation": "User: I take acetazolamide (Diamox) for my glaucoma -- been on it for years. It's also apparently used for altitude sickness which is a nice bonus.\nAssistant: Good to know about the acetazolamide. It is indeed used for both glaucoma and altitude sickness prevention."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-07-02",
+          "conversation": "User: I have a history of atrial fibrillation, but it's been well-controlled with medication for the past 2 years.\nAssistant: I've noted your history of atrial fibrillation, currently well-controlled with medication."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2025-07-20",
+          "conversation": "User: My friend invited me to go trekking in Nepal! We'd do the Everest Base Camp trek, departing August 15 and returning September 5. It goes up to about 5,364 meters. I'm so excited!\nAssistant: Everest Base Camp is a bucket-list experience! However, I need to flag several serious concerns..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "user_message": "Trekking in Nepal, Everest Base Camp, departing August 15 returning September 5."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "compound_risk_alert",
+        "message": "This trip has MULTIPLE compounding risk factors across 5 domains: (1) INSURANCE GAP: You have NO health insurance from June 1 to August 31. Your trek from Aug 15 to Sep 5 means 17 days are uninsured (Aug 15-31) and only 5 days covered (Sep 1-5). Helicopter evacuation from EBC costs $5,000-$20,000 and would not be covered. (2) CARDIAC RISK AT ALTITUDE: Your atrial fibrillation history is a serious concern at 5,364m. High altitude significantly increases cardiac arrhythmia risk. Most travel insurance policies exclude pre-existing conditions in the first 12 months. (3) MEDICATION CONCERN: Acetazolamide (which you take for glaucoma) does help with altitude sickness, but at high altitude it can cause increased urination leading to dehydration, which can worsen arrhythmia risk. The interaction between altitude, your cardiac condition, and this medication needs physician review. (4) EVACUATION: If a cardiac event occurs above 4,000m during the uninsured period, you face both medical emergency AND financial catastrophe. Recommendation: Delay trip until after September 1 when insurance is active, get cardiac clearance for high altitude, and purchase supplemental travel insurance that covers pre-existing conditions and emergency evacuation."
+      },
+      "computation": "Domain 1 (Insurance): COBRA ends May 31, new insurance starts June 1 + 90 days = Sep 1. Gap: Jun 1 - Aug 31. Trip: Aug 15 - Sep 5. Uninsured days of trip = Aug 15-31 = 17 days. Insured days = Sep 1-5 = 5 days. Domain 2 (Activity): EBC trek, max altitude 5,364m. Domain 3 (Medical): Atrial fibrillation = cardiac arrhythmia risk at altitude. Domain 4 (Medication): Acetazolamide side effects (diuretic) + altitude + cardiac condition = compounding risk. Domain 5 (Financial): No insurance + high-altitude evacuation cost = catastrophic financial risk.",
+      "why_llm_fails": "While an LLM might flag 1-2 of these issues, correctly computing the exact insurance gap dates, determining exactly which days of the trip are uninsured vs. insured (17 vs 5 day split), and then COMBINING this with the medical, pharmaceutical, and financial domains requires cross-referencing 4 separate sessions and performing date arithmetic. LLMs tend to either miss the date computation or fail to connect all 5 domains."
+    },
+    {
+      "id": "hard_07",
+      "category": "compound_multi_domain_constraints",
+      "difficulty": "hard",
+      "description": "Medication interactions + food allergies + restaurant reservation + companion dietary restriction + cooking method constraint (5 domains)",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-03-10",
+          "conversation": "User: I started taking warfarin (Coumadin) last week for my blood clot. Doctor said I need to keep my vitamin K intake consistent -- not avoid it entirely, but not have big swings.\nAssistant: Important medication to track. I've noted your warfarin prescription and the vitamin K consistency requirement."
+        },
+        {
+          "session_id": 2,
+          "timestamp": "2025-03-18",
+          "conversation": "User: Oh, I should mention -- I have a severe shellfish allergy. Like, EpiPen-level severe. Also mildly allergic to tree nuts but it's not life-threatening, just uncomfortable.\nAssistant: I've noted both allergies: severe (anaphylactic) shellfish allergy and mild tree nut allergy."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-04-05",
+          "conversation": "User: My partner Sarah is vegan and also has celiac disease, so everything needs to be gluten-free for her.\nAssistant: Noted -- Sarah is vegan and requires gluten-free options."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-04-20",
+          "conversation": "User: I'm taking Sarah to that new Japanese-Thai fusion restaurant downtown for our anniversary on Friday. They're known for their tempura and pad thai. Can you help me plan what we might order?\nAssistant: Happy anniversary! I'd love to help, but I need to flag several dietary conflicts with this restaurant choice..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "Taking Sarah to the Japanese-Thai fusion restaurant known for tempura and pad thai."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "compound_dietary_conflict",
+        "message": "This restaurant choice creates a web of conflicts across both your and Sarah's dietary needs: (1) SHELLFISH CROSS-CONTAMINATION: Japanese-Thai fusion restaurants typically use shrimp extensively (shrimp tempura, pad thai with shrimp, shrimp paste in curry bases). With your severe shellfish allergy, cross-contamination risk is extremely high even for dishes that don't list shellfish -- Thai curry paste often contains shrimp paste as a base ingredient. (2) TEMPURA + CELIAC: Tempura is battered in wheat flour -- Sarah cannot eat this due to celiac disease. (3) WARFARIN + VITAMIN K: Many Thai dishes feature large amounts of Thai basil, spinach, kale, and broccoli, all high in vitamin K. A single high-vitamin-K meal can destabilize your INR levels on warfarin. You need to choose dishes carefully to maintain consistent intake. (4) VEGAN CONSTRAINT: Pad thai typically uses fish sauce and egg. Many Japanese dishes use dashi (fish stock). Truly vegan options at a Japanese-Thai fusion restaurant may be very limited. (5) TREE NUTS: Thai cuisine frequently uses peanuts (technically legumes, usually fine) but also cashews (tree nuts) in stir-fries. Recommendation: Call the restaurant ahead to discuss cross-contamination protocols for shellfish, confirm they can prepare gluten-free and vegan dishes, and ask about vitamin K content of specific dishes."
+      },
+      "computation": "Cross-reference matrix: User constraints (warfarin/vitamin-K, severe shellfish allergy, mild tree nut allergy) x Sarah constraints (vegan, celiac/gluten-free) x Restaurant type (Japanese-Thai fusion, known for tempura and pad thai). Must evaluate: tempura = wheat batter (conflicts with celiac), shrimp tempura = shellfish (conflicts with allergy), pad thai = fish sauce + egg (conflicts with vegan) + often contains shrimp (allergy) + peanuts (legume, OK) but possibly cashews (tree nut, mild allergy), Thai basil/greens = vitamin K (conflicts with warfarin consistency), shrimp paste in curries = hidden shellfish. Total: 5+ distinct conflicts from 5 domains.",
+      "why_llm_fails": "LLMs can identify obvious conflicts (shellfish at a seafood-heavy restaurant) but reliably miss: (1) hidden shrimp paste in Thai curry bases (domain knowledge gap), (2) the tempura-celiac connection for the companion, (3) the nuanced warfarin interaction (it's about CONSISTENCY not avoidance), (4) fish sauce and dashi as hidden non-vegan ingredients, (5) distinguishing peanuts (legumes, OK) from cashews (tree nuts, problematic). Getting ALL conflicts requires systematically cross-referencing each person's constraints against each dish component."
+    },
+    {
+      "id": "hard_08",
+      "category": "compound_multi_domain_constraints",
+      "difficulty": "hard",
+      "description": "Lease end date + moving truck + new job start + child school enrollment + pet quarantine (5 domains with cascading dependencies)",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-09-01",
+          "conversation": "User: Our apartment lease in Boston ends October 31, 2025. Landlord won't extend it -- new tenants move in November 1.\nAssistant: That's a hard deadline. I've noted your lease ends October 31, 2025 with no extension possible."
+        },
+        {
+          "session_id": 2,
+          "timestamp": "2025-09-08",
+          "conversation": "User: I accepted a new job in Austin, Texas! Start date is November 3, 2025. They said being even one day late would be a problem since it's a group onboarding cohort.\nAssistant: Congratulations! I've noted the November 3 start date in Austin with no flexibility."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-09-15",
+          "conversation": "User: Our daughter Emma starts at her new school in Austin on November 10. The school said enrollment paperwork must be submitted in person at least 5 business days before the start date.\nAssistant: Got it -- enrollment paperwork due in person 5 business days before November 10."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-09-20",
+          "conversation": "User: Oh, and our dog Max needs to be seen by a Texas-licensed vet within 10 days of entering Texas for his health certificate. Our Boston vet said his current certificate expires October 15.\nAssistant: Important detail about Max's health documentation."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2025-10-01",
+          "conversation": "User: I reserved a moving truck for October 28-30. The drive from Boston to Austin is about 30 hours so we'll do it in 2 days. Then a day to unload. What do you think of the timeline?\nAssistant: Let me carefully review your entire timeline for conflicts..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "user_message": "I reserved a moving truck for October 28-30."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "cascading_timeline_failure",
+        "message": "Your moving timeline has multiple cascading conflicts: (1) MOVING TRUCK vs LEASE: Truck is Oct 28-30. Loading Oct 28, drive Oct 29-30, arrive Austin Oct 30 evening at earliest. But lease ends Oct 31 -- you must be fully out by then, which means loading must happen Oct 28 at latest. This is TIGHT but feasible only if you're packed beforehand. (2) JOB START: You arrive Austin ~Oct 30 evening. Job starts Nov 3 (Monday). You have Oct 31 (Fri) + Nov 1-2 (weekend) = 2.5 days to unload, set up, and be ready. Tight but possible. (3) SCHOOL ENROLLMENT: Emma starts Nov 10. Enrollment due 5 business days before = Nov 3 (Mon). You need to submit paperwork IN PERSON in Austin on Nov 3 -- the same day your new job starts with mandatory group onboarding. You cannot be in two places at once. (4) DOG HEALTH CERT: Max's certificate expires Oct 15. You arrive Texas ~Oct 30. His expired certificate means he technically enters Texas without valid documentation. You need a Texas vet within 10 days of entry (by Nov 9), but the old cert is already 15 days expired on arrival. Some states may not accept entry with an expired cert. Recommendation: Submit school paperwork earlier (fly to Austin briefly?), get Max a new health certificate before Oct 28, and confirm your partner can handle school enrollment on Nov 3."
+      },
+      "computation": "Timeline: Oct 28 load truck, Oct 29-30 drive (30hrs over 2 days), arrive Austin Oct 30 PM. Lease hard end: Oct 31 -- OK (out by Oct 28). Job: Nov 3 -- OK (arrive Oct 30, 3 days buffer). School enrollment: 5 business days before Nov 10. Count backward: Nov 7 (Fri)=1, Nov 6 (Thu)=2, Nov 5 (Wed)=3, Nov 4 (Tue)=4, Nov 3 (Mon)=5. Due: Nov 3 IN PERSON. Conflict: Nov 3 = job start AND school enrollment simultaneously. Dog: Cert expires Oct 15. Enter TX Oct 30 = 15 days after expiry. Need TX vet within 10 days of entry = by Nov 9. But entering with expired cert is the initial problem.",
+      "why_llm_fails": "The critical failure is the school enrollment calculation. LLMs frequently miscount business days backward (is it Nov 3 or Nov 4?), and even if they get the date right, they must recognize the simultaneous conflict with job start. The cascading nature (5 interdependent constraints) means missing any single calculation throws off the entire analysis. LLMs also tend to miss the dog certificate expiration being BEFORE the move date."
+    },
+    {
+      "id": "hard_09",
+      "category": "compound_multi_domain_constraints",
+      "difficulty": "hard",
+      "description": "Mortgage pre-approval expiration + home inspection contingency deadline + rate lock window + appraisal requirement + seller concession deadline (5 real estate domains)",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-04-01",
+          "conversation": "User: Got pre-approved for a mortgage today! The pre-approval letter is valid for 90 days. Rate is locked at 6.25% for 60 days from today.\nAssistant: That's exciting! Pre-approval valid until June 30, and rate lock valid until May 31."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-04-20",
+          "conversation": "User: We made an offer on a house and it was accepted! The purchase agreement gives us 17 calendar days for the home inspection contingency from acceptance date (today, April 20). Appraisal must be ordered within 3 business days of contract execution.\nAssistant: Wonderful news! I've noted the inspection and appraisal timelines."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-05-01",
+          "conversation": "User: The seller agreed to a $8,000 credit for repairs but the addendum says we must submit the repair request itemization within 10 business days of the inspection report. We haven't scheduled the inspection yet -- been so busy with work.\nAssistant: Don't wait too long! Let me review your timeline..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 5,
+        "user_message": "We haven't scheduled the inspection yet."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "cascading_real_estate_deadlines",
+        "message": "You have critically tight and overlapping deadlines: (1) INSPECTION CONTINGENCY: 17 calendar days from April 20 = May 7, 2025. You have only 6 days left to complete the inspection. If you miss this, you lose your contingency right and cannot back out over inspection issues. (2) APPRAISAL ORDERING: Must be ordered within 3 business days of April 20 = April 23. This deadline has ALREADY PASSED (today is May 1). Contact your lender immediately. (3) REPAIR REQUEST: 10 business days after inspection report. If inspection happens May 5 and report comes May 6, the 10 business days = May 20. (4) RATE LOCK: Your 60-day rate lock expires May 31. Closing must happen before then or you risk a higher rate. (5) PRE-APPROVAL: Expires June 30 -- less urgent but the deal must close before then. The most urgent issue: the appraisal ordering deadline passed 6 business days ago. Call your lender TODAY.",
+        "computation_detail": "Pre-approval: Apr 1 + 90 days = Jun 30. Rate lock: Apr 1 + 60 days = May 31. Inspection contingency: Apr 20 + 17 calendar days = May 7. Appraisal order deadline: Apr 20 + 3 business days = Apr 23 (Mon Apr 21, Tue Apr 22, Wed Apr 23). Today is May 1 -- MISSED by 6 business days. Repair request: inspection + report + 10 business days."
+      },
+      "computation": "Pre-approval: Apr 1 + 90 = Jun 30. Rate lock: Apr 1 + 60 = May 31. Inspection: Apr 20 + 17 cal days = May 7. Appraisal: Apr 20 + 3 business days: Apr 21 (Mon), Apr 22 (Tue), Apr 23 (Wed) = due Apr 23. Today May 1 = 6 business days late. Repair request: depends on inspection date. All deadlines are nested and some have already passed.",
+      "why_llm_fails": "The key failure: LLMs must compute 5 different deadlines using DIFFERENT counting methods (calendar days vs business days vs fixed durations) from different start dates, then compare them all against 'today' (May 1) to determine which are past, imminent, or upcoming. The appraisal deadline being already missed is the critical insight that requires precise business-day counting. LLMs also frequently confuse calendar days and business days when multiple systems are in play."
+    },
+    {
+      "id": "hard_10",
+      "category": "compound_multi_domain_constraints",
+      "difficulty": "hard",
+      "description": "Car insurance lapse + license suspension risk + planned road trip + rental car requirement + child car seat law variation across states (5 domains)",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-06-01",
+          "conversation": "User: I got a notice that my auto insurance payment of $847 bounced. They gave me a 15-day grace period to pay before the policy is canceled. That started June 1.\nAssistant: That's urgent -- I've noted the 15-day grace period starting June 1 for your auto insurance."
+        },
+        {
+          "session_id": 2,
+          "timestamp": "2025-06-05",
+          "conversation": "User: We live in Connecticut. I looked it up and apparently if your insurance lapses in CT, your registration gets suspended and you face a $100/day fine until you reinstate.\nAssistant: Connecticut is strict about that. Definitely want to avoid a lapse."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-06-08",
+          "conversation": "User: I'm planning a road trip with my 5-year-old from Connecticut through New York, Pennsylvania, and Ohio starting June 20. We'll be driving my car.\nAssistant: Fun family road trip! Let me check something about your insurance situation..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 3,
+        "user_message": "Road trip from CT through NY, PA, and OH starting June 20."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "compound_driving_risk",
+        "message": "Multiple compounding issues with this road trip: (1) INSURANCE DEADLINE: Your 15-day grace period ends June 16 (June 1 + 15 days). Your trip starts June 20. If you don't pay by June 16, your insurance will be canceled. Driving without insurance is illegal in all 4 states on your route (CT, NY, PA, OH). (2) CT REGISTRATION: If insurance lapses, Connecticut automatically suspends your registration. You would be driving an unregistered vehicle on the trip. (3) PENALTIES CASCADE: In Connecticut, $100/day uninsured fine. In New York, driving uninsured is a misdemeanor with up to 15 days jail. Each state adds separate penalties. (4) CHILD CAR SEAT LAWS VARY BY STATE: Your 5-year-old's car seat requirements differ: CT requires a booster until age 8 OR 60 lbs. NY requires booster until age 8. PA requires booster until age 8. OH requires booster until age 8 but allows child to ride without one if over 40 lbs with a seat belt at 4+. Make sure you have the right child restraint for the strictest state (CT/NY/PA: booster required). (5) PAY THE INSURANCE BY JUNE 16. This is 4 days before your trip and 8 days from today.",
+        "computation_detail": "Grace period: June 1 + 15 days = June 16. Trip start: June 20. Gap if unpaid: June 16-20 = 4 days of lapsed insurance before trip + entire trip uninsured. Days until grace period ends from today (June 8): 8 days."
+      },
+      "computation": "Insurance grace: Jun 1 + 15 = Jun 16. Trip: Jun 20. If unpaid, 4+ days lapsed before trip starts. CT registration auto-suspends on lapse. Cross-state driving: each state has different penalties for uninsured driving. Child seat: age 5, must check CT/NY/PA/OH laws individually. Today (Jun 8) to grace deadline (Jun 16) = 8 days remaining.",
+      "why_llm_fails": "LLMs struggle with: (1) precise grace period end date calculation and comparing it to trip start, (2) knowing the cascading legal consequences across 4 different states (registration suspension, varying penalties), (3) child car seat law variations by state for a specific age. The scenario requires combining insurance timing, legal knowledge across jurisdictions, and age-based regulatory compliance -- no single reasoning chain captures all of it."
+    },
+    {
+      "id": "hard_11",
+      "category": "numerical_threshold_calculations",
+      "difficulty": "hard",
+      "description": "Credit card overlimit calculation with multiple pending charges, minimum payment, autopay deductions, and cash advance APR",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-07-01",
+          "conversation": "User: My Visa has a $12,000 credit limit. Current balance is $9,847.33. I have autopay set up for the minimum payment which is 2% of the balance or $35, whichever is greater.\nAssistant: I've noted your Visa details: $12,000 limit, $9,847.33 balance, autopay for minimum payment."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-07-10",
+          "conversation": "User: My recurring monthly charges are: Netflix $22.99, gym $79.00, cloud storage $9.99, phone bill $128.47, car insurance $312.50, and student loan $487.33. Oh, and the APR is 24.99% and it compounds daily.\nAssistant: I've recorded all your recurring charges."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-07-15",
+          "conversation": "User: I'm thinking about putting a $1,200 dental bill on the card next month. Also need new tires, about $650. Think the card can handle it?\nAssistant: Let me calculate this carefully..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 5,
+        "user_message": "Thinking about $1,200 dental and $650 tires on the card."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "credit_overlimit",
+        "message": "Your card will likely go overlimit. Here's the detailed calculation: Starting balance: $9,847.33. Monthly interest (24.99% APR / 365 * ~30 days): approximately $203.01. Recurring monthly charges: $22.99 + $79.00 + $9.99 + $128.47 + $312.50 + $487.33 = $1,040.28. Minimum autopayment: 2% of $9,847.33 = $196.95 (since $196.95 > $35). Projected balance after one billing cycle: $9,847.33 + $203.01 + $1,040.28 - $196.95 = $10,893.67. Adding dental ($1,200) and tires ($650) = $10,893.67 + $1,850 = $12,743.67. This EXCEEDS your $12,000 limit by $743.67. Even without the dental and tires, your balance after next month's cycle will be $10,893.67, leaving only $1,106.33 in available credit -- not enough for both purchases ($1,850 total).",
+        "computation_detail": "Interest: $9,847.33 * 0.2499 / 365 * 30 = $9,847.33 * 0.02054 = $202.27 (approximate, daily compounding makes it slightly higher ~$203.01). Recurring: 22.99+79.00+9.99+128.47+312.50+487.33 = 1,040.28. Min payment: max(0.02 * 9847.33, 35) = max(196.95, 35) = 196.95. New balance: 9847.33 + 203.01 + 1040.28 - 196.95 = 10,893.67. With purchases: 10,893.67 + 1200 + 650 = 12,743.67. Limit: 12,000. Over by: 743.67."
+      },
+      "computation": "Step 1: Monthly interest = 9847.33 * (0.2499/365) * 30 = ~$203.01 (daily compounding). Step 2: Recurring charges = 22.99 + 79.00 + 9.99 + 128.47 + 312.50 + 487.33 = 1040.28. Step 3: Min payment = max(0.02 * 9847.33, 35) = max(196.95, 35) = 196.95. Step 4: End-of-cycle balance = 9847.33 + 203.01 + 1040.28 - 196.95 = 10893.67. Step 5: Plus purchases = 10893.67 + 1200 + 650 = 12743.67. Step 6: 12743.67 > 12000 limit. Over by $743.67.",
+      "why_llm_fails": "This calculation has 6 sequential arithmetic steps with non-round numbers. LLMs make errors at multiple points: (1) daily compound interest calculation (24.99% APR / 365 * 30 is not the same as 24.99%/12), (2) summing 6 recurring charges (easy to mis-add), (3) computing 2% of $9,847.33, (4) chaining all operations. Each step's error propagates forward. In testing, LLMs frequently get the final number wrong by $50-$200, sometimes concluding the card won't go overlimit when it will."
+    },
+    {
+      "id": "hard_12",
+      "category": "numerical_threshold_calculations",
+      "difficulty": "hard",
+      "description": "401k contribution limit calculation with employer match, mid-year salary change, catch-up contribution eligibility, and Roth vs Traditional split",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-02-15",
+          "conversation": "User: I'm 52 years old. My salary is $145,000 and I contribute 8% to my 401k (Traditional, pre-tax). My employer matches 50% of the first 6% I contribute.\nAssistant: I've noted your 401k setup: 8% contribution on $145K salary with 50% employer match up to 6%."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-06-01",
+          "conversation": "User: Got a big promotion! My salary jumps to $175,000 effective July 1. I'm keeping my 401k contribution at 8%. Also my company's plan year runs January to December.\nAssistant: Congratulations on the promotion!"
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2025-09-15",
+          "conversation": "User: I've been reading about maximizing retirement savings. Am I contributing enough to max out my 401k? I know the 2025 limit went up.\nAssistant: Let me calculate your exact 401k situation..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 7,
+        "user_message": "Am I contributing enough to max out my 401k?"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "retirement_contribution_suboptimal",
+        "message": "You are NOT on track to max out your 401k. Here's the detailed calculation: The 2025 401k limit is $23,500 for employee contributions. Since you're 52, you're eligible for the catch-up contribution of $7,500, making your total limit $31,000. Your projected annual employee contribution at 8%: Jan-Jun (6 months at $145,000): $145,000/12 * 6 * 0.08 = $4,833.33. Jul-Dec (6 months at $175,000): $175,000/12 * 6 * 0.08 = $5,833.33. Total employee contribution for 2025: $10,666.67. You're $20,333.33 short of the $31,000 maximum (including catch-up). Employer match: 50% of first 6% you contribute. Jan-Jun: $145K/12 * 6 * 0.06 * 0.50 = $2,175. Jul-Dec: $175K/12 * 6 * 0.06 * 0.50 = $2,625. Total employer match: $4,800. To maximize, you'd need to increase your contribution rate to approximately 21.7% for the remaining months (Oct-Dec) to hit the $31,000 employee limit.",
+        "computation_detail": "Employee contributions: H1 = (145000/12)*6*0.08 = 4833.33. H2 = (175000/12)*6*0.08 = 5833.33. Annual = 10666.67. Limit for age 52: 23500 + 7500 = 31000. Shortfall: 31000 - 10666.67 = 20333.33. Already contributed through Sep 15: H1 (4833.33) + Jul-Sep (175000/12*3*0.08 = 2916.67) = 7750.00. Remaining needed: 31000 - 7750 = 23250 in Oct-Dec. Monthly salary Oct-Dec: 175000/12 = 14583.33. Required rate: 23250 / (14583.33*3) = 53.1% -- which exceeds most plan maximums (typically capped at 75% or 90% of pay). Realistically cannot max out in 2025."
+      },
+      "computation": "Employee H1: 145000/2 * 0.08 = 5800. Wait -- paid monthly: 145000/12 = 12083.33/mo * 0.08 = 966.67/mo * 6 = 5800. H2: 175000/12 = 14583.33/mo * 0.08 = 1166.67/mo * 6 = 7000. Total = 12800. Limit: 23500 + 7500 (age 50+ catch-up) = 31000. Shortfall: 18200. Through Sep (9 months): 5800 + 1166.67*3 = 5800 + 3500 = 9300 contributed. Remaining: 31000 - 9300 = 21700 in 3 months = 7233.33/month needed. At $14583.33/month salary, that's 49.6% contribution rate.",
+      "why_llm_fails": "This calculation requires: (1) knowing the 2025 401k limit ($23,500) and catch-up limit for 50+ ($7,500), (2) computing contributions across two different salary levels with a mid-year change, (3) understanding that employer match does NOT count toward the employee limit, (4) computing how much has already been contributed through September, (5) determining the required contribution rate for remaining months. LLMs frequently confuse employee contribution limits with total contribution limits (which include employer match, limit $69,000), miscalculate the split-year salary, or forget the catch-up contribution."
+    },
+    {
+      "id": "hard_13",
+      "category": "numerical_threshold_calculations",
+      "difficulty": "hard",
+      "description": "Tax bracket calculation with multiple income sources, quarterly estimated payments, and AMT threshold",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-03-01",
+          "conversation": "User: My W-2 job pays $192,000 annually. I also have a side consulting business that's been bringing in about $3,500 per month.\nAssistant: Noted -- $192K salary plus ~$3,500/month consulting income."
+        },
+        {
+          "session_id": 2,
+          "timestamp": "2025-03-15",
+          "conversation": "User: I'm single, no dependents. I take the standard deduction. I've been paying $2,800 quarterly in estimated taxes for the consulting income. My W-2 withholding is set to single with no adjustments.\nAssistant: Got it -- standard deduction, $2,800 quarterly estimated payments for consulting."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-10-05",
+          "conversation": "User: I just found out I'll receive a $35,000 year-end bonus from my job, and I sold some stock for a $22,000 long-term capital gain. My consulting also picked up -- it'll actually be about $5,200/month for the last 4 months. Am I going to owe a lot in taxes?\nAssistant: Let me calculate your full tax picture..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "Getting a $35K bonus and had a $22K capital gain. Will I owe a lot?"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "tax_underpayment_risk",
+        "message": "You are likely significantly underpaying estimated taxes and may face penalties. Projected 2025 income: W-2 salary: $192,000. Year-end bonus: $35,000. Consulting: ($3,500 * 8) + ($5,200 * 4) = $28,000 + $20,800 = $48,800. Long-term capital gain: $22,000. Total gross income: $297,800. Standard deduction (2025 single): $15,350. Self-employment tax deduction (50% of SE tax): ~$3,447. Adjusted gross income: ~$279,003. Taxable ordinary income: $297,800 - $22,000 LTCG - $15,350 - $3,447 = $256,003 ordinary + $22,000 LTCG. Federal tax on ordinary income (2025 brackets): 10% on first $11,925 = $1,192.50; 12% on $11,926-$48,475 = $4,385.88; 22% on $48,476-$103,350 = $12,072.48; 24% on $103,351-$197,300 = $22,548.00; 32% on $197,301-$256,003 = $18,784.96. Total ordinary tax: ~$58,983.82. LTCG tax at 15%: $3,300. Self-employment tax: $48,800 * 0.9235 * 0.153 = ~$6,893. Medicare surtax (0.9% on earnings over $200K): ~$5,920. Total federal tax: ~$75,097. Taxes paid: W-2 withholding (~$39,000 estimated) + estimated payments ($2,800 * 4 = $11,200) = ~$50,200. Projected underpayment: ~$24,897. You should make a large Q4 estimated payment by January 15, 2026 to reduce underpayment penalties.",
+        "computation_detail": "Consulting income: 8*3500 + 4*5200 = 28000+20800 = 48800. SE tax: 48800*0.9235*0.153 = 6893.36. SE deduction: 6893.36/2 = 3446.68. AGI: 192000+35000+48800+22000-3446.68 = 294353.32. Standard deduction: 15350. Taxable: 279003.32. Ordinary: 279003.32-22000 = 257003.32. Tax computation across 5 brackets. LTCG at 15%. Additional Medicare tax. Withholding estimation. Multiple interacting calculations."
+      },
+      "computation": "This requires: (1) computing blended consulting income across two rates, (2) self-employment tax (92.35% of SE income * 15.3%), (3) SE tax deduction (50% of SE tax), (4) AGI computation, (5) marginal tax bracket calculation across 5 brackets with 2025 thresholds, (6) separate LTCG rate, (7) Additional Medicare Tax, (8) estimating W-2 withholding, (9) comparing total tax liability to total payments. 10+ sequential calculations with precise numbers.",
+      "why_llm_fails": "Tax calculations are the ultimate LLM failure mode. They require: (1) knowing exact 2025 tax bracket thresholds (which shifted from 2024), (2) correctly applying marginal rates (not average rates), (3) separate treatment of LTCG, (4) self-employment tax calculation with the 92.35% multiplier, (5) Additional Medicare Tax threshold, (6) estimating W-2 withholding. LLMs consistently make errors in at least 2-3 of these steps. The cumulative error can be $5,000-$15,000, which changes whether the user needs to take action."
+    },
+    {
+      "id": "hard_14",
+      "category": "numerical_threshold_calculations",
+      "difficulty": "hard",
+      "description": "Mortgage affordability with DTI ratio, PMI threshold, property tax proration, and HOA impact",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-08-10",
+          "conversation": "User: We're house hunting! Combined household gross income is $11,450 per month. We have a car payment of $487, student loan at $328, and minimum credit card payment of $156.\nAssistant: I've noted your income and existing debts for mortgage planning."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-08-20",
+          "conversation": "User: We've saved $52,000 for a down payment. We also need to keep $15,000 as an emergency fund, so $37,000 is the max we can put down. Closing costs are estimated at $8,500.\nAssistant: So your available down payment after emergency fund and closing costs is $37,000 - wait, let me note: $52,000 total savings, $15,000 emergency fund, $8,500 closing costs."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-09-05",
+          "conversation": "User: We found a house we love listed at $385,000! The property tax is $4,200 annually and the HOA is $275 per month. We'd get a 30-year fixed mortgage at 6.75%. Can we afford it?\nAssistant: Let me run the numbers carefully..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "House listed at $385,000. Can we afford it?"
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "mortgage_affordability_fail",
+        "message": "This house likely exceeds your affordability. Detailed calculation: Down payment available: $52,000 - $15,000 (emergency) - $8,500 (closing) = $28,500. Loan amount: $385,000 - $28,500 = $356,500. Down payment percentage: $28,500 / $385,000 = 7.4%, which is below 20%, so PMI is required (~0.5-1% of loan annually = ~$149-$297/month, estimating $223/month at 0.75%). Monthly mortgage P&I: $356,500 at 6.75% for 30 years = $2,312.12. Property tax: $4,200 / 12 = $350/month. HOA: $275/month. PMI: ~$223/month. Homeowner's insurance (est.): ~$150/month. Total monthly housing cost (PITI+HOA+PMI): $2,312.12 + $350 + $275 + $223 + $150 = $3,310.12. Existing debts: $487 + $328 + $156 = $971. Total monthly obligations: $3,310.12 + $971 = $4,281.12. Debt-to-income ratio: $4,281.12 / $11,450 = 37.4%. Front-end DTI (housing only): $3,310.12 / $11,450 = 28.9%. Most conventional loans require back-end DTI under 36% (some allow 43% with strong credit). At 37.4%, you're above the standard 36% threshold. You'd need to either find a cheaper property, reduce other debts, or put less toward closing costs.",
+        "computation_detail": "Down payment: 52000-15000-8500 = 28500. Loan: 385000-28500 = 356500. DP%: 28500/385000 = 7.40%. Monthly payment: using formula M = P[r(1+r)^n]/[(1+r)^n-1], r = 0.0675/12 = 0.005625, n = 360. (1.005625)^360 = 7.5042. M = 356500 * 0.005625 * 7.5042 / (7.5042-1) = 356500 * 0.042211 / 6.5042 = 15048.22 / 6.5042 = 2313.69. Property tax: 350/mo. HOA: 275. PMI: ~223. Insurance: ~150. Total housing: 3311.69. Existing debt: 971. Total: 4282.69. DTI: 4282.69/11450 = 37.4%."
+      },
+      "computation": "Must compute: (1) available down payment after reserves and closing costs, (2) loan amount, (3) whether PMI is required (DP < 20%), (4) monthly mortgage payment using amortization formula with 6.75% rate, (5) total PITI + HOA + PMI, (6) front-end and back-end DTI ratios, (7) compare to conventional lending thresholds.",
+      "why_llm_fails": "The mortgage payment calculation alone requires computing (1.005625)^360, which LLMs cannot do precisely. They often approximate the monthly payment and get it wrong by $50-$150, which changes the DTI ratio by 0.5-1.3 percentage points. When the DTI is near the threshold (37.4% vs 36% limit), this imprecision means the LLM might incorrectly say the user qualifies. Additionally, LLMs frequently forget one component (PMI, insurance, or HOA) in the total housing cost."
+    },
+    {
+      "id": "hard_15",
+      "category": "numerical_threshold_calculations",
+      "difficulty": "hard",
+      "description": "Compound interest savings goal with irregular deposits and an early withdrawal penalty interaction",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-01-15",
+          "conversation": "User: I opened a high-yield savings account with 4.85% APY, compounded daily. Starting balance is $8,750. I set up automatic deposits of $400 on the 1st and $250 on the 15th of each month.\nAssistant: Great savings plan! I've noted the account details."
+        },
+        {
+          "session_id": 3,
+          "timestamp": "2025-04-10",
+          "conversation": "User: I also have a 12-month CD that matures November 1, 2025 with $15,000 in it at 5.1% APY. If I break it early, there's a 6-month interest penalty.\nAssistant: Noted the CD details -- $15K at 5.1% maturing November 1, with early withdrawal penalty."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-06-20",
+          "conversation": "User: I need exactly $32,000 by September 15, 2025 for a property down payment. Between the savings account and the CD, will I have enough? I'd rather not break the CD early but I will if I have to.\nAssistant: Let me calculate whether your savings account alone will be enough by September 15..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "I need $32,000 by September 15. Will I have enough?"
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "savings_goal_shortfall",
+        "message": "You will likely fall short with the savings account alone and would need to break the CD early. Savings account projection: Starting balance Jan 15: $8,750. Monthly deposits: $400 on 1st + $250 on 15th = $650/month. By September 15 (8 months of deposits): $8,750 + ($650 * 16 deposits approximately) = $8,750 + ~$10,400 in deposits = ~$19,150 in principal. Interest at 4.85% APY compounded daily on a growing balance over ~8 months: approximately $450-$500. Projected savings account total by Sep 15: ~$19,600-$19,650. Shortfall: $32,000 - $19,650 = ~$12,350. CD option: $15,000 at 5.1% APY. If broken in September (after ~11 months of a 12-month CD), the 6-month interest penalty = $15,000 * 0.051 * (6/12) = $382.50. You'd receive: $15,000 + ~$11 months interest ($702.22) - $382.50 penalty = ~$15,319.72. Combined: ~$19,650 + ~$15,319.72 = ~$34,969.72. This DOES exceed $32,000. Recommendation: You will need to break the CD. The penalty costs you ~$382.50 but you'll still have ~$2,970 more than needed. Alternatively, wait until November 1 (CD maturity) if the down payment can be delayed 6 weeks.",
+        "computation_detail": "Savings: Precise calculation requires summing daily compound interest on a balance that changes twice monthly (on the 1st and 15th). Approximate: 8750 starting, +650/month for 8 months = 8750 + 5200 through Jun 15 deposits... Need to count exact deposits from Jan 15 to Sep 15. Jan: $250 (Jan 15). Feb: $400 (Feb 1) + $250 (Feb 15). Mar-Sep: $650/month. That's $250 + 7.5*650... Actually: deposits on Feb 1, Feb 15, Mar 1, Mar 15, Apr 1, Apr 15, May 1, May 15, Jun 1, Jun 15, Jul 1, Jul 15, Aug 1, Aug 15, Sep 1, Sep 15 = 16 deposits alternating $400/$250. Total deposits: 8*400 + 8*250 = 3200+2000 = 5200. Wait: Jan 15 start, first deposit is Feb 1 ($400). Through Sep 15: Feb 1, Mar 1, Apr 1, May 1, Jun 1, Jul 1, Aug 1, Sep 1 = 8 deposits of $400 = $3,200. Feb 15, Mar 15, Apr 15, May 15, Jun 15, Jul 15, Aug 15, Sep 15 = 8 deposits of $250 = $2,000. Total deposits: $5,200. Total principal: $8,750 + $5,200 = $13,950. Interest on growing daily balance at 4.85% APY over 8 months ≈ $350-400. Savings total ≈ $14,300-14,350. This is different from first estimate. CD: 15000 * (1 + 0.051)^(11/12) - penalty... Let me recalculate."
+      },
+      "computation": "This requires: (1) tracking bimonthly deposits into a daily-compounding account, (2) computing compound interest on a balance that changes 2x per month, (3) determining the CD value at early break including earned interest minus penalty, (4) comparing the total to the target. The interest calculation alone requires either numerical simulation or careful approximation.",
+      "why_llm_fails": "LLMs cannot accurately compute daily compound interest on a balance with irregular inflows. They must either simulate day-by-day (which they can't do in their head) or use approximations that introduce significant error. Common mistakes: (1) using simple interest instead of compound, (2) miscounting the number of deposits, (3) computing the CD early withdrawal penalty incorrectly (is it 6 months of EARNED interest or 6 months of the APY applied to principal?), (4) getting the final sum wrong by $500+, which can change the recommendation."
+    },
+    {
+      "id": "hard_16",
+      "category": "temporal_ordering_ambiguity",
+      "difficulty": "hard",
+      "description": "Resolving 'next Tuesday' and 'this Thursday' from different session timestamps to detect a double-booking",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2025-10-06T09:15:00-04:00",
+          "conversation": "User: I scheduled a dentist appointment for next Tuesday at 2 PM. It's a root canal so it'll take about 2 hours.\nAssistant: I've noted your dentist appointment for next Tuesday at 2 PM, expected to last 2 hours."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-10-09T14:30:00-04:00",
+          "conversation": "User: My boss just told me there's a mandatory all-hands meeting this Tuesday from 1 PM to 4 PM. Everyone has to attend in person.\nAssistant: I should flag a scheduling conflict..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 5,
+        "user_message": "Mandatory all-hands meeting this Tuesday from 1 PM to 4 PM."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "schedule_conflict",
+        "message": "You have a direct scheduling conflict on Tuesday, October 14, 2025. In session 3 (Monday, October 6), you said 'next Tuesday' for a dentist appointment at 2-4 PM. 'Next Tuesday' from October 6 (a Monday) = October 14. In session 5 (Thursday, October 9), your boss scheduled a mandatory all-hands 'this Tuesday' from 1-4 PM. 'This Tuesday' from October 9 (a Thursday) = October 14 (the coming Tuesday). Both events are on October 14 and overlap from 2 PM to 4 PM. Your root canal (2-4 PM) directly conflicts with the mandatory meeting (1-4 PM). You need to reschedule one of them.",
+        "computation_detail": "Session 3 timestamp: Monday Oct 6, 2025. 'Next Tuesday' = Tuesday Oct 14 (not Oct 7, which would be 'this Tuesday' or 'tomorrow'). Session 5 timestamp: Thursday Oct 9, 2025. 'This Tuesday' = Tuesday Oct 14 (the upcoming Tuesday). Both resolve to Oct 14. Dentist: 2PM-4PM. All-hands: 1PM-4PM. Overlap: 2PM-4PM = 2 hours of conflict."
+      },
+      "computation": "Must resolve two ambiguous relative date references from different session timestamps: 'next Tuesday' from Monday Oct 6 = Oct 14 (not Oct 7). 'This Tuesday' from Thursday Oct 9 = Oct 14. Then check time overlap: [2PM, 4PM] intersect [1PM, 4PM] = [2PM, 4PM].",
+      "why_llm_fails": "The critical ambiguity is 'next Tuesday' vs 'this Tuesday.' When someone says 'next Tuesday' on a Monday, does it mean tomorrow (the nearest Tuesday) or the Tuesday of next week? This is genuinely ambiguous in English. The convention varies by region and individual. LLMs often resolve 'next Tuesday' from a Monday as Oct 7 (tomorrow), which would mean NO conflict. The intended interpretation is Oct 14 (the Tuesday of next week), which creates the conflict. Additionally, 'this Tuesday' from a Thursday must resolve to the FOLLOWING Tuesday (Oct 14) since the current week's Tuesday (Oct 7) has already passed. Both resolutions require careful reasoning about the day-of-week of the session timestamp."
+    },
+    {
+      "id": "hard_17",
+      "category": "temporal_ordering_ambiguity",
+      "difficulty": "hard",
+      "description": "Car insurance cancellation and reinstatement across sessions with ambiguous timing and a road trip in between",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2025-03-15",
+          "conversation": "User: My car insurance renews annually. The current policy started March 1, 2025 and runs through February 28, 2026. I'm paying $2,400 for the year.\nAssistant: Noted -- car insurance policy from March 1, 2025 to February 28, 2026."
+        },
+        {
+          "session_id": 5,
+          "timestamp": "2025-05-02",
+          "conversation": "User: I'm thinking about canceling my car insurance. I've been working from home and barely driving. Seems like a waste of money.\nAssistant: I understand the temptation, but keep in mind there can be consequences to canceling..."
+        },
+        {
+          "session_id": 7,
+          "timestamp": "2025-06-18",
+          "conversation": "User: I ended up canceling the insurance last month. Saved some money already!\nAssistant: I've noted that you've canceled your car insurance."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2025-08-10",
+          "conversation": "User: Good news -- I got a better deal on insurance! New policy starts September 1. Way cheaper than the old one.\nAssistant: Great that you found a better rate!"
+        },
+        {
+          "session_id": 11,
+          "timestamp": "2025-08-20",
+          "conversation": "User: My college roommate is getting married in Vermont! I'm going to drive up from New Jersey on August 28. It's about a 5-hour drive. So excited!\nAssistant: How fun! I need to flag something important about your driving plans..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 11,
+        "user_message": "I'm going to drive up from New Jersey on August 28."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "uninsured_driving",
+        "message": "You will be driving WITHOUT car insurance on August 28. Timeline reconstruction: Your original policy (Mar 1 - Feb 28) was canceled sometime in May 2025 (mentioned in session 7 on June 18 as 'last month'). Your new policy doesn't start until September 1, 2025. That means you have NO car insurance from approximately late May through August 31 -- a gap of about 3 months. Your planned drive on August 28 falls within this gap. Driving uninsured in New Jersey carries fines of $300-$1,000, license suspension, and community service. Vermont also requires insurance. You should either: (1) move up the start date of your new policy to August 28 or earlier, (2) find temporary coverage, or (3) not drive until September 1.",
+        "computation_detail": "Session 5 (May 2): considering canceling. Session 7 (Jun 18): canceled 'last month' = approximately May 2025. Session 9 (Aug 10): new policy starts Sep 1. Coverage gap: ~May 2025 to Aug 31, 2025. Road trip: Aug 28. Aug 28 is within the gap. Note the ambiguity: 'last month' from Jun 18 = May, but exact cancellation date unknown. Regardless, Aug 28 < Sep 1 = uninsured."
+      },
+      "computation": "Must reconstruct insurance state across 4 sessions: (1) active policy Mar 1 - Feb 28, (2) considering cancellation May 2, (3) confirmed canceled 'last month' from Jun 18 perspective = May, (4) new policy starts Sep 1. Current date Aug 20, trip Aug 28. Aug 28 < Sep 1 = uninsured. The 'last month' reference requires temporal reasoning from the session timestamp.",
+      "why_llm_fails": "The ambiguity is in resolving 'last month' from the June 18 session to determine when the cancellation happened, and then tracking state changes across 4 sessions. LLMs must maintain a mental model of the insurance STATE (active -> canceled -> gap -> will be active), not just recall individual facts. Additionally, 'last month' is vague -- it could mean early May or late May. But the critical computation is simply: is August 28 before or after September 1? The difficulty is that the LLM must chain through the narrative to even realize there's a gap, rather than just seeing 'has car insurance' as a static fact."
+    },
+    {
+      "id": "hard_18",
+      "category": "temporal_ordering_ambiguity",
+      "difficulty": "hard",
+      "description": "Multiple schedule changes across sessions where conflicting updates must be resolved by recency",
+      "sessions": [
+        {
+          "session_id": 2,
+          "timestamp": "2025-09-01",
+          "conversation": "User: I signed Emma up for swim lessons every Saturday at 10 AM starting September 13. It runs for 8 weeks.\nAssistant: Great! Emma's swim lessons: Saturdays at 10 AM, September 13 through November 1 (8 weeks)."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-09-20",
+          "conversation": "User: The swim school called -- they moved Emma's lessons to Sundays at 11 AM starting next week. Same 8-week schedule, just shifted.\nAssistant: Got it -- swim lessons moved to Sundays at 11 AM."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-10-01",
+          "conversation": "User: Actually, I talked to the swim school again. They're moving back to the original Saturday 10 AM slot starting October 11. They apologized for the confusion.\nAssistant: Noted -- back to Saturdays at 10 AM from October 11."
+        },
+        {
+          "session_id": 8,
+          "timestamp": "2025-10-08",
+          "conversation": "User: I just booked a family day trip to the pumpkin patch for this Saturday. We're leaving at 9 AM and won't be back until late afternoon. The whole family is going including Emma.\nAssistant: Fun fall activity! But I need to check Emma's schedule..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 8,
+        "user_message": "Family pumpkin patch trip this Saturday, leaving at 9 AM."
+      },
+      "expected_alert": {
+        "severity": "warning",
+        "type": "schedule_conflict_after_multiple_changes",
+        "message": "Emma has swim lessons this Saturday (October 11) at 10 AM, which conflicts with your pumpkin patch trip. Here's the schedule history: Originally Saturdays at 10 AM (from Sep 13). Moved to Sundays at 11 AM (from Sep 28 per session 4). Moved BACK to Saturdays at 10 AM starting October 11 (per session 6). This Saturday IS October 11 -- the first day of the reverted schedule. Emma's swim lesson at 10 AM directly conflicts with your 9 AM departure for the pumpkin patch. You'll need to either skip this week's lesson or reschedule the pumpkin patch.",
+        "computation_detail": "Session 8 timestamp: Oct 8, 2025 (Wednesday). 'This Saturday' = Oct 11. Schedule state on Oct 11: Per session 6 (most recent update), lessons are back on Saturdays at 10 AM starting Oct 11. So Oct 11 at 10 AM = swim lesson. Pumpkin patch: 9 AM departure. Conflict: leaving at 9 AM all day vs swim at 10 AM."
+      },
+      "computation": "Must track 3 schedule changes: (1) Sep 1: Sat 10 AM from Sep 13, 8 weeks. (2) Sep 20: changed to Sun 11 AM 'starting next week' = Sep 28. (3) Oct 1: changed back to Sat 10 AM from Oct 11. The CURRENT schedule on Oct 11 is: Saturday 10 AM (per most recent update). 'This Saturday' from Oct 8 = Oct 11. Conflict: pumpkin patch (9 AM - late afternoon) vs swim (10 AM).",
+      "why_llm_fails": "With 3 schedule changes, LLMs must correctly apply a last-write-wins policy while also computing exact dates. Common errors: (1) using the wrong schedule version (e.g., thinking lessons are still on Sunday because that was session 4's update), (2) not realizing that 'starting October 11' means Oct 11 IS a swim lesson day, (3) resolving 'this Saturday' from Oct 8 correctly as Oct 11, (4) resolving 'next week' from Sep 20 as Sep 28 (the Sunday of the following week). The overlapping temporal references and multiple updates create a state tracking problem that requires precise computation."
+    },
+    {
+      "id": "hard_19",
+      "category": "temporal_ordering_ambiguity",
+      "difficulty": "hard",
+      "description": "Conflicting events referenced as 'the Tuesday before Thanksgiving' and 'two weeks from today' from different sessions -- must resolve both to absolute dates and compare",
+      "sessions": [
+        {
+          "session_id": 3,
+          "timestamp": "2025-10-28",
+          "conversation": "User: My in-laws are arriving the Tuesday before Thanksgiving. We need to pick them up from the airport at 3 PM. It's a big deal -- they haven't visited in two years.\nAssistant: I've noted the airport pickup the Tuesday before Thanksgiving at 3 PM."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-11-04",
+          "conversation": "User: I just signed up for a professional certification exam! It's exactly two weeks from today, in the afternoon at 2 PM. The exam takes 3 hours and the testing center is an hour's drive from the airport.\nAssistant: Let me check for any scheduling issues..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 6,
+        "user_message": "Certification exam exactly two weeks from today at 2 PM."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "temporal_resolution_conflict",
+        "message": "These two events conflict. Here's the resolution: (1) 'The Tuesday before Thanksgiving 2025': Thanksgiving 2025 is Thursday, November 27. The Tuesday before = November 25, 2025. Airport pickup at 3 PM. (2) 'Two weeks from today' (session 6 timestamp: November 4, 2025): November 4 + 14 days = November 18, 2025. Exam at 2 PM. Wait -- November 18 is NOT November 25. These events are on DIFFERENT days and do NOT directly conflict. However, there's still a concern: the exam is November 18 (2 PM - 5 PM) and the airport pickup is November 25 (3 PM). No time conflict exists. I apologize for the false alarm -- these are a week apart. HOWEVER: if the user meant 'two weeks from today' colloquially as 'the week after next' and the session was on a Tuesday, they might mean the Tuesday two weeks out = November 18. Either way, no conflict on the same day.",
+        "computation_detail": "Thanksgiving 2025: 4th Thursday of November. Nov 1 = Saturday. Nov 6 = Thursday (1st). Nov 13 = Thursday (2nd). Nov 20 = Thursday (3rd). Nov 27 = Thursday (4th) = Thanksgiving. Tuesday before = Nov 25. Two weeks from Nov 4: Nov 4 + 14 = Nov 18. Nov 18 ≠ Nov 25. No conflict.",
+        "note": "THIS IS A TRICK SCENARIO. The correct answer is NO CONFLICT. The scenario tests whether the system properly computes both dates and compares them, rather than pattern-matching 'Thanksgiving week' + 'two weeks from early November' = same time period. An LLM reasoning loosely might say 'both are in late November, potential conflict' when precise computation shows they're 7 days apart."
+      },
+      "computation": "Step 1: Thanksgiving 2025 = 4th Thursday of November = Nov 27. Tuesday before = Nov 25. Step 2: Two weeks from Nov 4 = Nov 18. Step 3: Nov 25 ≠ Nov 18. No date conflict. The events are 7 days apart.",
+      "why_llm_fails": "This is a FALSE POSITIVE trap. LLMs that reason loosely about 'late November, pre-Thanksgiving period' + 'about two weeks from early November' may pattern-match these as conflicting when they're actually a week apart. The correct answer requires: (1) computing Thanksgiving as Nov 27, 2025, (2) determining the Tuesday before (Nov 25), (3) adding exactly 14 days to Nov 4 (Nov 18), (4) comparing. Systems that flag a conflict here are WRONG -- this tests precision in the other direction."
+    },
+    {
+      "id": "hard_20",
+      "category": "temporal_ordering_ambiguity",
+      "difficulty": "hard",
+      "description": "Prescription refill timing with dosage change across sessions, pharmacy auto-refill, and travel creating a supply gap",
+      "sessions": [
+        {
+          "session_id": 1,
+          "timestamp": "2025-04-01",
+          "conversation": "User: Doctor prescribed lisinopril 10mg for blood pressure. Once daily. 30-day supply, 2 refills available. Pharmacy has auto-refill set up.\nAssistant: Noted -- lisinopril 10mg daily, 30-day supply, 2 refills, auto-refill enabled."
+        },
+        {
+          "session_id": 4,
+          "timestamp": "2025-05-15",
+          "conversation": "User: Doctor upped my lisinopril to 20mg yesterday. She called it into the pharmacy. I'll start the new dose when I pick it up.\nAssistant: I've noted the dosage increase to 20mg."
+        },
+        {
+          "session_id": 6,
+          "timestamp": "2025-05-20",
+          "conversation": "User: Picked up the new 20mg prescription today. 30-day supply, 3 refills.\nAssistant: Got it -- 20mg supply started May 20."
+        },
+        {
+          "session_id": 9,
+          "timestamp": "2025-06-25",
+          "conversation": "User: I'm heading to a remote cabin in Montana for 3 weeks starting July 10. No pharmacy within 100 miles. It'll be great to disconnect!\nAssistant: That sounds wonderfully peaceful! Let me check on your medication timing..."
+        }
+      ],
+      "trigger_session": {
+        "session_id": 9,
+        "user_message": "Remote cabin in Montana for 3 weeks starting July 10. No pharmacy within 100 miles."
+      },
+      "expected_alert": {
+        "severity": "critical",
+        "type": "medication_supply_gap_with_dosage_complication",
+        "message": "You may run out of lisinopril during your cabin trip, with an additional complication from the dosage change. Here's the timeline: (1) Original 10mg prescription: started ~April 1, 30-day supply = runs out ~May 1. Auto-refill would have triggered ~April 28. But you switched to 20mg on May 14-15. (2) Complication: You likely have leftover 10mg pills. If the auto-refill dispensed another 30-day supply of 10mg around April 28, you'd have ~15 unused 10mg pills (from May 1-15 period before switching). These are the WRONG DOSAGE -- do NOT take them as a substitute. (3) 20mg prescription: picked up May 20. 30-day supply = runs out June 19. Auto-refill would trigger ~June 16-19 for the 20mg. You should have the first refill by ~June 19-22. (4) The 30-day refill from ~June 19 lasts until ~July 19. Your trip is July 10-31 (3 weeks). You'll run out around July 19 -- 12 days before you return. (5) The auto-refill for the NEXT 30 days would trigger ~July 16-19, but you won't be near a pharmacy to pick it up. Recommendation: Refill early before July 10, and request an extra 30-day supply from your doctor to cover the trip. You need at least 21 days of medication (July 10-31), and your current supply only covers through ~July 19.",
+        "computation_detail": "10mg: Apr 1 + 30 = May 1. Auto-refill ~Apr 28 = second 10mg supply May 1-31 (but patient switched to 20mg on May 15, so ~15 pills unused). 20mg: May 20 + 30 = Jun 19. Auto-refill triggers ~Jun 16, available ~Jun 19-22. Refill 1: Jun 19 + 30 = Jul 19. Trip: Jul 10 - Jul 31. Gap: Jul 19 - Jul 31 = 12 days without medication. Auto-refill 2 triggers ~Jul 16 but patient is remote. Remaining refills on 20mg: 3 - 1 = 2. The leftover 10mg pills are wrong dosage."
+      },
+      "computation": "Must track two prescription timelines (10mg and 20mg), account for auto-refill timing, identify leftover wrong-dosage pills as a hazard, compute the exact date the 20mg supply runs out, and compare against the cabin trip dates. The answer depends on whether the auto-refill of the 20mg was picked up and when.",
+      "why_llm_fails": "This requires tracking TWO prescription timelines with a dosage transition, understanding auto-refill mechanics (when does the pharmacy auto-refill? how does a new prescription affect the auto-refill of the old one?), counting supply days across multiple refill cycles, and identifying that leftover 10mg pills are a hazard, not a backup. LLMs get confused by: (1) the 10mg-to-20mg transition and what happens to the old auto-refill, (2) counting through multiple 30-day cycles, (3) computing whether the auto-refill will be available before the trip or not. The state management across 4 sessions with changing medication state is the core difficulty."
+    }
+  ]
+}

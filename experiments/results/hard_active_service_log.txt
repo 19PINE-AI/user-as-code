@@ -1,0 +1,41 @@
+Loaded 20 hard scenarios
+
+=== v5+alerts ===
+  17/20 = 85.0%
+
+=== v5 no alerts ===
+  9/20 = 45.0%
+
+=== Full Context ===
+  11/20 = 55.0%
+
+=== Mem0 ===
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+  13/20 = 65.0%
+
+=======================================================
+  HARD ACTIVE SERVICE (20 scenarios)
+=======================================================
+  v5_alerts             17/20 = 85.0%
+  v5_no_alerts           9/20 = 45.0%
+  full_ctx              11/20 = 55.0%
+  mem0                  13/20 = 65.0%
+Exception ignored in: <function QdrantClient.__del__ at 0x343544d60>
+Traceback (most recent call last):
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/qdrant_client.py", line 169, in __del__
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/qdrant_client.py", line 178, in close
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/local/qdrant_local.py", line 85, in close
+ImportError: sys.meta_path is None, Python is likely shutting down
+Exception ignored in: <function QdrantClient.__del__ at 0x343544d60>
+Traceback (most recent call last):
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/qdrant_client.py", line 169, in __del__
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/qdrant_client.py", line 178, in close
+  File "/Users/boj/miniconda3/lib/python3.11/site-packages/qdrant_client/local/qdrant_local.py", line 85, in close
+ImportError: sys.meta_path is None, Python is likely shutting down
