@@ -40,6 +40,13 @@ Memory-R1~\citep{yan2025memoryr1} trains memory policies with GRPO (+48\% F1). A
 \section{Methodology: The User as Code Architecture}
 \label{sec:method}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/architecture.pdf}
+\caption{User as Code two-phase architecture. Phase~1 extracts facts from each session (append-only, never overwritten). Phase~2 periodically structures all accumulated facts into typed Python dataclasses. Multi-strategy retrieval combines structured code, fact vectors, and raw archive. Constraint execution produces pre-computed alerts surfaced in the manifest.}
+\label{fig:architecture}
+\end{figure*}
+
 \subsection{Two-Phase Architecture}
 
 Our key architectural insight, validated through ablation (Section~\ref{sec:ablation}), is that memorizing and structuring must be separated:
@@ -126,6 +133,13 @@ Mem0 & 12 & 38 & 0 & 0 & 38 & 0 & 39.6 \\
 \end{flushleft}
 \end{table}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/benchmarks.pdf}
+\caption{Standard benchmark comparison. \textbf{Left:} LOCOMO (120 QAs) --- UaC~v5 achieves 81.7\%, 94\% of the full-context upper bound. \textbf{Right:} LongMemEval (48 stratified questions) --- UaC~v5 ties full-context at 79.2\%.}
+\label{fig:benchmarks}
+\end{figure*}
+
 On LOCOMO (Table~\ref{tab:locomo}), UaC~v5 achieves 81.7\% LLM-Judge accuracy---94\% of the full-context upper bound (86.7\%) and substantially above A-MEM (69.2\%) and Mem0 (44.2\%). The two-phase extraction preserves information that flat-fact and structured-note systems lose.
 
 On LongMemEval (Table~\ref{tab:longmemeval}), UaC~v5 \textbf{ties full-context at 79.2\%}, achieving perfect 100\% on three of six categories (knowledge-update, single-session-assistant, single-session-user). UaC~v5 outperforms full-context on temporal reasoning (50\% vs.\ 25\%) and knowledge-update (100\% vs.\ 75\%)---the typed \texttt{date()} fields and structured state help track evolving facts and time-ordered events.
@@ -172,6 +186,13 @@ UaC v5 (no alerts) & 52.5\% & 45.0\% \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/active_service.pdf}
+\caption{Active Service: standard vs.\ hard scenarios. On hard arithmetic (multi-step dates, compound constraints, tax calculations), Mem0 drops 27.5pp while UaC~v5 drops only 15pp.}
+\label{fig:active-service}
+\end{figure}
+
 On hard scenarios (Table~\ref{tab:active-hard}), the gap widens dramatically: Mem0 drops 27.5pp (92.5\%$\to$65.0\%) while UaC~v5 drops only 15pp (100\%$\to$85.0\%). Full-context achieves only 55\%---even with all raw text, the thinking model struggles with multi-step numerical computation. \textbf{The harder the arithmetic, the more the executable constraint pipeline matters.} UaC's 3 failures (85\% vs.\ 100\%) are attributable to keyword-matching limitations in the evaluation metric, not to actual missed alerts.
 
 \subsection{Ablation Study}
@@ -193,6 +214,13 @@ v5 + pipeline & 81.7\% & 100\% & Full system with constraints \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/ablation.pdf}
+\caption{Ablation study showing the impact of each architectural decision. \textbf{Left:} LOCOMO recall improves +28pp with append-only extraction (v2$\to$v3), drops -15pp with incremental code overwrite (v3$\to$v4), recovers with two-phase separation (v5). \textbf{Right:} Active Service improves steadily with code structure, with the constraint pipeline adding +32.5pp (v5$\to$v5+pipeline).}
+\label{fig:ablation}
+\end{figure*}
 
 The ablation (Table~\ref{tab:ablation}) reveals three key findings:
 
