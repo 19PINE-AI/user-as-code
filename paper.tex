@@ -1,12 +1,21 @@
-\documentclass[sigconf,nonacm]{acmart}
+\documentclass[11pt]{article}
 
-\usepackage[english]{babel}
+% arXiv-friendly packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{booktabs}
 \usepackage{subcaption}
-\usepackage{amsmath}
 \usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{natbib}
+\usepackage[margin=1in]{geometry}
 
 % Python code listing style
 \definecolor{codebg}{rgb}{0.95,0.95,0.97}
@@ -32,7 +41,7 @@
     frame=single,
     rulecolor=\color{codegray},
     tabsize=4,
-    morekeywords={dataclass, List, Optional, date, assert, Dict}
+    morekeywords={dataclass, List, Optional, date, assert, Dict, field}
 }
 
 \lstdefinestyle{treestyle}{
@@ -45,41 +54,26 @@
 
 \lstset{style=pythonstyle}
 
-% Copyright
-\renewcommand\footnotetextcopyrightpermission[1]{}
-\setcopyright{none}
-
-\settopmatter{printacmref=false, printccs=false, printfolios=true}
-
-% DOI
-\acmDOI{}
-
-% ISBN
-\acmISBN{}
-
-\acmPrice{}
-
-
-\begin{document}
 \title{User as Code: Executable Memory for Personalized Agents}
 
-\author{Bojie Li}
-\affiliation{%
-  \institution{Pine AI}
+\author{
+  Bojie Li \\
+  Pine AI \\
+  \texttt{boj@19pine.ai}
 }
-\email{boj@19pine.ai}
 
-\renewcommand{\shortauthors}{Li}
+\date{}
+
+\begin{document}
+\maketitle
 
 \begin{abstract}
-Current personalization in AI agents primarily relies on Retrieval-Augmented Generation (RAG) over unstructured text, structured knowledge graphs, or flat fact stores. While effective for basic recall, these ``Bag of Facts'' approaches struggle with the specific challenges of user memory: resolving conflicting information, managing temporal dependencies, and enforcing logical constraints (e.g., ``passport expiration'' vs. ``flight date''). This paper introduces \textbf{User as Code}, a novel paradigm where an agent's understanding of a user is maintained as a \textbf{modular, version-controlled software project}. Our core observation is that \textbf{code is the only representation format that unifies readability and verifiability in a single medium}: the same Python that stores a user's passport expiry date can also express---and execute---the assertion that the expiry is too close to a booked flight. This unification enables a \textbf{generate-verify-review loop} that directly \textbf{reduces LLM hallucination}: the coding agent generates Python checks against the code-represented state, the interpreter verifies the computation deterministically, and the agent reviews results to refine or persist---turning unreliable natural-language arithmetic into deterministic results. Constraints are not pre-authored by humans; the LLM generates them autonomously, promoting useful checks to persistent background monitors. We evaluate on established benchmarks (LOCOMO, LongMemEval, LoCoMo-Plus) and against concrete baselines (Mem0, A-MEM, Zep/Graphiti, Hindsight, ENGRAM), demonstrating that User as Code achieves competitive performance on standard recall and retrieval tasks while uniquely enabling proactive alerting based on logical constraints---a capability where all retrieval-based approaches fundamentally fail.
+Current personalization in AI agents primarily relies on Retrieval-Augmented Generation (RAG) over unstructured text, structured knowledge graphs, or flat fact stores. While effective for basic recall, these ``Bag of Facts'' approaches struggle with the specific challenges of user memory: resolving conflicting information, managing temporal dependencies, and enforcing logical constraints. This paper introduces \textbf{User as Code}, a paradigm where an agent's understanding of a user is maintained as a \textbf{modular, version-controlled software project}. Our core observation is that \textbf{code is the only representation format that unifies readability and verifiability in a single medium}: the same Python that stores a user's passport expiry date can also express---and execute---the assertion that the expiry is too close to a booked flight. We propose a two-phase architecture: (1)~append-only fact extraction that never loses information, and (2)~periodic structuring into typed Python dataclasses. This enables a \textbf{generate-verify-review loop} where the coding agent generates Python constraints, the interpreter verifies computation deterministically, and pre-computed alerts are surfaced in a compact manifest. We evaluate on LOCOMO, LongMemEval, and a novel Active Service benchmark against Mem0, A-MEM, and full-context baselines. User as Code achieves 81.7\% on LOCOMO (94\% of full-context), ties full-context on LongMemEval at 79.2\%, and achieves 100\% proactive alert detection on Active Service---a capability where existing memory systems have no equivalent mechanism.
 \end{abstract}
-
-\maketitle
 
 \input{body}
 
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{plainnat}
 \bibliography{reference}
 
 \end{document}
