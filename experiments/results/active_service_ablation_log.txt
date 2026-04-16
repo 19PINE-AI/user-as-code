@@ -1,0 +1,43 @@
+Loaded 40 scenarios
+
+=== v5_with_alerts ===
+  0/40: 1 alerts
+  10/40: 8 alerts
+  20/40: 15 alerts
+  30/40: 23 alerts
+  RESULT: 27/40 = 67.5%
+
+=== v5_no_alerts ===
+  0/40: 0 alerts
+  10/40: 2 alerts
+  20/40: 4 alerts
+  30/40: 11 alerts
+  RESULT: 14/40 = 35.0%
+
+=== v4_code_notes ===
+  0/40: 0 alerts
+  10/40: 4 alerts
+  20/40: 8 alerts
+  30/40: 12 alerts
+  RESULT: 16/40 = 40.0%
+
+=== v3_flat_facts ===
+  0/40: 0 alerts
+  10/40: 4 alerts
+  20/40: 9 alerts
+  30/40: 12 alerts
+  RESULT: 15/40 = 37.5%
+
+=== v2_basic ===
+  0/40: 0 alerts
+  10/40: 4 alerts
+  20/40: 7 alerts
+  30/40: 9 alerts
+  RESULT: 12/40 = 30.0%
+
+ACTIVE SERVICE ABLATION:
+  v5_with_alerts: 27/40 = 67.5%
+  v5_no_alerts: 14/40 = 35.0%
+  v4_code_notes: 16/40 = 40.0%
+  v3_flat_facts: 15/40 = 37.5%
+  v2_basic: 12/40 = 30.0%

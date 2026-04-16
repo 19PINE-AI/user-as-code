@@ -1,0 +1,10 @@
+Conv 1 (conv-26): 19 sessions, 60 QAs
+  v3_flat: ingesting... (832s) answering... 15 30 45 -> F1=0.479 Judge=65.0%
+  v4_notes: ingesting... (814s) answering... 15 30 45 -> F1=0.350 Judge=51.7%
+Conv 2 (conv-30): 19 sessions, 60 QAs
+  v3_flat: ingesting... (666s) answering... 15 30 45 -> F1=0.514 Judge=78.3%
+  v4_notes: ingesting... (606s) answering... 15 30 45 -> F1=0.450 Judge=61.7%
+
+ABLATION RESULTS:
+  v3_flat: F1=0.497 Judge=71.7%
+  v4_notes: F1=0.400 Judge=56.7%
