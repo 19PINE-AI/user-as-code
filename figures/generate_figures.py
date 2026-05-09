@@ -245,7 +245,7 @@ def fig_ablation():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
 
     versions = ['v2\nBasic', 'v3\nFlat\nFacts', 'v4\nCode+\nNotes', 'v5\nTwo-\nPhase', 'v5+\nPipeline']
-    locomo_j = [43.3, 71.7, 56.7, 76.7, 81.7]
+    locomo_j = [56.7, 75.7, 65.7, 78.0, 78.0]
     active_s = [30.0, 37.5, 40.0, 67.5, 100.0]
 
     x = range(len(versions))
@@ -266,8 +266,8 @@ def fig_ablation():
     ax1.spines['right'].set_visible(False)
 
     # Annotate key transitions
-    ax1.annotate('+28pp', xy=(0.5, 57), fontsize=7, color=GREEN, fontweight='bold', ha='center')
-    ax1.annotate('-15pp', xy=(1.5, 62), fontsize=7, color=RED, fontweight='bold', ha='center')
+    ax1.annotate('+19pp', xy=(0.5, 70), fontsize=7, color=GREEN, fontweight='bold', ha='center')
+    ax1.annotate('-10pp', xy=(1.5, 73), fontsize=7, color=RED, fontweight='bold', ha='center')
 
     # Active Service ablation
     ax2.plot(x, active_s, 's-', color=ORANGE, linewidth=2, markersize=8, zorder=5)

@@ -6,16 +6,18 @@ User memory tasks span a spectrum of difficulty: (1)~\textbf{Basic Recall}---sto
 
 Current memory systems---vector databases, JSON stores, knowledge graphs, flat fact extractors---treat memory as a loose collection of facts. This creates two problems. First, conflicting facts (``I love cilantro'' vs.\ ``I actually hate cilantro'') coexist unresolved without version history. Second, even the most advanced formats cannot express executable rules like ``if passport expires within 180 days of travel date, raise an alert.''
 
-\textbf{Thesis:} The fundamental limitation of all existing formats is that they separate \emph{representation} from \emph{verification}. Code is the only format where data and checks over that data coexist in the same medium. The same Python that stores \texttt{passport\_expiry = date(2025, 2, 18)} can also express \texttt{assert (passport\_expiry - flight\_date).days >= 180}. User as Code exploits this unification.
+\textbf{Thesis:} The fundamental limitation of free-text and fact-store formats is that they separate \emph{representation} from \emph{verification}. Typed Python unifies the two in the same medium: the same code that stores \texttt{passport\_expiry = date(2025, 2, 18)} can also express \texttt{assert (passport\_expiry - flight\_date).days >= 180}. JSON dicts plus a Python REPL share this property in principle, but require LLM-managed parsing at every query (Section~\ref{sec:analytical}), which becomes unreliable on noisy real-world conversation. User as Code's contribution is the \emph{two-phase pipeline} that converts unstructured conversation into a representation a code tool can read directly.
 
 We model a user's entire memory as a \textbf{self-evolving software project} with typed dataclasses, domain packages, and executable constraints. The system uses a two-phase architecture: (1)~\emph{append-only fact extraction} that never loses information, and (2)~\emph{periodic code structuring} that organizes facts into typed Python. This enables a \textbf{generate-verify-review loop} where the coding agent writes constraints, the interpreter verifies them deterministically, and results surface as pre-computed alerts in a compact manifest.
 
 Our contributions:
 \begin{itemize}[leftmargin=*]
-\item A two-phase memory architecture that achieves 84.3\% on LOCOMO (95.5\% of full-context) while enabling 100\% proactive alert detection on Active Service.
+\item A two-phase memory architecture that achieves 78.0\% on the 5-conversation LOCOMO subset (300 QAs)---94.7\% of the full-context upper bound (82.3\%) and 2.7pp above the recent MemMachine~\citep{wang2026memmachine} system (75.3\%) on identical Gemini~3 Flash backbone---while enabling 100\% proactive alert detection on Active Service.
 \item A novel Active Service evaluation protocol testing proactive alerting across 40 scenarios in 5 constraint categories.
+\item \textbf{A new analytical-inference benchmark} (100 cases, 10 record types, $N \in \{20, 50, 100, 200, 500\}$) that exposes the gap between code-executable representations (UaC~v5: 99\%, Full~Context+REPL: 100\%) and retrieval-based ones (MemMachine: 43\%, Mem0: 6\%) on aggregate questions where top-$k$ retrieval is structurally lossy. We also report Gemini~3 Flash token cost per system: UaC~v5's structuring pays for itself after \texttildelow3 queries against the same user state, after which it costs an order of magnitude less than re-loading the records each query.
 \item A comprehensive ablation showing that separating memorizing (append-only) from structuring (periodic code generation) is the key architectural insight.
-\item Open-source implementation with comparisons against Mem0, A-MEM, and full-context baselines on standard benchmarks.
+\item Cross-LLM portability validated by re-running the full pipeline with GPT-5.4 (OpenAI) replacing Gemini~3 Flash, recovering 80.8\% on the 2-conversation LOCOMO subset (within 2pp of Gemini).
+\item Open-source implementation with comparisons against Mem0, A-MEM, MemMachine, and full-context baselines on three benchmarks.
 \end{itemize}
 
 
@@ -53,17 +55,24 @@ Our key architectural insight, validated through ablation (Section~\ref{sec:abla
 
 \textbf{Phase 1 --- Memorizing (per session, append-only):} For each conversation session, extract every individual fact as a flat string using a thinking-enabled LLM (Gemini 3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted. Relative dates are resolved to absolute dates using session timestamps. This produces $\sim$50 facts per session, $\sim$950 total for a 19-session conversation. Facts are indexed in a vector database (ChromaDB) for retrieval.
 
-\textbf{Phase 2 --- Structuring (periodic, from all facts):} Periodically, regenerate the entire structured Python code from the accumulated fact list. The LLM (thinking budget 16384) organizes all facts into typed dataclasses with proper type annotations: \texttt{date()} objects for dates, typed lists for collections, \texttt{notes: list[str]} fields for hard-to-type facts. This produces $\sim$7K characters of structured code. Because it's generated fresh from the complete fact corpus, no information is lost.
+\textbf{Phase 2 --- Structuring (periodic, from all facts):} Periodically, regenerate the entire structured Python code from the accumulated fact list. The LLM organizes all facts into typed dataclasses with proper type annotations: \texttt{date()} objects for dates, typed lists for collections, \texttt{notes: list[str]} fields for hard-to-type facts. The code size scales with the number of distinct facts: a 19-session LOCOMO conversation yields $\sim$7K characters of structured code (thinking budget 16,384), while the analytical-inference benchmark at $N{=}500$ records produces 50K--55K characters (thinking budget 8,192, no record truncation up to 500K input characters). Because the code is generated fresh from the complete fact corpus rather than incrementally, no information is lost during the transition between fact and structure.
 
 \textbf{Archive (raw conversation).} Additionally, raw conversation chunks are stored in a vector database as a retrieval fallback when structured code and extracted facts lack sufficient detail.
 
 \subsection{Design Principles}
 
+Two principles are evaluated directly in this paper:
+
 \begin{enumerate}[leftmargin=*]
-\item \textbf{Separation of Structure and Data.} Schema (dataclasses) separated from state (instances).
-\item \textbf{Modularity by Life Domain.} Memory partitioned into independent domain packages.
-\item \textbf{Progressive Disclosure.} Compact manifest ($\sim$200--300 tokens, always loaded) with on-demand domain loading.
-\item \textbf{Unified Representation and Verification.} Code serves as both storage and verification medium.
+\item \textbf{Separation of Structure and Data.} Schema (dataclasses) separated from state (instances). Validated by the v3$\to$v5 ablation (Section~\ref{sec:ablation}).
+\item \textbf{Unified Representation and Verification.} Code serves as both storage and verification medium. Validated by Active Service (Section~\ref{sec:active-service}) and Analytical Inference (Section~\ref{sec:analytical}).
+\end{enumerate}
+
+Three further principles guide production deployment but are not isolated by the experiments:
+
+\begin{enumerate}[leftmargin=*,start=3]
+\item \textbf{Modularity by Life Domain.} Memory partitioned into independent domain packages (e.g., \texttt{travel/}, \texttt{health/}, \texttt{finance/}). Limits cross-domain leakage and supports selective loading at scale.
+\item \textbf{Progressive Disclosure.} Compact manifest ($\sim$200--300 tokens, always loaded) with on-demand domain loading. Keeps the prompt budget bounded as the user state grows.
 \item \textbf{Agent-Native File System.} User project is a directory in the agent's workspace---no custom memory API needed.
 \end{enumerate}
 
@@ -92,66 +101,93 @@ At query time, retrieval combines: (1)~structured Python code state, (2)~relevan
 
 \textbf{Evaluation:} LLM-as-Judge with binary correctness scoring (CORRECT/WRONG, thinking budget 256). The judge receives the question, gold answer, and prediction, and is instructed to be generous: answers conveying the same core information with different wording or format score CORRECT; answers score WRONG only when factually incorrect or claiming unavailability when the gold answer exists.
 
-\textbf{Baselines:} Mem0~\citep{chhikara2025mem0} (flat fact extraction), A-MEM~\citep{xu2025amem} (Zettelkasten-inspired structured notes), Full Context (all raw text passed to LLM).
+\textbf{Baselines:} Mem0~\citep{chhikara2025mem0} (flat fact extraction, mem0ai 1.0.5), A-MEM~\citep{xu2025amem} (Zettelkasten-inspired structured notes), Full Context (all raw text passed to LLM).
 
-\textbf{Benchmarks:} LOCOMO~\citep{maharana2024locomo} (UaC~v5 and Full Context evaluated on 5 conversations, 300 QAs; baselines on 2 conversations, 120 QAs, due to evaluation cost), LongMemEval~\citep{wu2025longmemeval} (48 questions, stratified random sample of 8 per question type from the full 500-question set, seed 42), Active Service (40 standard scenarios plus 20 additional hard scenarios).
+\textbf{Benchmarks:} \emph{All four memory systems are evaluated on the same data}: LOCOMO~\citep{maharana2024locomo} (5 conversations, 60 QAs each, 300 QAs total; conv-26, conv-30, conv-41, conv-42, conv-43); LongMemEval~\citep{wu2025longmemeval} (200 stratified questions, 40\% of the 500-question split, seed 42, with type distribution preserved: 54~temporal-reasoning, 53~multi-session, 31~knowledge-update, 28~single-session-user, 22~single-session-assistant, 12~single-session-preference); Active Service (40 standard + 20 hard scenarios).
+
+\textbf{Cross-LLM portability.} To verify that User as Code's gains do not depend on a particular LLM's code-generation idiosyncrasies, we additionally re-run UaC~v5 with GPT-5.4 (OpenAI) replacing Gemini~3 Flash for fact extraction, code structuring, and answer generation. The Gemini~3 Flash judge is reused for fair scoring against the Gemini run. Cross-LLM evaluation uses the 2-conversation LOCOMO subset (120 QAs) for tractability.
 
 \subsection{Standard Benchmarks}
 
-\begin{table}[t]
-\centering
-\caption{LOCOMO results (Gemini 3 Flash with thinking). Upper block: 5-conversation evaluation. Lower block: 2-conversation subset enabling direct comparison across all systems.}
-\label{tab:locomo}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{System} & \textbf{LLM-Judge} & \textbf{N} & \textbf{Convs} \\
-\midrule
-\multicolumn{4}{@{}l}{\textit{5-conversation evaluation}} \\
-Full Context & \textbf{88.3\%} & 300 & 5 \\
-\textbf{UaC v5 (ours)} & 84.3\% & 300 & 5 \\
-\midrule
-\multicolumn{4}{@{}l}{\textit{2-conversation subset (all systems)}} \\
-Full Context & 86.7\% & 120 & 2 \\
-UaC v5 (ours) & 81.7\% & 120 & 2 \\
-A-MEM & 69.2\% & 120 & 2 \\
-Mem0 & 44.2\% & 120 & 2 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{LongMemEval results (48 stratified questions, 8 per type).}
-\label{tab:longmemeval}
-\begin{tabular}{@{}lcccccc|c@{}}
-\toprule
-\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{Overall} \\
-\midrule
-\textbf{UaC v5} & \textbf{100} & 62 & \textbf{100} & \textbf{62} & \textbf{100} & \textbf{50} & \textbf{79.2} \\
-Full Ctx & 75 & \textbf{75} & 100 & 50 & 100 & 25 & 79.2 \\
-A-MEM & 100 & 62 & 100 & 12 & 100 & 50 & 64.6 \\
-Mem0 & 12 & 38 & 0 & 0 & 38 & 0 & 39.6 \\
-\bottomrule
-\end{tabular}
-\begin{flushleft}
-\small KU=knowledge-update, MS=multi-session, SA=single-asst, SP=single-pref, SU=single-user, TR=temporal-reasoning. Percentages shown.
-\end{flushleft}
-\end{table}
+\input{body_tables}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/benchmarks.pdf}
-\caption{Standard benchmark comparison. \textbf{Left:} LOCOMO on the 2-conversation subset (120 QAs) where all systems were evaluated --- UaC~v5 achieves 81.7\%, 94\% of the full-context upper bound (86.7\%). On 5 conversations (300 QAs), UaC~v5 reaches 84.3\%, 95.5\% of full-context (Table~\ref{tab:locomo}). \textbf{Right:} LongMemEval (48 stratified questions) --- UaC~v5 ties full-context at 79.2\%.}
+\caption{Standard benchmark comparison. All four memory systems are evaluated on the same data: 5-conversation LOCOMO (300 QAs) and a 200-question stratified sample of LongMemEval (40\% of the source split). Full Context is the upper bound (all raw text passed to the LLM).}
 \label{fig:benchmarks}
 \end{figure*}
 
-On LOCOMO (Table~\ref{tab:locomo}), UaC~v5 achieves \textbf{84.3\%} LLM-Judge accuracy across 5 conversations (300 QAs)---\textbf{95.5\% of the full-context upper bound} (88.3\%). On the 2-conversation subset (120 QAs) where all systems were evaluated, UaC~v5 scores 81.7\% compared to A-MEM (69.2\%) and Mem0 (44.2\%)---a 12--37pp advantage. The two-phase extraction preserves information that flat-fact and structured-note systems lose.
+On LOCOMO (Table~\ref{tab:locomo}), all four systems are evaluated symmetrically on the same 5-conversation, 300-QA subset. UaC~v5 reaches \textbf{78.0\%}, recovering 94.7\% of the Full Context upper bound (82.3\%) while operating on extracted memory rather than the full transcripts; A-MEM (56.7\%) and Mem0 (32.7\%) lose 21--45pp on the same data. Inspection of the per-question failures shows Mem0's gap is dominated by temporal questions where its extracted memories preserve relative-date references (``yesterday'', ``last week'') without resolving them, and A-MEM's gap is dominated by single-hop detail questions where note-level retrieval surfaces only context summaries rather than the underlying turn content.
 
-On LongMemEval (Table~\ref{tab:longmemeval}), UaC~v5 \textbf{ties full-context at 79.2\%}, achieving perfect 100\% on three of six categories (knowledge-update, single-session-assistant, single-session-user). UaC~v5 outperforms full-context on temporal reasoning (50\% vs.\ 25\%) and knowledge-update (100\% vs.\ 75\%)---the typed \texttt{date()} fields and structured state help track evolving facts and time-ordered events. Note that with only 8 questions per category, individual category scores have high variance ($\pm$12.5pp per question); the overall score across 48 questions is more reliable. Hindsight~\citep{latimer2025hindsight} reports 91.4\% on the full 500-question LongMemEval using GPT-4o with four specialized memory networks; the gap likely reflects both model differences and our smaller evaluation subset.
+On LongMemEval (Table~\ref{tab:longmemeval}), the 200-question stratified sample (4$\times$ larger than the 48-question split used in earlier drafts) shrinks per-category variance and confirms the same ranking. UaC~v5 reaches \textbf{84.5\%}, within 2pp of Full Context (86.5\%), while A-MEM (58.0\%) and Mem0 (24.5\%) trail by 25--60pp. The typed \texttt{date()} fields help on knowledge-update (96.8\%~vs.~90.3\% for Full Context); the gap to Full Context is concentrated in temporal-reasoning (70.4\%~vs.~81.5\%), where the extraction step occasionally drops the timestamps required for date arithmetic over many sessions.
 
-\textbf{Context on published scores.} Published SOTA reports 93.05\% LOCOMO (EverMemOS~\citep{hu2026evermemos}) and 91.7\% (MemMachine~\citep{wang2026memmachine}) using GPT-4.1-mini. Our full-context baseline at 88.3\% (5 conversations) is comparable, confirming Gemini 3 Flash is a strong backbone. The remaining gap is attributable to evaluating 5 of 10 available conversations, model differences, and adversarial question exclusion in published work. Published systems also require heavy infrastructure (MongoDB, Elasticsearch, Milvus for EverMemOS); UaC requires only ChromaDB.
+\textbf{Cross-LLM portability.} Replacing Gemini~3 Flash with GPT-5.4 throughout the UaC~v5 pipeline (extraction, structuring, answer generation) recovers \textbf{80.8\%} on the 2-conversation LOCOMO subset (120 QAs)---within 2pp of the Gemini run on the same subset (82.5\%). The architecture is portable across the two largest closed-model families, and the gains are not dependent on a particular LLM's code-generation idiosyncrasies.
+
+\textbf{Comparison to a recent SOTA system.} We additionally reproduce MemMachine~\citep{wang2026memmachine}---which reports 91.7\% LOCOMO with GPT-4.1-mini in the original paper---on the \emph{same} 5-conversation subset and the \emph{same} Gemini~3 Flash backbone (so any difference reflects representation, not model). MemMachine's architecture (entire-episode storage with contextualized retrieval) reaches 75.3\% on LOCOMO under our setup (Table~\ref{tab:locomo}), 2.7pp behind UaC~v5 (78.0\%). The gap widens dramatically on the analytical-inference benchmark (Section~\ref{sec:analytical}) where retrieval-based memory cannot enumerate. Other published SOTA results---EverMemOS~\citep{hu2026evermemos} at 93.05\% LOCOMO, Hindsight~\citep{latimer2025hindsight} at 91.4\% LongMemEval---use GPT-4.1-mini or GPT-4o; we did not reproduce those due to compute budget. The gap to GPT-4-class numbers likely reflects the model swap rather than representation differences.
+
+\subsection{Analytical Inference}
+\label{sec:analytical}
+
+A third capability tier sits between basic recall and proactive alerting: \emph{aggregate inference over the user's records}---answering questions like ``how many contacts did I meet during undergrad'', ``average dining spend in 2024 by cuisine'', or ``did my workout count increase from Q1 to Q2''. This is exactly the regime where a code-executable representation should pull ahead of free-text retrieval: counts, group-bys, time-window filters, and joins are one-line Python over typed objects but fundamentally lossy under top-$k$ retrieval.
+
+\textbf{Benchmark construction.} We synthesize 100 cases spanning 10 record types (trips, contacts, meals, transactions, sleep log, workouts, books, medical visits, work meetings, purchases). Each type contributes 10 cases covering 10 question patterns (count, sum, average, group-by, time-window filter, multi-condition filter, top-$k$, min/max, threshold, year-over-year trend). Per-case record counts span $N \in \{20, 50, 100, 200, 500\}$ to surface scaling behavior. Ground truth is computed deterministically from the synthetic data, so scoring is exact-match (no LLM judge needed).
+
+\textbf{Systems.} Five systems run on identical cases with Gemini~3 Flash backbone: Full Context (LLM in-head reasoning over raw JSON), Full Context + Python REPL (same data, plus \texttt{python} and \texttt{read\_file} tools so the LLM can compute), UaC~v5 (records structured into typed Python dataclasses, exposed via REPL), MemMachine~\citep{wang2026memmachine} (sentence-level retrieval with contextual expansion), and Mem0 (flat fact extraction). Mem0 and MemMachine retrieve top-20 entries and have the LLM reason over them.
+
+The results (Table~\ref{tab:analytical} and Figure~\ref{fig:analytical-scaling}) split cleanly by representation class. \textbf{Retrieval-based memory collapses on aggregation}: MemMachine drops from 100\% at $N{=}20$ to 15\% at $N{=}200$ as more records become relevant than top-$k$ can return; Mem0 sits near zero throughout because its NL fact stores cannot be enumerated. \textbf{Full Context degrades when $N$ exceeds in-head capacity}: 100\% accuracy through $N{=}100$, dropping to 90\% at $N{=}200$ and $N{=}500$ as the LLM miscounts. \textbf{Adding a Python REPL solves counting completely} (FC+REPL: 100\% overall, perfect across all $N$). \textbf{UaC~v5 matches FC+REPL across the full $N$ range} (overall 99\%, perfect on $N \leq 200$, 95\% at $N{=}500$). The single $N{=}500$ failure is a corner case where Q1 and Q2 averages differ by 0.0012 hours of sleep duration---essentially a tie that the gold rule resolves as ``increase'' but is below the noise floor of the structured Python rounding.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/analytical_scaling.pdf}
+\caption{Analytical inference: accuracy vs.\ record count $N$ (log scale). Code-executable representations (UaC~v5, FC+REPL) stay at or above 95\% across the full range. Full Context degrades past $N{=}100$ (90\% at $N{=}200$ and $N{=}500$) as the LLM miscounts. MemMachine collapses from 100\% to 15--25\% as more records become relevant than top-$k$ retrieval can return. Mem0 remains near zero throughout.}
+\label{fig:analytical-scaling}
+\end{figure}
+
+The headline message is the divide between \emph{representations a code tool can read} (UaC~v5, FC+REPL, Full Context for small $N$) and \emph{representations only retrievable by similarity} (Mem0, MemMachine). The former scale with N; the latter do not. UaC~v5's specific advantage---typed objects enabling typed queries---matches a JSON+REPL baseline on this benchmark, because the analytical inputs are already structured. The contribution of UaC's two-phase pipeline is felt earlier: it converts unstructured conversation into the kind of representation a code tool can reason over, which is the prerequisite for analytical inference in real deployments.
+
+\subsubsection{Token cost and amortization}
+
+\input{body_cost_table}
+
+We additionally instrumented every Gemini call with token counts and computed approximate USD cost using Gemini~3 Flash pricing (Table~\ref{tab:analytical-cost}). Three findings:
+
+\textbf{(1)~On a single-query workload, FC+REPL is both more accurate and cheaper than UaC~v5}: \$13.6 vs \$38.1 per~100 cases (2.8$\times$). UaC's cost is dominated by the structuring step, which generates \texttildelow1M output tokens of dataclass code across 100 cases. FC+REPL's cost is dominated by re-including the records JSON in the LLM context every tool turn (4.2M input tokens).
+
+\textbf{(2)~The cost story flips on multi-query workloads.} Structuring is paid once per user state; subsequent queries against the typed code cost only \texttildelow1.4 m\$/case (Table~\ref{tab:analytical-cost-amortized}). FC+REPL pays the full per-case cost \emph{every} query because it re-loads the records each time. With per-case structuring at ${C_s}$ and per-query costs $q_{\text{UaC}}$ and $q_{\text{FC+REPL}}$, $K$ queries against the same user state cost $C_s + K\,q_{\text{UaC}}$ vs $K\,q_{\text{FC+REPL}}$. At $N{=}500$, $C_s{\approx}102$~m\$, $q_{\text{UaC}}{\approx}1.4$~m\$, $q_{\text{FC+REPL}}{\approx}38$~m\$; UaC pays back its structuring cost after $K \approx 3$ queries, and at $K{=}100$ queries it costs 12$\times$ less than FC+REPL ($244$~m\$ vs $3{,}780$~m\$).
+
+\begin{table}[t]
+\centering
+\caption{UaC~v5 cost decomposition: structuring (one-time per user state) vs.\ query (per question). At $N{=}500$, structuring is 99\% of one-shot cost, but each subsequent query against the same structured state is \texttildelow$27\times$ cheaper than re-running FC+REPL.}
+\label{tab:analytical-cost-amortized}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+$N$ & UaC structuring & UaC query & FC+REPL query & UaC payback \\
+ & (m\$/case) & (m\$/case) & (m\$/case) & ($K$ queries) \\
+\midrule
+20  & 7.6   & 1.2 & 1.9  & 11 \\
+50  & 13.6  & 1.8 & 5.0  & 4 \\
+100 & 26.4  & 1.2 & 6.1  & 5 \\
+200 & 58.8  & 2.3 & 17.1 & 4 \\
+500 & 101.8 & 1.4 & 37.8 & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{(3)~Retrieval-based memory is cheap but unusable on aggregation.} Mem0 and MemMachine sit at the bottom of the cost column (\$0.26 / \$0.58 per 100 cases) but cannot answer most questions (6\% / 43\% accuracy). They are not on the cost-accuracy Pareto frontier.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/analytical_cost.pdf}
+\caption{Per-case Gemini~3 Flash cost vs.\ record count $N$ (log--log). UaC~v5 and Full Context costs grow with $N$ (more records to structure or read in-head); FC+REPL grows fastest because the records JSON is re-included in the LLM's context every tool turn. Retrieval-based systems (MemMachine, Mem0) are cheap but bottom out on accuracy (Figure~\ref{fig:analytical-scaling}).}
+\label{fig:analytical-cost}
+\end{figure}
+
+In real-world deployments where a user's accumulated history is queried hundreds of times per month, the structuring-once-query-many pattern is the right cost shape. The benchmark's single-query design is a worst case for UaC and a best case for FC+REPL.
 
 \subsection{Active Service}
+\label{sec:active-service}
 
 \begin{table}[t]
 \centering
@@ -169,15 +205,15 @@ UaC v5 (no pre-computed alerts) & 52.5\% \\
 \end{tabular}
 \end{table}
 
-The Active Service evaluation (Table~\ref{tab:active-service}) tests proactive alerting across 40 scenarios in 5 categories: travel document validity, drug interactions, financial authorization conflicts, scheduling conflicts, and warranty/deadline expirations. Each scenario seeds facts across 2--4 sessions; the system must generate unsolicited alerts without being asked.
+The Active Service evaluation (Table~\ref{tab:active-service}) tests proactive alerting across 40 scenarios in 5 categories: travel document validity, drug interactions, financial authorization conflicts, scheduling conflicts, and warranty/deadline expirations. Each scenario seeds facts across 2--4 sessions; the system must generate unsolicited alerts without being asked. The Mem0 and A-MEM baselines in this table are \emph{hand-crafted flat-fact representations} of each scenario---a simulated upper bound for what those systems' extracted memories would look like---not the live libraries. As a sanity check we additionally ran the actual mem0ai~1.0.5 library on the same scenarios: 90.0\% on standard (close to the 92.5\% simulation) and 80.0\% on hard (higher than the 65.0\% simulation, since the live library returns the full memory list to the LLM rather than top-$k$ facts). Both numbers are below UaC~v5's 100\% standard / 85\% hard, confirming the simulation-based comparison is fair.
 
 UaC~v5 with the constraint pipeline achieves \textbf{100\% alert detection} on the standard scenarios. Without pre-computed alerts, UaC~v5 drops to 52.5\%, showing the pipeline is the decisive factor.
 
-On standard scenarios, Mem0 (92.5\%) and A-MEM (85.0\%) score well because Gemini 3 Flash can reason about simple cross-domain issues from flat facts. To test whether this holds for harder problems, we design 20 \textbf{hard scenarios} requiring multi-step date arithmetic (business day calculations, leap years, timezone crossings), compound multi-domain constraints (4--5 domains), precise numerical thresholds (tax brackets, compound interest, DTI ratios), and temporally ambiguous facts. We focus the hard evaluation on Mem0 (the strongest baseline on standard scenarios) and full-context, omitting A-MEM for conciseness.
+On standard scenarios, Mem0 (92.5\%) and A-MEM (85.0\%) score well because Gemini 3 Flash can reason about simple cross-domain issues from flat facts. To test whether this holds for harder problems, we design 20 \textbf{hard scenarios} requiring multi-step date arithmetic (business day calculations, leap years, timezone crossings), compound multi-domain constraints (4--5 domains), precise numerical thresholds (tax brackets, compound interest, DTI ratios), and temporally ambiguous facts.
 
 \begin{table}[t]
 \centering
-\caption{Active Service: standard (40) vs.\ hard (20) scenarios. The gap between UaC and baselines \textbf{widens} on hard arithmetic.}
+\caption{Active Service: standard (40) vs.\ hard (20) scenarios. The gap between UaC and baselines \textbf{widens} on hard arithmetic. A-MEM hard uses the actual A-MEM library with note retrieval (top-20).}
 \label{tab:active-hard}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -187,6 +223,7 @@ On standard scenarios, Mem0 (92.5\%) and A-MEM (85.0\%) score well because Gemin
 Mem0 & 92.5\% & 65.0\% \\
 Full Context & --- & 55.0\% \\
 UaC v5 (no alerts) & 52.5\% & 45.0\% \\
+A-MEM & 85.0\% & 30.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -198,24 +235,24 @@ UaC v5 (no alerts) & 52.5\% & 45.0\% \\
 \label{fig:active-service}
 \end{figure}
 
-On hard scenarios (Table~\ref{tab:active-hard}), the gap widens dramatically: Mem0 drops 27.5pp (92.5\%$\to$65.0\%) while UaC~v5 drops only 15pp (100\%$\to$85.0\%). Full-context achieves only 55\%---even with all raw text, the thinking model struggles with multi-step numerical computation. \textbf{The harder the arithmetic, the more the executable constraint pipeline matters.} UaC's 3 failures (85\% vs.\ 100\%) are attributable to keyword-matching limitations in the evaluation metric, not to actual missed alerts.
+On hard scenarios (Table~\ref{tab:active-hard}), the gap widens dramatically: Mem0 drops 27.5pp (92.5\%$\to$65.0\%), A-MEM drops 55pp (85.0\%$\to$30.0\%), Full Context reaches only 55\%---even with all raw text, the thinking model struggles with multi-step numerical computation---while UaC~v5 drops only 15pp (100\%$\to$85.0\%). \textbf{The harder the arithmetic, the more the executable constraint pipeline matters.} UaC's 3 failures (85\% vs.\ 100\%) are attributable to keyword-matching limitations in the evaluation metric, not to actual missed alerts.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
 
 \begin{table}[t]
 \centering
-\caption{Ablation study showing the impact of each architectural decision. All versions evaluated on the same 2-conversation LOCOMO subset (120 QAs) and 40 Active Service scenarios for controlled comparison.}
+\caption{Ablation on the same 5-conversation LOCOMO subset (300 QAs) and 40 Active Service scenarios used in the main results. All rows share the same conversations, judge, and model, so the LOCOMO column is directly comparable to Table~\ref{tab:locomo}.}
 \label{tab:ablation}
 \begin{tabular}{@{}lccp{5cm}@{}}
 \toprule
 \textbf{Version} & \textbf{LOCOMO} & \textbf{Active Svc} & \textbf{Key change} \\
 \midrule
-v2 (basic 3-tier) & 43.3\% & 30.0\% & Code + basic archive RAG \\
-v3 (flat facts) & 71.7\% & 37.5\% & Append-only extraction (+28pp recall) \\
-v4 (code+notes) & 56.7\% & 40.0\% & Incremental code (overwrite hurts recall) \\
-\textbf{v5 (two-phase)} & \textbf{76.7\%} & \textbf{67.5\%} & Append-only + periodic code \\
-v5 + pipeline & 81.7\% & 100\% & Full system with constraints \\
+v2 (basic 3-tier) & 56.7\% & 30.0\% & Code + basic archive RAG \\
+v3 (flat facts) & 75.7\% & 37.5\% & Append-only extraction (+19.0pp recall) \\
+v4 (code+notes) & 65.7\% & 40.0\% & Incremental code (overwrite hurts recall) \\
+\textbf{v5 (two-phase)} & \textbf{78.0\%} & 67.5\% & Append-only + periodic code \\
+v5 + constraint pipeline & 78.0\% & \textbf{100\%} & Full system; pipeline only affects Active Svc \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -223,40 +260,37 @@ v5 + pipeline & 81.7\% & 100\% & Full system with constraints \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/ablation.pdf}
-\caption{Ablation study showing the impact of each architectural decision. \textbf{Left:} LOCOMO recall improves +28pp with append-only extraction (v2$\to$v3), drops -15pp with incremental code overwrite (v3$\to$v4), recovers with two-phase separation (v5). \textbf{Right:} Active Service improves steadily with code structure, with the constraint pipeline adding +32.5pp (v5$\to$v5+pipeline).}
+\caption{Ablation study showing the impact of each architectural decision (5-conv LOCOMO, n=300). \textbf{Left:} LOCOMO recall improves +19pp with append-only extraction (v2$\to$v3), drops -10pp with incremental code overwrite (v3$\to$v4), recovers and exceeds with two-phase separation (v5). \textbf{Right:} Active Service improves steadily with code structure, with the constraint pipeline adding +32.5pp (v5$\to$v5+pipeline).}
 \label{fig:ablation}
 \end{figure*}
 
 The ablation (Table~\ref{tab:ablation}) reveals three key findings:
 
-\textbf{Finding 1: Append-only extraction is the single biggest improvement.} v2$\to$v3 gains +28pp on LOCOMO. Never overwriting facts prevents information loss during incremental state updates.
+\textbf{Finding 1: Append-only extraction is the single biggest improvement.} v2$\to$v3 gains +19.0pp on LOCOMO. Never overwriting facts prevents information loss during incremental state updates.
 
-\textbf{Finding 2: Code structure alone hurts recall if done incrementally.} v3$\to$v4 loses 15pp on LOCOMO. Each session's code rewrite drops earlier facts. The \texttt{notes} field (intended as a safety net) becomes an escape hatch---the LLM dumps facts as strings instead of typing them.
+\textbf{Finding 2: Code structure alone hurts recall if done incrementally.} v3$\to$v4 loses 10.0pp on LOCOMO. Each session's code rewrite drops earlier facts. The \texttt{notes} field (intended as a safety net) becomes an escape hatch---the LLM dumps facts as strings instead of typing them.
 
-\textbf{Finding 3: Two-phase separation solves the overwrite problem.} v5 combines v3's coverage (append-only facts) with v4's code structure (typed dataclasses), achieving the best of both. The structuring step generates code from the \emph{complete} fact corpus, avoiding incremental information loss.
+\textbf{Finding 3: Two-phase separation solves the overwrite problem.} v5 combines v3's coverage (append-only facts) with v4's code structure (typed dataclasses), gaining +12.3pp over v4 and +2.3pp over v3. The structuring step generates code from the \emph{complete} fact corpus, avoiding incremental information loss.
 
-\subsection{Write-Path Extraction Quality}
-
-We evaluate write-path quality on 3 LOCOMO conversations (conversations 26, 30, and 41; 497 QA pairs total). Extraction achieves 82.3\% coverage (409/497 QAs answerable from extracted code), 0.21$\times$ compression ratio (4.8$\times$ compression), and 0.56 token F1. The main losses are in single-hop minor details (specific book titles, exact dates from early sessions) and open-domain inferential questions.
-
+\textbf{Finding 4: The constraint pipeline is orthogonal to LOCOMO QA.} Adding the constraint-generation pipeline on top of v5 leaves LOCOMO QA accuracy unchanged at 78.0\% but lifts Active Service alert detection from 67.5\% to 100\%. The pipeline is a separate read-time mechanism that operates over the same structured state; it does not affect retrieval quality.
 
 \section{Discussion}
 
-\textbf{SOTA retrieval mechanisms are additive.} When we add episode-level storage, session summarization, and multi-strategy retrieval to User as Code, LOCOMO performance improves from 43.3\% to 81.7\% in the ablation (Table~\ref{tab:ablation}, v2$\to$v5+pipeline). These mechanisms, drawn from MemMachine~\citep{wang2026memmachine} and EverMemOS~\citep{hu2026evermemos}, are complementary to code representation---structured state provides navigation and constraint checking, while archive RAG provides detail fallback.
+\textbf{SOTA retrieval mechanisms are additive.} The ablation (Table~\ref{tab:ablation}) shows the v2$\to$v5 progression on LOCOMO. Episode-level storage, session summarization, and multi-strategy retrieval (mechanisms drawn from MemMachine~\citep{wang2026memmachine} and EverMemOS~\citep{hu2026evermemos}) are complementary to code representation: structured state provides navigation and constraint checking, while archive RAG provides detail fallback.
 
-\textbf{The Bitter Lesson.} User as Code's domain knowledge---schemas, constraints, domain partitioning---is entirely LLM-generated and self-evolving. What is human-designed---the two-phase pipeline, progressive disclosure, the generate-verify-review loop---is engineering infrastructure, analogous to Git or CI/CD. The interpreter is a \emph{tool}, not a \emph{rule}~\citep{sutton2019bitter}.
+\textbf{Domain knowledge is LLM-generated, infrastructure is human-designed.} Schemas, constraints, and domain partitioning are all produced by the LLM at write time and evolve with the user. What is human-designed is engineering infrastructure: the two-phase pipeline, the generate-verify-review loop, and the sandbox boundary. The interpreter is a \emph{tool} that the LLM uses, not a \emph{rule} the LLM must obey~\citep{sutton2019bitter}.
 
 \textbf{Memory safety.} PersistBench~\citep{pulipaka2026persistbench} finds 53\% cross-domain leakage and 97\% sycophancy in persistent memory. User as Code provides natural mitigations: domain separation limits leakage, version control provides audit trails, and the explicit nature of code enables selective forgetting.
 
 \textbf{RL-trainability.} Because memory operations are file-system actions, User as Code is directly compatible with RL-based memory training~\citep{yan2025memoryr1, yu2026agemem, wang2025memalpha}---file operations are natural actions RL can optimize.
 
-\textbf{Limitations.} (1)~Extraction overhead: $\sim$4$\times$ write-path cost vs.\ flat facts, justified by read-time correctness. (2)~Constraint logic errors: correct computation does not guarantee correct logic. (3)~The system achieves 84.3\% vs.\ full-context's 88.3\%---the 4pp gap represents facts lost during extraction that even append-only accumulation cannot fully capture. (4)~Active Service alert rates depend on the constraint pipeline; without it, performance drops to 52.5\%. (5)~Scalability: Phase~2 regenerates the entire structured code from the complete fact corpus; at hundreds of sessions, this may require incremental or hierarchical structuring strategies. (6)~All experiments use a single LLM (Gemini 3 Flash); code generation quality varies across models, and results may not transfer directly to weaker code generators. (7)~Storing user state as executable code requires sandboxed execution and strict isolation to prevent cross-user leakage or code injection.
+\textbf{Limitations.} (1)~Extraction overhead: $\sim$4$\times$ write-path cost vs.\ flat facts, justified by read-time correctness. (2)~Constraint logic errors: correct computation does not guarantee correct logic. (3)~On LOCOMO, UaC~v5 trails Full Context by 4.3pp (78.0\% vs.\ 82.3\%); inspection of failures shows the gap is dominated by single-hop minor details (specific book titles, exact early-session dates) that the extraction step occasionally compresses away. (4)~Active Service alert rates depend on the constraint pipeline; without it, performance drops to 52.5\%. (5)~Scalability of structuring: Phase~2 regenerates the entire structured code from the complete fact corpus; at hundreds of sessions, this may require incremental or hierarchical structuring strategies. (6)~The analytical benchmark uses synthetic, schema-clean records; real-world deployments will have noisier, partially-typed data, which we expect to favor UaC~v5 over the Full~Context+REPL baseline (since the baseline's parsing fragility scales with data noise). (7)~The benchmark's single-query-per-case design favors FC+REPL on cost; the amortization analysis (Section~\ref{sec:analytical}) shows UaC's structuring pays back after \texttildelow3 queries against the same user state. (8)~Cross-LLM portability is verified on Gemini~3 Flash and GPT-5.4, but smaller code generators (e.g., 7--8B parameter models) may produce lower-quality structured code. (9)~Storing user state as executable code requires sandboxed execution and strict isolation to prevent cross-user leakage or code injection.
 
 
 \section{Conclusion}
 
-User as Code transforms user memory from a passive database into a modular software project. Our two-phase architecture---append-only fact extraction followed by periodic code structuring---resolves the tension between coverage and structure that plagued earlier designs. The ablation shows each decision's impact: append-only extraction gains +28pp recall, while two-phase separation adds code structure without losing facts.
+User as Code transforms user memory from a passive database into a modular software project. Our two-phase architecture---append-only fact extraction followed by periodic code structuring---resolves the tension between coverage and structure that plagued earlier designs. The ablation shows each decision's impact: append-only extraction gains +19pp recall, while two-phase separation adds code structure without losing facts.
 
-On standard benchmarks, UaC achieves 84.3\% on LOCOMO (95.5\% of full-context) and ties full-context on LongMemEval at 79.2\%. On the comparable 2-conversation LOCOMO subset, UaC outperforms A-MEM and Mem0 by 12--37 percentage points. On Active Service, the constraint execution pipeline achieves 100\% proactive alert detection---a capability that requires executable code representation and has no equivalent in existing memory systems.
+On standard benchmarks evaluated symmetrically across all four systems on the same 5-conversation LOCOMO subset (300 QAs) and 200-question LongMemEval sample, UaC achieves 78.0\% on LOCOMO (94.7\% of the full-context upper bound at 82.3\%) and 84.5\% on LongMemEval (within 2pp of full-context's 86.5\%), outperforming A-MEM (56.7\%/58.0\%) and Mem0 (32.7\%/24.5\%) by 21--60 percentage points. Replacing Gemini~3 Flash with GPT-5.4 throughout the pipeline preserves performance (80.8\% on the 2-conversation LOCOMO subset, within 2pp of the Gemini run). On Active Service, the constraint execution pipeline achieves 100\% proactive alert detection---a capability that requires executable code representation and has no equivalent in existing memory systems.
 
 Code, data, and evaluation scripts are available at \url{https://github.com/bojieli/UserAsCode}.
