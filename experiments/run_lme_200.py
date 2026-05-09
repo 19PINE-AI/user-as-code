@@ -139,11 +139,54 @@ class FullContextRunner:
         return answer_question(q["question"], ctx)
 
 
+class HindsightRunner:
+    name = "hindsight"
+
+    def __init__(self):
+        from hindsight_lite import HindsightSystem
+        self.cls = HindsightSystem
+
+    def run_question(self, q):
+        sys = self.cls(user_id=f"lme_hs_{q['question_id']}_{int(time.time())}")
+        for sid, sess, date in zip(q["haystack_session_ids"], q["haystack_sessions"], q["haystack_dates"]):
+            turn_lines = [
+                f"User: {t['content']}" if t["role"] == "user" else f"Assistant: {t['content']}"
+                for t in sess
+            ]
+            sys.ingest_session(turn_lines, sid, date)
+        ans = sys.answer(q["question"])
+        sys.reset()
+        return ans
+
+
+class EverMemOSRunner:
+    name = "evermemos"
+
+    def __init__(self):
+        from evermemos_lite import EverMemOSSystem
+        self.cls = EverMemOSSystem
+
+    def run_question(self, q):
+        sys = self.cls(user_id=f"lme_em_{q['question_id']}_{int(time.time())}")
+        for sid, sess, date in zip(q["haystack_session_ids"], q["haystack_sessions"], q["haystack_dates"]):
+            turn_lines = [
+                f"User: {t['content']}" if t["role"] == "user" else f"Assistant: {t['content']}"
+                for t in sess
+            ]
+            sys.ingest_session(turn_lines, sid, date)
+        sys.consolidate()
+        ans = sys.answer(q["question"])
+        sys.reset()
+        return ans
+
+
 SYSTEMS = {
     "uac_v5": UaCV5Runner,
     "mem0": Mem0Runner,
     "a_mem": AMemRunner,
     "full_context": FullContextRunner,
+    "hindsight": HindsightRunner,
+    "evermemos": EverMemOSRunner,
 }
 
 

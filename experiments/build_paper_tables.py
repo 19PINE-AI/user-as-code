@@ -75,11 +75,15 @@ def main():
         "amem_locomo": loc_agg(load("locomo5_a_mem.json")),
         "mem0_locomo": loc_agg(load("locomo5_mem0.json")),
         "memmachine_locomo": loc_agg(load("locomo5_memmachine.json")),
+        "hindsight_locomo": loc_agg(load("locomo5_hindsight.json")),
+        "evermemos_locomo": loc_agg(load("locomo5_evermemos.json")),
         "gpt54_locomo": loc_agg(load("locomo_gpt54_uac_v5.json")),
         "uac_v5_lme": lme_agg(load("lme200_uac_v5.json")),
         "fc_lme": lme_agg(load("lme200_full_context.json")),
         "amem_lme": lme_agg(load("lme200_a_mem.json")),
         "mem0_lme": lme_agg(load("lme200_mem0.json")),
+        "hindsight_lme": lme_agg(load("lme200_hindsight.json")),
+        "evermemos_lme": lme_agg(load("lme200_evermemos.json")),
     }
 
     print("=" * 70)
@@ -108,6 +112,8 @@ def main():
         ("Full Context (upper bound)", res["fc_locomo"]),
         ("UaC v5 (ours, Gemini)", res["uac_v5_locomo"]),
         ("MemMachine~\\citep{wang2026memmachine}", res["memmachine_locomo"]),
+        ("Hindsight (lite)~\\citep{latimer2025hindsight}", res["hindsight_locomo"]),
+        ("EverMemOS (lite)~\\citep{hu2026evermemos}", res["evermemos_locomo"]),
         ("A-MEM", res["amem_locomo"]),
         ("Mem0", res["mem0_locomo"]),
     ]
@@ -144,6 +150,8 @@ def main():
     for label, r in [
         ("Full Context", res["fc_lme"]),
         ("UaC v5 (ours)", res["uac_v5_lme"]),
+        ("EverMemOS (lite)", res["evermemos_lme"]),
+        ("Hindsight (lite)", res["hindsight_lme"]),
         ("A-MEM", res["amem_lme"]),
         ("Mem0", res["mem0_lme"]),
     ]:

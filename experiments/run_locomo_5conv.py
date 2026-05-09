@@ -216,6 +216,56 @@ class FullContextWrapper:
         self.full_text = ""
 
 
+class HindsightWrapper:
+    name = "hindsight"
+
+    def __init__(self):
+        from hindsight_lite import HindsightSystem
+        self.cls = HindsightSystem
+        self.system = None
+
+    def ingest(self, sessions, conv_id):
+        self.system = self.cls(user_id=f"locomo5_hs_{conv_id}_{int(time.time())}")
+        for s in sessions:
+            turn_lines = [f"{t['speaker']}: {t['text']}" for t in s["turns"]]
+            self.system.ingest_session(turn_lines, s["session_id"], s["date"])
+            _log(f"    Hindsight: ingested {s['session_id']} (facts={len(self.system.facts)})")
+
+    def answer(self, question):
+        return self.system.answer(question)
+
+    def reset(self):
+        if self.system:
+            self.system.reset()
+        self.system = None
+
+
+class EverMemOSWrapper:
+    name = "evermemos"
+
+    def __init__(self):
+        from evermemos_lite import EverMemOSSystem
+        self.cls = EverMemOSSystem
+        self.system = None
+
+    def ingest(self, sessions, conv_id):
+        self.system = self.cls(user_id=f"locomo5_em_{conv_id}_{int(time.time())}")
+        for s in sessions:
+            turn_lines = [f"{t['speaker']}: {t['text']}" for t in s["turns"]]
+            self.system.ingest_session(turn_lines, s["session_id"], s["date"])
+            _log(f"    EverMemOS: ingested {s['session_id']}")
+        self.system.consolidate()
+        _log(f"    EverMemOS: consolidated into {len(self.system.scenes)} scenes")
+
+    def answer(self, question):
+        return self.system.answer(question)
+
+    def reset(self):
+        if self.system:
+            self.system.reset()
+        self.system = None
+
+
 SYSTEMS = {
     "uac_v5": UaCV5System,
     "uac_v4": UaCV4System,
@@ -224,6 +274,8 @@ SYSTEMS = {
     "mem0": Mem0Wrapper,
     "a_mem": AMemWrapper,
     "full_context": FullContextWrapper,
+    "hindsight": HindsightWrapper,
+    "evermemos": EverMemOSWrapper,
 }
 
 

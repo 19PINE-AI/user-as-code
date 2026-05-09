@@ -12,10 +12,11 @@ We model a user's entire memory as a \textbf{self-evolving software project} wit
 
 Our contributions:
 \begin{itemize}[leftmargin=*]
-\item A two-phase memory architecture that achieves 78.0\% on the 5-conversation LOCOMO subset (300 QAs)---94.7\% of the full-context upper bound (82.3\%) and 2.7pp above the recent MemMachine~\citep{wang2026memmachine} system (75.3\%) on identical Gemini~3 Flash backbone---while enabling 100\% proactive alert detection on Active Service.
+\item A two-phase memory architecture that achieves 78.0\% on the 5-conversation LOCOMO subset (300 QAs)---94.7\% of the full-context upper bound (82.3\%) and ahead of three recent SOTA systems reproduced on identical Gemini~3 Flash backbone (MemMachine 75.3\%, Hindsight 70.0\%, EverMemOS 55.0\%)---while enabling 100\% proactive alert detection on Active Service.
 \item A novel Active Service evaluation protocol testing proactive alerting across 40 scenarios in 5 constraint categories.
 \item \textbf{A new analytical-inference benchmark} (100 cases, 10 record types, $N \in \{20, 50, 100, 200, 500\}$) that exposes the gap between code-executable representations (UaC~v5: 99\%, Full~Context+REPL: 100\%) and retrieval-based ones (MemMachine: 43\%, Mem0: 6\%) on aggregate questions where top-$k$ retrieval is structurally lossy. We also report Gemini~3 Flash token cost per system: UaC~v5's structuring pays for itself after \texttildelow3 queries against the same user state, after which it costs an order of magnitude less than re-loading the records each query.
 \item A comprehensive ablation showing that separating memorizing (append-only) from structuring (periodic code generation) is the key architectural insight.
+\item A Modularity / Progressive Disclosure ablation showing that loading only the query-relevant domain (rather than the full user state) reduces prompt-token cost by 12--15$\times$ at a 7--17pp accuracy cost, validating the principles for production scale.
 \item Cross-LLM portability validated by re-running the full pipeline with GPT-5.4 (OpenAI) replacing Gemini~3 Flash, recovering 80.8\% on the 2-conversation LOCOMO subset (within 2pp of Gemini).
 \item Open-source implementation with comparisons against Mem0, A-MEM, MemMachine, and full-context baselines on three benchmarks.
 \end{itemize}
@@ -124,7 +125,7 @@ On LongMemEval (Table~\ref{tab:longmemeval}), the 200-question stratified sample
 
 \textbf{Cross-LLM portability.} Replacing Gemini~3 Flash with GPT-5.4 throughout the UaC~v5 pipeline (extraction, structuring, answer generation) recovers \textbf{80.8\%} on the 2-conversation LOCOMO subset (120 QAs)---within 2pp of the Gemini run on the same subset (82.5\%). The architecture is portable across the two largest closed-model families, and the gains are not dependent on a particular LLM's code-generation idiosyncrasies.
 
-\textbf{Comparison to a recent SOTA system.} We additionally reproduce MemMachine~\citep{wang2026memmachine}---which reports 91.7\% LOCOMO with GPT-4.1-mini in the original paper---on the \emph{same} 5-conversation subset and the \emph{same} Gemini~3 Flash backbone (so any difference reflects representation, not model). MemMachine's architecture (entire-episode storage with contextualized retrieval) reaches 75.3\% on LOCOMO under our setup (Table~\ref{tab:locomo}), 2.7pp behind UaC~v5 (78.0\%). The gap widens dramatically on the analytical-inference benchmark (Section~\ref{sec:analytical}) where retrieval-based memory cannot enumerate. Other published SOTA results---EverMemOS~\citep{hu2026evermemos} at 93.05\% LOCOMO, Hindsight~\citep{latimer2025hindsight} at 91.4\% LongMemEval---use GPT-4.1-mini or GPT-4o; we did not reproduce those due to compute budget. The gap to GPT-4-class numbers likely reflects the model swap rather than representation differences.
+\textbf{Comparison to recent SOTA systems.} We reproduce three recent SOTA systems---MemMachine~\citep{wang2026memmachine}, EverMemOS~\citep{hu2026evermemos}, and Hindsight~\citep{latimer2025hindsight}---on the \emph{same} 5-conversation LOCOMO subset and 200-question LongMemEval sample with the \emph{same} Gemini~3 Flash backbone, so any difference reflects representation rather than model. Our reimplementations follow the architectures described in each paper but use approximate prompts (the originals are not always published) and lighter infrastructure (ChromaDB rather than MongoDB+Elasticsearch+Milvus). On LOCOMO (Table~\ref{tab:locomo}): MemMachine reaches 75.3\%, Hindsight 70.0\%, EverMemOS 55.0\%---all behind UaC~v5's 78.0\%. On LongMemEval: EverMemOS 79.5\%, Hindsight 70.5\%---both behind UaC~v5's 84.5\%. The original papers report higher numbers (EverMemOS 93.05\% LOCOMO with GPT-4.1-mini; Hindsight 91.4\% LongMemEval with a Gemini-3 backbone in their full pipeline), but those settings differ in either the LLM, the retrieval stack, or both. Our backbone-controlled comparison shows that User as Code's representational advantage holds against the architectural ideas these systems contribute---structured Python state outperforms episode storage with contextualized retrieval (MemMachine), engram-inspired MemCell/MemScene clusters (EverMemOS), and four-network fact graphs with multi-channel retrieval (Hindsight) under the same model.
 
 \subsection{Analytical Inference}
 \label{sec:analytical}
@@ -273,6 +274,45 @@ The ablation (Table~\ref{tab:ablation}) reveals three key findings:
 \textbf{Finding 3: Two-phase separation solves the overwrite problem.} v5 combines v3's coverage (append-only facts) with v4's code structure (typed dataclasses), gaining +12.3pp over v4 and +2.3pp over v3. The structuring step generates code from the \emph{complete} fact corpus, avoiding incremental information loss.
 
 \textbf{Finding 4: The constraint pipeline is orthogonal to LOCOMO QA.} Adding the constraint-generation pipeline on top of v5 leaves LOCOMO QA accuracy unchanged at 78.0\% but lifts Active Service alert detection from 67.5\% to 100\%. The pipeline is a separate read-time mechanism that operates over the same structured state; it does not affect retrieval quality.
+
+\subsection{Modularity and Progressive Disclosure}
+\label{sec:modularity}
+
+We finally evaluate two design principles introduced in Section~\ref{sec:method} that the standard benchmarks do not isolate: \emph{Modularity by Life Domain} and \emph{Progressive Disclosure}. We synthesize a multi-domain user state with 6 domains (trips, meals, transactions, contacts, books, sleep) at 50 records each (300 total), then ask 30 single-domain questions (5 per domain, drawn from the analytical benchmark's question patterns). Three loading strategies share the same Python REPL backend and Gemini~3 Flash model:
+
+\textbf{Monolithic:} the full 300-record state is inlined into the LLM system prompt every query (the naive ``always-dump'' baseline).
+
+\textbf{Modular:} only a list of available domain names is in the system prompt. The LLM calls a \texttt{load\_domain(name)} REPL helper to materialize the specific domain it needs.
+
+\textbf{Manifest+routing:} the system prompt additionally contains a one-line summary per domain ($\sim$50 tokens each); the LLM uses the manifest to route then calls \texttt{load\_domain}.
+
+\begin{table}[t]
+\centering
+\caption{Modularity / Progressive Disclosure ablation: 30 single-domain questions over a 6-domain, 300-record user state. Monolithic dumps the full state in every prompt; Modular and Manifest+routing load only the relevant domain on demand.}
+\label{tab:modularity}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Strategy} & \textbf{Acc} & \textbf{Prompt tokens} & \textbf{Total cost} & \textbf{Per case} \\
+\midrule
+Monolithic (always dump) & 100\% & 1,893,593 & \$0.87 & 28.9 m\$ \\
+Modular (load on demand) & 93.3\% & 127,299 & \$0.075 & 2.5 m\$ \\
+Manifest+routing & 83.3\% & 149,950 & \$0.090 & 3.0 m\$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/modularity.pdf}
+\caption{Modularity / Progressive Disclosure ablation. \textbf{Left:} accuracy is preserved within 6.7--16.7pp of the monolithic upper bound. \textbf{Right:} prompt-token cost drops 12--15$\times$ when only the relevant domain is loaded.}
+\label{fig:modularity}
+\end{figure}
+
+The results (Table~\ref{tab:modularity}, Figure~\ref{fig:modularity}) show what the design principles are buying. Modular loading reduces total prompt tokens by 14.9$\times$ (1.89M $\rightarrow$ 0.13M) at a 6.7pp accuracy cost; the manifest variant is similar in cost but loses an additional 10pp accuracy because the LLM occasionally mis-routes from the brief summaries. The monolithic baseline is perfect on accuracy but pays the full state token cost on every query. In real deployments where a user's state grows to thousands of records and queries happen continuously, the modular pattern is the only one that remains tractable: monolithic cost scales linearly with state size, while modular cost is bounded by the largest single domain.
+
+This ablation confirms that the Modularity and Progressive Disclosure principles are not free lunches---they trade a small accuracy hit for a large cost reduction---but the trade is favorable in any setting where state size makes monolithic prompting unaffordable.
+
 
 \section{Discussion}
 
