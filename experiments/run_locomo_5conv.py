@@ -92,6 +92,10 @@ UaCV2System = _make_uac_wrapper("uac_v2", "user_as_code_v2", "UserAsCodeV2", "UA
 UaCV3System = _make_uac_wrapper("uac_v3", "user_as_code_v3", "UserAsCodeV3", "UAC v3", False)
 UaCV4System = _make_uac_wrapper("uac_v4", "user_as_code_v4", "UserAsCodeV4", "UAC v4", False)
 UaCV5System = _make_uac_wrapper("uac_v5", "user_as_code_v5", "UserAsCodeV5", "UAC v5", True)
+# Additivity experiment: UaC v5 + MemMachine-style episode retrieval.
+UaCV5MMSystem = _make_uac_wrapper(
+    "uac_v5_mm", "user_as_code_v5_plus_mm", "UaCV5PlusMM", "UAC v5+MM", True
+)
 
 
 class Mem0Wrapper:
@@ -268,6 +272,7 @@ class EverMemOSWrapper:
 
 SYSTEMS = {
     "uac_v5": UaCV5System,
+    "uac_v5_mm": UaCV5MMSystem,
     "uac_v4": UaCV4System,
     "uac_v3": UaCV3System,
     "uac_v2": UaCV2System,

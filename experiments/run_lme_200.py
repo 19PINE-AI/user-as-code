@@ -180,6 +180,30 @@ class EverMemOSRunner:
         return ans
 
 
+class MemMachineRunner:
+    name = "memmachine"
+
+    def __init__(self):
+        # MemMachine is implemented in run_locomo_memmachine.py (sentence-level
+        # dense retrieval + ±3 contextual expansion). Reuse it here for LME.
+        from run_locomo_memmachine import MemMachine
+        self.cls = MemMachine
+
+    def run_question(self, q):
+        # Convert LME's per-session (role, content) turns into the (speaker,
+        # text, session_id, date) shape MemMachine expects.
+        sessions = []
+        for sid, sess, date in zip(q["haystack_session_ids"], q["haystack_sessions"], q["haystack_dates"]):
+            turns = [{"speaker": "User" if t["role"] == "user" else "Assistant",
+                       "text": t["content"]} for t in sess]
+            sessions.append({"session_id": sid, "date": date, "turns": turns})
+        sysobj = self.cls()
+        sysobj.ingest(sessions, conv_id=q["question_id"])
+        ans = sysobj.answer(q["question"])
+        sysobj.reset()
+        return ans
+
+
 SYSTEMS = {
     "uac_v5": UaCV5Runner,
     "mem0": Mem0Runner,
@@ -187,6 +211,7 @@ SYSTEMS = {
     "full_context": FullContextRunner,
     "hindsight": HindsightRunner,
     "evermemos": EverMemOSRunner,
+    "memmachine": MemMachineRunner,
 }
 
 

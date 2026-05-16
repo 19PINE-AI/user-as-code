@@ -77,7 +77,7 @@ def main():
     bars2 = ax2.bar(xs, toks, color=[r[2] for r in rows], edgecolor="white", linewidth=0.5, width=0.7)
     ax2.set_xticks(xs)
     ax2.set_xticklabels([r[1] for r in rows], fontsize=8)
-    ax2.set_ylabel("Prompt tokens, all 30 cases (K)")
+    ax2.set_ylabel("Prompt tokens, all 100 cases (K)")
     ax2.set_title("Prompt-token cost", fontweight="bold")
     ax2.set_yscale("log")
     ax2.spines["top"].set_visible(False)

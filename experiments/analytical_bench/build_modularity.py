@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Build the Modularity / Progressive-Disclosure ablation benchmark.
 
-A user has 6 life domains (each is a record type from analytical_bench).
-Each domain holds N=50 records. We synthesize 30 questions (5 per domain),
-each requiring only its own domain's records. The benchmark tests three
+A user has 10 life domains (each is a record type from analytical_bench).
+Each domain holds N=50 records. We synthesize 100 questions (10 per
+domain, the full question-pattern coverage from analytical_bench), each
+requiring only its own domain's records. The benchmark tests three
 loading strategies on the same data:
 
-  1. monolithic: all 300 records inlined every query
-  2. modular:    6 domain files, all 6 inlined every query
-  3. manifest:   ~50-token domain manifest + on-demand single-domain load
+  1. monolithic: all 500 records inlined every query
+  2. modular:    10 domain files, accessed via load_domain() helper
+  3. manifest:   one-line summary per domain in system prompt + load_domain()
 
 Output: results/modularity_cases.json with shape:
   {
@@ -26,9 +27,9 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from analytical_bench.schemas import SCHEMAS  # noqa: E402
 
-DOMAINS = ["trips", "meals", "transactions", "contacts", "books", "sleep"]
+DOMAINS = list(SCHEMAS.keys())  # all 10 schemas
 N_PER_DOMAIN = 50
-QUESTIONS_PER_DOMAIN = 5
+QUESTIONS_PER_DOMAIN = 10  # full coverage per domain
 
 
 def build() -> dict:
@@ -44,8 +45,7 @@ def build() -> dict:
         summaries[domain] = (
             f"{sch['label']} log ({len(records)} records; fields: {sample_keys})."
         )
-        # Pick the first 5 question patterns for each domain (covers count, sum,
-        # avg, group-by, time-window — the cheapest to grade).
+        # All 10 question patterns for each domain.
         qs = sch["qfn"](records)[:QUESTIONS_PER_DOMAIN]
         for q in qs:
             cases.append({

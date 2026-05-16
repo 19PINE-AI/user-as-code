@@ -53,7 +53,54 @@
     backgroundcolor=\color{codebg},
 }
 
+% Style for conversation transcript excerpts (italic dialogue, framed).
+\definecolor{convbg}{rgb}{0.98,0.97,0.92}
+\definecolor{speakerblue}{rgb}{0.10,0.30,0.60}
+\lstdefinestyle{conversationstyle}{
+    backgroundcolor=\color{convbg},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{codegray}\itshape,
+    keywordstyle=\color{speakerblue}\bfseries,
+    showstringspaces=false,
+    numbers=none,
+    frame=single,
+    rulecolor=\color{codegray},
+    tabsize=2,
+    morekeywords={Jessica,James,Patricia,Doctor,Dr,Jon,Gina,SESSION,DATE,User,Assistant},
+}
+
+% Style for runtime output / alert blocks (red border, fixed-width).
+\definecolor{alertbg}{rgb}{1.00,0.96,0.94}
+\definecolor{alertred}{rgb}{0.70,0.10,0.10}
+\lstdefinestyle{alertstyle}{
+    backgroundcolor=\color{alertbg},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{alertred}\bfseries,
+    showstringspaces=false,
+    numbers=none,
+    frame=single,
+    rulecolor=\color{alertred},
+    tabsize=2,
+    morekeywords={CRITICAL,WARNING,INFO,ALERT,DRUG-ALLERGY,CONFLICT},
+}
+
 \lstset{style=pythonstyle}
+
+% Resolved experimental-result macros (kept here so future updates only need the macro).
+\newcommand{\memmachineLME}{84.0\%}
+\newcommand{\uacvfivemmResult}{The hybrid reaches \textbf{81.7\%}}
+\newcommand{\uacvfivemmInterpretation}{a +3.7pp gain. McNemar's exact test on the per-question correctness gives $p{=}0.14$ (29 hybrid-only correct vs.\ 18 UaC-only correct out of 300), and Wilson 95\% CIs $[73.0, 82.3]$ vs.\ $[76.9, 85.7]$ overlap, so we treat this as a clear directional signal rather than a guaranteed effect at $n{=}300$.}
+\newcommand{\uacvfivemmDiscussion}{The two mechanisms are partially complementary: structured Python state surfaces typed facts (dates, names, numbers), while episode retrieval surfaces the surrounding conversational context. The gain is concentrated in the two harder conversations (conv-41 +8.3pp, conv-43 +8.3pp) where plain UaC v5 was weakest, suggesting that episode context most helps when the structured state has compressed away the relevant detail. Per-conversation results: conv-26 75.0\%/75.0\% (tie), conv-30 90.0\%/93.3\% (+3.3pp), conv-41 80.0\%/88.3\% (+8.3pp), conv-42 76.7\%/75.0\% (-1.7pp), conv-43 68.3\%/76.7\% (+8.3pp). The cost is roughly doubled per query because the MM index is added on top of UaC's three existing channels; in practice an implementation should switch the MM channel on only when the structured state's similarity to the query is below threshold.}
+\newcommand{\uacvfivemmAdditivityVerdict}{be partially complementary: the hybrid scores 81.7\% (+3.7pp over plain UaC v5), with the gain concentrated in the harder conversations.}
+\newcommand{\modularityCases}{100}
+\newcommand{\uacvfivemmAdditivityVerdictAbstract}{lifts accuracy by +3.7pp (78.0\%$\to$81.7\%; McNemar $p{=}0.14$, directional), suggesting that representation and retrieval mechanisms are complementary rather than competing. }
 
 \title{User as Code: Executable Memory for Personalized Agents}
 
@@ -69,7 +116,9 @@
 \maketitle
 
 \begin{abstract}
-Current personalization in AI agents primarily relies on Retrieval-Augmented Generation (RAG) over unstructured text, structured knowledge graphs, or flat fact stores. While effective for basic recall, these ``Bag of Facts'' approaches struggle with the specific challenges of user memory: resolving conflicting information, managing temporal dependencies, and enforcing logical constraints. This paper introduces \textbf{User as Code}, a paradigm where an agent's understanding of a user is maintained as a \textbf{modular, version-controlled software project}. Our core observation is that \textbf{code is the only representation format that unifies readability and verifiability in a single medium}: the same Python that stores a user's passport expiry date can also express---and execute---the assertion that the expiry is too close to a booked flight. We propose a two-phase architecture: (1)~append-only fact extraction that never loses information, and (2)~periodic structuring into typed Python dataclasses. This enables a \textbf{generate-verify-review loop} where the coding agent generates Python constraints, the interpreter verifies computation deterministically, and pre-computed alerts are surfaced in a compact manifest. We evaluate on LOCOMO, LongMemEval, and a novel Active Service benchmark against Mem0, A-MEM, and full-context baselines. On a fully symmetric evaluation where all systems run on the same data with the same Gemini~3 Flash backbone---5-conversation LOCOMO (300 QAs), a 200-question stratified sample of LongMemEval, and a new 100-case analytical-inference benchmark---User as Code achieves 78.0\% on LOCOMO (94.7\% of the full-context upper bound) and 84.5\% on LongMemEval, outperforming three recent SOTA systems we reimplement on the same backbone (MemMachine 75.3\%/--, Hindsight 70.0\%/70.5\%, EverMemOS 55.0\%/79.5\% on LOCOMO/LME) plus the Mem0 and A-MEM baselines by 21--60pp. The new analytical-inference benchmark exposes a structural divide: retrieval-based memory (Mem0 6\%, MemMachine 43\%) collapses on aggregate questions because top-$k$ retrieval cannot enumerate, while code-executable representations (UaC~v5 99\%, Full Context with a Python REPL 100\%) scale with $N$. We instrument every Gemini call and report token cost: UaC's one-time structuring pays back after \texttildelow3 repeated queries against the same user state, after which it is an order of magnitude cheaper than re-loading raw records every query. Replacing Gemini~3 Flash with GPT-5.4 throughout the UaC pipeline preserves performance (80.8\% on a 2-conversation LOCOMO subset, within 2pp of the Gemini run). Active Service alert detection reaches 100\%---a capability where existing memory systems have no equivalent mechanism.
+Current personalization in AI agents primarily relies on Retrieval-Augmented Generation (RAG) over unstructured text, knowledge graphs, or flat fact stores. While effective for basic recall, these ``Bag of Facts'' approaches struggle with the specific challenges of user memory: resolving conflicting information, managing temporal dependencies, and enforcing logical constraints. This paper introduces \textbf{User as Code}, a paradigm where an agent's understanding of a user is maintained as a \textbf{modular, version-controlled software project}. Our core observation is that \textbf{code unifies readability and verifiability in a single medium}: the same Python that stores a user's passport expiry date can also express---and execute---the assertion that the expiry is too close to a booked flight. We propose a two-phase architecture: (1)~append-only fact extraction that never loses information, and (2)~periodic structuring into typed Python dataclasses, enabling a \textbf{generate-verify-review loop} where the coding agent generates Python constraints, the interpreter verifies them deterministically, and pre-computed alerts surface in a compact manifest.
+
+Evaluated symmetrically on the same Gemini~3 Flash backbone, User as Code reaches 78.0\% on a 5-conversation LOCOMO subset (300 QAs; 94.7\% of the 82.3\% full-context upper bound, with the gap to upper bound not statistically significant under McNemar, $p{=}0.12$) and 84.5\% on a 200-question stratified LongMemEval sample. Against three recent SOTA systems we reimplement on the same backbone---MemMachine, Hindsight, EverMemOS---UaC leads on LOCOMO and ties MemMachine on LongMemEval ($84.0\%$ vs.\ $84.5\%$, McNemar $p{=}1.0$); the lead over Hindsight, A-MEM, and Mem0 is significant ($p<0.01$). Representations matter most where the answer is not a single contiguous span: UaC's lead is decisive on LOCOMO and analytical inference, narrower on span-style LongMemEval questions. A new 100-case analytical-inference benchmark exposes a structural divide: retrieval-based memory (Mem0 6\%, MemMachine 43\%) collapses on aggregate questions because top-$k$ retrieval cannot enumerate, while code-executable representations (UaC~v5 99\%, Full Context with a Python REPL 100\%) scale with $N$. Instrumenting every Gemini call shows UaC's one-time structuring pays back after $\sim$3 repeated queries against the same user state; amortized over 100 queries it costs $\sim$15$\times$ less than reloading raw records every query. An additivity test (Appendix~\ref{app:additivity}) shows that layering MemMachine-style episode retrieval on top of UaC's representation \uacvfivemmAdditivityVerdictAbstract Cross-LLM portability is verified by re-running the pipeline with GPT-5.4 on a 120-QA subset (80.8\%, within Wilson CI of the Gemini run). On the 60-scenario Active Service benchmark, UaC's constraint pipeline reaches 100\% alert detection on standard scenarios and 85\% on harder multi-step arithmetic scenarios---a capability where existing memory systems have no equivalent mechanism. We are transparent about reimplementation fidelity in Appendix~\ref{app:reimpl}.
 \end{abstract}
 
 \input{body}
