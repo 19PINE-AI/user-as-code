@@ -1,4 +1,5 @@
-"""Regenerate benchmarks figure using actual experiment results."""
+"""Regenerate benchmarks figure using full-benchmark experiment results
+(LOCOMO 10-conv n=600, LongMemEval n=500)."""
 import json
 import sys
 from pathlib import Path
@@ -32,10 +33,8 @@ def aggregate_lme(data):
 
 
 def main():
-    # Load all results
     sys.path.insert(0, str(Path(__file__).parent))
-    from generate_figures import (BLUE, GRAY, ORANGE, RED, LIGHTBLUE, GREEN, PURPLE,
-                                  fig_architecture, fig_active_service, fig_ablation)
+    from generate_figures import (BLUE, GRAY, ORANGE, RED, LIGHTBLUE, GREEN, PURPLE)
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -44,69 +43,64 @@ def main():
                          "savefig.dpi": 300, "savefig.bbox": "tight",
                          "savefig.pad_inches": 0.05, "figure.dpi": 300})
 
-    locomo_uac = aggregate_locomo(load("locomo5_uac_v5.json"))
-    locomo_fc = aggregate_locomo(load("locomo5_full_context.json"))
-    locomo_amem = aggregate_locomo(load("locomo5_a_mem.json"))
-    locomo_mem0 = aggregate_locomo(load("locomo5_mem0.json"))
-    locomo_gpt = aggregate_locomo(load("locomo_gpt54_uac_v5.json"))
-
-    lme_uac = aggregate_lme(load("lme200_uac_v5.json"))
-    lme_fc = aggregate_lme(load("lme200_full_context.json"))
-    lme_amem = aggregate_lme(load("lme200_a_mem.json"))
-    lme_mem0 = aggregate_lme(load("lme200_mem0.json"))
-
-    print(f"LOCOMO UaC v5      : {locomo_uac}")
-    print(f"LOCOMO Full Context: {locomo_fc}")
-    print(f"LOCOMO A-MEM       : {locomo_amem}")
-    print(f"LOCOMO Mem0        : {locomo_mem0}")
-    print(f"LOCOMO UaC GPT-5.4 : {locomo_gpt}")
-    print(f"LME UaC v5         : {lme_uac}")
-    print(f"LME Full Context   : {lme_fc}")
-    print(f"LME A-MEM          : {lme_amem}")
-    print(f"LME Mem0           : {lme_mem0}")
-
-    # Build benchmarks figure
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
-
-    def pct(t):
-        return t[0] * 100 if t else 0
-
-    locomo_systems = ["UaC v5\n(ours)", "Full\nContext", "A-MEM", "Mem0"]
-    locomo = [pct(locomo_uac), pct(locomo_fc), pct(locomo_amem), pct(locomo_mem0)]
-    locomo_n = [
-        locomo_uac[1] if locomo_uac else 0,
-        locomo_fc[1] if locomo_fc else 0,
-        locomo_amem[1] if locomo_amem else 0,
-        locomo_mem0[1] if locomo_mem0 else 0,
+    sysnames = [
+        ("uac_v5",       "UaC v5\n(ours)",  BLUE),
+        ("full_context", "Full\nContext",   GRAY),
+        ("memmachine",   "MemMachine",      GREEN),
+        ("evermemos",    "EverMemOS",       PURPLE),
+        ("hindsight",    "Hindsight",       LIGHTBLUE),
+        ("a_mem",        "A-MEM",           ORANGE),
+        ("mem0",         "Mem0",            RED),
     ]
-    colors_l = [BLUE, GRAY, ORANGE, RED]
 
-    bars = ax1.bar(range(len(locomo_systems)), locomo, color=colors_l, edgecolor="white", linewidth=0.5, width=0.7)
-    ax1.set_xticks(range(len(locomo_systems)))
-    ax1.set_xticklabels(locomo_systems, fontsize=8)
+    # LOCOMO 10-conv
+    locomo_scores, locomo_colors, locomo_labels = [], [], []
+    for s, label, col in sysnames:
+        agg = aggregate_locomo(load(f"locomo10_{s}.json"))
+        if agg is None:
+            agg = aggregate_locomo(load(f"locomo5_{s}.json"))
+        locomo_scores.append(agg[0] * 100 if agg else 0)
+        locomo_colors.append(col)
+        locomo_labels.append(label)
+        print(f"LOCOMO {s:14s} {agg[1] if agg else 0:>4d}  {agg[0]*100 if agg else 0:.1f}%")
+
+    # LongMemEval 500
+    lme_scores, lme_labels, lme_colors = [], [], []
+    for s, label, col in sysnames:
+        agg = aggregate_lme(load(f"lme500_{s}.json"))
+        if agg is None:
+            agg = aggregate_lme(load(f"lme200_{s}.json"))
+        lme_scores.append(agg[0] * 100 if agg else 0)
+        lme_colors.append(col)
+        lme_labels.append(label)
+        print(f"LME    {s:14s} {agg[1] if agg else 0:>4d}  {agg[0]*100 if agg else 0:.1f}%")
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.2))
+
+    bars = ax1.bar(range(len(locomo_labels)), locomo_scores, color=locomo_colors,
+                   edgecolor="white", linewidth=0.5, width=0.7)
+    ax1.set_xticks(range(len(locomo_labels)))
+    ax1.set_xticklabels(locomo_labels, fontsize=8)
     ax1.set_ylabel("LLM-Judge Accuracy (%)")
-    n_str = "/".join(str(n) for n in locomo_n if n)
-    ax1.set_title(f"LOCOMO (5 conversations, n=300)", fontweight="bold")
+    ax1.set_title("LOCOMO (10 conversations, n=600)", fontweight="bold")
     ax1.set_ylim(0, 100)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
-    for bar, val in zip(bars, locomo):
+    for bar, val in zip(bars, locomo_scores):
         ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.5,
                  f"{val:.1f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
     bars[0].set_edgecolor(BLUE)
     bars[0].set_linewidth(2)
 
-    lme_systems = ["UaC v5\n(ours)", "Full\nContext", "A-MEM", "Mem0"]
-    lme = [pct(lme_uac), pct(lme_fc), pct(lme_amem), pct(lme_mem0)]
-    bars2 = ax2.bar(range(len(lme_systems)), lme, color=[BLUE, GRAY, ORANGE, RED],
+    bars2 = ax2.bar(range(len(lme_labels)), lme_scores, color=lme_colors,
                     edgecolor="white", linewidth=0.5, width=0.7)
-    ax2.set_xticks(range(len(lme_systems)))
-    ax2.set_xticklabels(lme_systems, fontsize=8)
-    ax2.set_title(f"LongMemEval (n=200)", fontweight="bold")
+    ax2.set_xticks(range(len(lme_labels)))
+    ax2.set_xticklabels(lme_labels, fontsize=8)
+    ax2.set_title("LongMemEval (n=500)", fontweight="bold")
     ax2.set_ylim(0, 100)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
-    for bar, val in zip(bars2, lme):
+    for bar, val in zip(bars2, lme_scores):
         ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.5,
                  f"{val:.1f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
     bars2[0].set_edgecolor(BLUE)

@@ -10,3 +10,4 @@ __pycache__/
 lancedb_*/
 experiments/results/
 benchmarks/
+experiments/chroma_db/
