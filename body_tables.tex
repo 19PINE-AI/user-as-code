@@ -1,22 +1,22 @@
 \begin{table}[t]
 \centering
-\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC~v5 vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability.}
+\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC~v5 vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable.}
 \label{tab:locomo}
 \small
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{System} & \textbf{LLM-Judge} & \textbf{Wilson 95\% CI} & \textbf{Token F1} & \textbf{N} & \textbf{McNemar $p$ vs.\ UaC} \\
+\textbf{System} & \textbf{LLM-as-Judge} & \textbf{Wilson 95\% CI} & \textbf{N} & \textbf{$p$ vs.\ UaC} \\
 \midrule
-Full Context (upper bound) & 79.8\% & [76.4, 82.8] & --- & 600 & 0.65 \\
-\textbf{UaC v5 (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & --- & 600 & --- \\
-MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & --- & 600 & 0.003 \\
-Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & --- & 600 & $1.5\!\times\!10^{-5}$ \\
-EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & --- & 600 & $<\!10^{-20}$ \\
-A-MEM & 51.8\% & [47.8, 55.8] & --- & 600 & $<\!10^{-30}$ \\
-Mem0 & 29.3\% & [25.8, 33.1] & --- & 600 & $<\!10^{-60}$ \\
+Full Context (upper bound) & 79.8\% & [76.4, 82.8] & 600 & 0.65 \\
+\textbf{UaC v5 (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
+MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & 600 & 0.003 \\
+Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & 600 & $1.5\!\times\!10^{-5}$ \\
+EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & 600 & $<\!10^{-20}$ \\
+A-MEM & 51.8\% & [47.8, 55.8] & 600 & $<\!10^{-30}$ \\
+Mem0 & 29.3\% & [25.8, 33.1] & 600 & $<\!10^{-60}$ \\
 \midrule
-\multicolumn{6}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
-UaC v5 (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & --- & 120 & --- \\
+\multicolumn{5}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
+UaC v5 (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
