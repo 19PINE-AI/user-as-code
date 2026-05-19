@@ -46,8 +46,8 @@ def load_strategy(name):
 def main():
     strategies = [
         ("monolithic", "Monolithic\n(always dump)", GRAY),
-        ("modular", "Modular\n(load on demand)", GREEN),
-        ("manifest", "Manifest+routing\n(progressive disclosure)", BLUE),
+        ("modular", "Modular\n(on demand)", GREEN),
+        ("manifest", "Manifest+\nrouting", BLUE),
     ]
     rows = []
     for sid, _label, _color in strategies:

@@ -44,13 +44,13 @@ def main():
                          "savefig.pad_inches": 0.05, "figure.dpi": 300})
 
     sysnames = [
-        ("uac_v5",       "UaC v5\n(ours)",  BLUE),
-        ("full_context", "Full\nContext",   GRAY),
-        ("memmachine",   "MemMachine",      GREEN),
-        ("evermemos",    "EverMemOS",       PURPLE),
-        ("hindsight",    "Hindsight",       LIGHTBLUE),
-        ("a_mem",        "A-MEM",           ORANGE),
-        ("mem0",         "Mem0",            RED),
+        ("uac_v5",       "UaC v5",      BLUE),
+        ("full_context", "Full Ctx",    GRAY),
+        ("memmachine",   "MemMachine",  GREEN),
+        ("evermemos",    "EverMemOS",   PURPLE),
+        ("hindsight",    "Hindsight",   LIGHTBLUE),
+        ("a_mem",        "A-MEM",       ORANGE),
+        ("mem0",         "Mem0",        RED),
     ]
 
     # LOCOMO 10-conv
@@ -75,12 +75,12 @@ def main():
         lme_labels.append(label)
         print(f"LME    {s:14s} {agg[1] if agg else 0:>4d}  {agg[0]*100 if agg else 0:.1f}%")
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.2))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 3.4))
 
     bars = ax1.bar(range(len(locomo_labels)), locomo_scores, color=locomo_colors,
                    edgecolor="white", linewidth=0.5, width=0.7)
     ax1.set_xticks(range(len(locomo_labels)))
-    ax1.set_xticklabels(locomo_labels, fontsize=8)
+    ax1.set_xticklabels(locomo_labels, fontsize=8.5, rotation=20, ha="right")
     ax1.set_ylabel("LLM-Judge Accuracy (%)")
     ax1.set_title("LOCOMO (10 conversations, n=600)", fontweight="bold")
     ax1.set_ylim(0, 100)
@@ -95,7 +95,7 @@ def main():
     bars2 = ax2.bar(range(len(lme_labels)), lme_scores, color=lme_colors,
                     edgecolor="white", linewidth=0.5, width=0.7)
     ax2.set_xticks(range(len(lme_labels)))
-    ax2.set_xticklabels(lme_labels, fontsize=8)
+    ax2.set_xticklabels(lme_labels, fontsize=8.5, rotation=20, ha="right")
     ax2.set_title("LongMemEval (n=500)", fontweight="bold")
     ax2.set_ylim(0, 100)
     ax2.spines["top"].set_visible(False)

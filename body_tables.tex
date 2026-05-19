@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC~v5 vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable.}
+\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC~v5 vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable. \emph{Mem0's 29.3\% is below its published number; see Section~\ref{sec:mem0-diagnostic} for the three-factor decomposition (backbone, background pass, retrieval stack).}}
 \label{tab:locomo}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -23,7 +23,7 @@ UaC v5 (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
 
 \begin{table}[t]
 \centering
-\caption{LongMemEval results on the \emph{full} 500-question benchmark. All systems use Gemini~3 Flash for answer generation and the same generous-scoring LLM-as-Judge. McNemar's exact test compares UaC v5 against each row on the per-question correctness vector.}
+\caption{LongMemEval results on the \emph{full} 500-question benchmark. All systems use Gemini~3 Flash for answer generation and the same generous-scoring LLM-as-Judge. McNemar's exact test compares UaC v5 against each row on the per-question correctness vector. \emph{The same Mem0 diagnostic applies as in Table~\ref{tab:locomo} (Section~\ref{sec:mem0-diagnostic}).}}
 \label{tab:longmemeval}
 \small
 \begin{tabular}{@{}lcccccc|cc@{}}

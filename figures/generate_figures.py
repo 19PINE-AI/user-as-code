@@ -80,13 +80,15 @@ def fig_architecture():
     ax.text(7.6, 5.6, '(periodic, from all facts)', ha='center', fontsize=8, color=DARKGRAY)
 
     # Code representation
-    code_box = mpatches.FancyBboxPatch((5.9, 4.6), 3.4, 1.0,
+    code_box = mpatches.FancyBboxPatch((5.9, 4.55), 3.4, 1.0,
         boxstyle="round,pad=0.08", facecolor='white', edgecolor=GREEN, linewidth=0.8)
     ax.add_patch(code_box)
-    ax.text(7.6, 5.35, 'Typed Python Code', ha='center', fontsize=8, fontweight='bold')
-    ax.text(7.6, 5.05, 'passport = PassportInfo(\n  expiry=date(2025,2,18))',
+    ax.text(7.6, 5.40, 'Typed Python Code', ha='center', fontsize=8, fontweight='bold')
+    ax.text(7.6, 5.08, 'passport = PassportInfo(',
             ha='center', fontsize=6.5, family='monospace', color=DARKGRAY)
-    ax.text(7.6, 4.72, 'notes=["Prefers aisle..."]',
+    ax.text(7.6, 4.88, '    expiry=date(2025,2,18))',
+            ha='center', fontsize=6.5, family='monospace', color=DARKGRAY)
+    ax.text(7.6, 4.68, 'notes=["Prefers aisle..."]',
             ha='center', fontsize=6.5, family='monospace', color=DARKGRAY)
 
     # Arrow from facts to code
@@ -95,10 +97,10 @@ def fig_architecture():
     ax.text(5.1, 4.55, 'Structure\n(thinking LLM)', ha='center', fontsize=7, color='#15803D')
 
     # Constraint box
-    const_box = mpatches.FancyBboxPatch((5.9, 3.9), 3.4, 0.5,
+    const_box = mpatches.FancyBboxPatch((5.9, 3.88), 3.4, 0.45,
         boxstyle="round,pad=0.05", facecolor=LIGHTORANGE, edgecolor=ORANGE, linewidth=0.8)
     ax.add_patch(const_box)
-    ax.text(7.6, 4.15, 'Constraint Execution  \u2192  ACTIVE_ALERTS',
+    ax.text(7.6, 4.10, 'Constraint Execution  \u2192  ACTIVE_ALERTS',
             ha='center', fontsize=7.5, fontweight='bold', color='#92400E')
 
     # Tier 3 Archive
