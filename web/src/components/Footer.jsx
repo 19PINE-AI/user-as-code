@@ -48,6 +48,9 @@ export default function Footer() {
             <br />Bojie Li · Pine AI · <a href="mailto:boj@19pine.ai" className="text-brand-300 hover:underline">boj@19pine.ai</a>
           </p>
           <div className="flex flex-wrap justify-center gap-3">
+            <a href={`${import.meta.env.BASE_URL}paper.pdf`} target="_blank" rel="noreferrer" className="btn bg-gradient-to-r from-brand-400 to-accent-400 text-ink-950 hover:opacity-90">
+              Read the paper (PDF)
+            </a>
             <a href="https://github.com/bojieli/UserAsCode" target="_blank" rel="noreferrer" className="btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10">
               Code &amp; data
             </a>

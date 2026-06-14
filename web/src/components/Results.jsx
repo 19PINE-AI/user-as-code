@@ -44,12 +44,16 @@ function ChartCard({ title, sub, children, className }) {
 /* Standard benchmark bars (LOCOMO / LME toggle) */
 function BenchmarkBars({ summary }) {
   const [bench, setBench] = useState('locomo')
+  const [noteOpen, setNoteOpen] = useState(false)
   const rows = summary[bench]
-  const data = rows.map((r) => ({ name: r.system, acc: r.acc, ci: r.ci, ours: r.ours, upper: r.upper }))
+  const data = rows.map((r) => ({
+    name: r.lite ? `${r.system} (lite)` : r.system,
+    acc: r.acc, ci: r.ci, ours: r.ours, upper: r.upper, lite: r.lite, published: r.published,
+  }))
   return (
     <ChartCard
       title="Standard benchmarks"
-      sub="LLM-as-Judge accuracy on a shared Gemini 3 Flash backbone. UaC ties the full-context upper bound and leads every memory system."
+      sub="LLM-as-Judge accuracy on a shared Gemini 3 Flash backbone. UaC ties the full-context upper bound and leads every memory system run under the same conditions."
     >
       <div className="mb-3 inline-flex rounded-lg border border-white/10 bg-ink-900/60 p-1">
         {[['locomo', 'LOCOMO · 600'], ['lme', 'LongMemEval · 500']].map(([k, l]) => (
@@ -66,15 +70,85 @@ function BenchmarkBars({ summary }) {
         <BarChart data={data} layout="vertical" margin={{ left: 12, right: 28 }}>
           <CartesianGrid horizontal={false} stroke={GRID} />
           <XAxis type="number" domain={[0, 100]} tick={AXIS} unit="%" />
-          <YAxis type="category" dataKey="name" tick={{ ...AXIS, fontSize: 11 }} width={108} />
+          <YAxis type="category" dataKey="name" tick={{ ...AXIS, fontSize: 10.5 }} width={120} />
           <Tooltip content={<TooltipBox fmt={(v) => `${v}%`} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
           <Bar dataKey="acc" radius={[0, 6, 6, 0]} barSize={20} label={{ position: 'right', fill: '#cbd5e1', fontSize: 11, formatter: (v) => `${v}%` }}>
             {data.map((d, i) => (
-              <Cell key={i} fill={d.ours ? '#22d3ee' : d.upper ? '#a78bfa' : '#475569'} />
+              <Cell key={i} fill={d.ours ? '#22d3ee' : d.upper ? '#a78bfa' : d.lite ? '#3f4a63' : '#475569'} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <button onClick={() => setNoteOpen((v) => !v)} className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-amber-300/90 hover:text-amber-200">
+        <svg className={cx('h-3 w-3 transition', noteOpen && 'rotate-90')} viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l6 5-6 5V5z" /></svg>
+        Why these baselines read low — read before comparing
+      </button>
+      {noteOpen && (
+        <p className="mt-2 rounded-lg border border-amber-400/20 bg-amber-500/[0.06] px-3 py-2.5 text-[11.5px] leading-relaxed text-slate-300">
+          {summary.notes.baseline}
+          {data.some((d) => d.published) && (
+            <span className="mt-1.5 block font-mono text-[11px] text-slate-400">
+              Published ceilings: {data.filter((d) => d.published).map((d) => `${d.name.replace(' (lite)', '')} ${d.published}`).join(' · ')}
+            </span>
+          )}
+        </p>
+      )}
+    </ChartCard>
+  )
+}
+
+/* LongMemEval per question-type breakdown (heatmap-style grid) */
+function LmeByType({ summary }) {
+  const types = ['KU', 'MS', 'SA', 'SP', 'SU', 'TR']
+  const legend = summary.lme_type_legend
+  const nmap = summary.lme_type_n
+  const cell = (v) => {
+    // green→amber→red gradient by accuracy
+    const h = Math.round((v / 100) * 140) // 0=red .. 140=green
+    return `hsl(${h}, 65%, ${22 + (v / 100) * 16}%)`
+  }
+  return (
+    <ChartCard
+      title="LongMemEval by question type"
+      sub="Typed date() fields help most on knowledge-update and preference; the residual gap to Full Context is concentrated in temporal-reasoning."
+    >
+      <div className="overflow-x-auto">
+        <table className="w-full border-separate border-spacing-1 text-center text-xs">
+          <thead>
+            <tr>
+              <th className="px-2 py-1 text-left font-medium text-slate-500">System</th>
+              {types.map((t) => (
+                <th key={t} className="px-1 py-1 font-mono text-[10px] text-slate-400" title={`${legend[t]} (n=${nmap[t]})`}>{t}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {summary.lme.map((r) => (
+              <tr key={r.system}>
+                <td className={cx('px-2 py-1 text-left text-[11px] font-medium', r.ours ? 'text-brand-200' : 'text-slate-300')}>
+                  {r.lite ? `${r.system}*` : r.system}
+                </td>
+                {types.map((t) => (
+                  <td
+                    key={t}
+                    className="rounded-md px-1 py-1.5 font-mono text-[11px] font-semibold text-white/90"
+                    style={{ background: cell(r.types[t]) }}
+                    title={`${r.system} · ${legend[t]}: ${r.types[t]}%`}
+                  >
+                    {r.types[t]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[10px] text-slate-500">
+        {types.map((t) => (
+          <span key={t}>{t} = {legend[t]}</span>
+        ))}
+        <span className="text-slate-600">· * = same-backbone lite reimpl.</span>
+      </div>
     </ChartCard>
   )
 }
@@ -268,6 +342,7 @@ export default function Results() {
         {summary && (
           <div className="mt-12 grid gap-5 lg:grid-cols-2">
             <BenchmarkBars summary={summary} />
+            <LmeByType summary={summary} />
             <AnalyticalScaling summary={summary} />
             <ActiveService summary={summary} />
             <Ablation summary={summary} />
@@ -289,7 +364,37 @@ export default function Results() {
             </ChartCard>
           </div>
         )}
+
+        {summary && (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <InsightCard title="Cross-LLM portability" accent="brand" body={summary.notes.cross_llm} stat="80.8%" statLabel="GPT-5.4 · LOCOMO subset · p=0.82" />
+            <InsightCard title="The Mem0 diagnostic" accent="warn" body={summary.notes.mem0} stat="≈½ gap" statLabel="recovered on Mem0's native stack" />
+          </div>
+        )}
       </div>
     </section>
+  )
+}
+
+function InsightCard({ title, body, stat, statLabel, accent }) {
+  const color = accent === 'warn' ? 'text-warn' : 'text-brand-300'
+  const ring = accent === 'warn' ? 'border-warn/20' : 'border-brand-400/20'
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.5 }}
+      className={cx('card flex flex-col gap-3 p-5 sm:flex-row sm:items-start', ring)}
+    >
+      <div className="shrink-0">
+        <div className={cx('font-mono text-2xl font-bold', color)}>{stat}</div>
+        <div className="mt-0.5 max-w-[8rem] text-[10px] leading-tight text-slate-500">{statLabel}</div>
+      </div>
+      <div className="sm:border-l sm:border-white/10 sm:pl-4">
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-400">{body}</p>
+      </div>
+    </motion.div>
   )
 }

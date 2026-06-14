@@ -34,10 +34,10 @@ def cap(s, n=2000):
 # Display metadata, shared across the site.
 SYSTEMS = {
     "uac_v5": {"name": "UaC v5", "label": "User as Code (ours)", "ours": True},
-    "full_context": {"name": "Full Context", "label": "Full Context (upper bound)"},
-    "memmachine": {"name": "MemMachine", "label": "MemMachine (lite)"},
-    "hindsight": {"name": "Hindsight", "label": "Hindsight (lite)"},
-    "evermemos": {"name": "EverMemOS", "label": "EverMemOS (lite)"},
+    "full_context": {"name": "Full Context", "label": "Full Context (upper bound)", "upper": True},
+    "memmachine": {"name": "MemMachine", "label": "MemMachine (lite)", "lite": True},
+    "hindsight": {"name": "Hindsight", "label": "Hindsight (lite)", "lite": True},
+    "evermemos": {"name": "EverMemOS", "label": "EverMemOS (lite)", "lite": True},
     "a_mem": {"name": "A-MEM", "label": "A-MEM"},
     "mem0": {"name": "Mem0", "label": "Mem0"},
 }
@@ -360,31 +360,46 @@ def build_summary():
         "locomo": [
             {"system": "Full Context", "acc": 79.8, "ci": [76.4, 82.8], "p": "0.65", "upper": True},
             {"system": "UaC v5 (ours)", "acc": 78.8, "ci": [75.4, 81.9], "p": "—", "ours": True},
-            {"system": "MemMachine", "acc": 72.7, "ci": [69.0, 76.1], "p": "0.003"},
-            {"system": "Hindsight", "acc": 69.7, "ci": [65.9, 73.2], "p": "1.5e-5"},
-            {"system": "EverMemOS", "acc": 55.5, "ci": [51.5, 59.4], "p": "<1e-20"},
+            {"system": "MemMachine", "acc": 72.7, "ci": [69.0, 76.1], "p": "0.003", "lite": True, "published": "91.7%"},
+            {"system": "Hindsight", "acc": 69.7, "ci": [65.9, 73.2], "p": "1.5e-5", "lite": True},
+            {"system": "EverMemOS", "acc": 55.5, "ci": [51.5, 59.4], "p": "<1e-20", "lite": True, "published": "93.05%"},
             {"system": "A-MEM", "acc": 51.8, "ci": [47.8, 55.8], "p": "<1e-30"},
-            {"system": "Mem0", "acc": 29.3, "ci": [25.8, 33.1], "p": "<1e-60"},
+            {"system": "Mem0", "acc": 29.3, "ci": [25.8, 33.1], "p": "<1e-60", "diag": True},
         ],
         "lme": [
             {"system": "Full Context", "acc": 85.4, "ci": [82.0, 88.2], "p": "0.19", "upper": True,
              "types": {"KU": 91, "MS": 87, "SA": 96, "SP": 70, "SU": 96, "TR": 74}},
-            {"system": "MemMachine", "acc": 84.8, "ci": [81.4, 87.7], "p": "0.33",
+            {"system": "MemMachine", "acc": 84.8, "ci": [81.4, 87.7], "p": "0.33", "lite": True,
              "types": {"KU": 96, "MS": 88, "SA": 96, "SP": 63, "SU": 96, "TR": 69}},
             {"system": "UaC v5 (ours)", "acc": 83.0, "ci": [79.5, 86.0], "p": "—", "ours": True,
              "types": {"KU": 97, "MS": 81, "SA": 96, "SP": 83, "SU": 94, "TR": 65}},
-            {"system": "EverMemOS", "acc": 76.4, "ci": [72.5, 79.9], "p": "0.002",
+            {"system": "EverMemOS", "acc": 76.4, "ci": [72.5, 79.9], "p": "0.002", "lite": True,
              "types": {"KU": 87, "MS": 72, "SA": 73, "SP": 87, "SU": 87, "TR": 68}},
-            {"system": "Hindsight", "acc": 73.0, "ci": [68.9, 76.7], "p": "<1e-5",
+            {"system": "Hindsight", "acc": 73.0, "ci": [68.9, 76.7], "p": "<1e-5", "lite": True, "published": "91.4%",
              "types": {"KU": 78, "MS": 72, "SA": 66, "SP": 77, "SU": 93, "TR": 62}},
             {"system": "A-MEM", "acc": 49.6, "ci": [45.2, 54.0], "p": "<1e-30",
              "types": {"KU": 54, "MS": 44, "SA": 93, "SP": 40, "SU": 49, "TR": 37}},
-            {"system": "Mem0", "acc": 23.8, "ci": [20.3, 27.7], "p": "<1e-70",
+            {"system": "Mem0", "acc": 23.8, "ci": [20.3, 27.7], "p": "<1e-70", "diag": True,
              "types": {"KU": 32, "MS": 23, "SA": 7, "SP": 33, "SU": 36, "TR": 18}},
         ],
         "lme_type_legend": {
             "KU": "Knowledge-update", "MS": "Multi-session", "SA": "Single-asst",
             "SP": "Single-pref", "SU": "Single-user", "TR": "Temporal-reasoning",
+        },
+        "lme_type_n": {"KU": 78, "MS": 133, "SA": 56, "SP": 30, "SU": 70, "TR": 133},
+        "notes": {
+            "baseline": ("MemMachine, Hindsight and EverMemOS are minimal-faithful, same-backbone "
+                         "reimplementations run on Gemini 3 Flash with a single ChromaDB store, to isolate "
+                         "the representation as the only variable. Their published numbers use stronger "
+                         "backbones (GPT-4.1-mini, Gemini 3 Pro) and richer retrieval stacks — those are "
+                         "architecture ceilings, not direct competitors. UaC runs under the same handicaps."),
+            "mem0": ("Mem0's 29.3% / 23.8% is on the harshest common-denominator backbone-and-stack chosen "
+                     "to keep every baseline on equal footing. A direct audit recovers ~half the gap to the "
+                     "published ~66%: GPT-4o-mini answer LLM (+17pp), the background-merge scope fix, and "
+                     "Qdrant over ChromaDB (+6pp)."),
+            "cross_llm": ("Swapping GPT-5.4 throughout the UaC pipeline yields 80.8% on a 120-QA LOCOMO subset "
+                          "vs. 82.5% for Gemini on the same subset — a statistical tie (McNemar p=0.82). The "
+                          "architecture transfers across the two largest closed-model families."),
         },
         "analytical": [
             {"system": "FC + REPL", "overall": 100.0, "byN": {"20": 100, "50": 100, "100": 100, "200": 100, "500": 100}},

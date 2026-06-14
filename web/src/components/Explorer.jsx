@@ -175,6 +175,10 @@ function SystemResponse({ sysKey, meta, rec }) {
         <span className="h-2.5 w-2.5 rounded-full" style={{ background: SYS_COLORS[sysKey] || '#64748b' }} />
         <span className={cx('text-sm font-semibold', ours ? 'text-brand-200' : 'text-slate-200')}>{meta?.name || sysKey}</span>
         {ours && <span className="chip border-brand-400/30 bg-brand-400/10 text-[10px] text-brand-200">ours</span>}
+        {meta?.upper && <span className="chip border-accent-400/30 bg-accent-400/10 text-[10px] text-accent-300">upper bound</span>}
+        {meta?.lite && (
+          <span className="chip border-white/15 bg-white/5 text-[10px] text-slate-400" title="Same-backbone lite reimplementation under Gemini 3 Flash">lite reimpl.</span>
+        )}
         <div className="ml-auto flex items-center gap-1.5">
           <span className="font-mono text-[10px] text-slate-500">Gemini</span>
           <Verdict ok={rec.gemini_correct} label={rec.gemini_correct ? '✓' : '✗'} />
