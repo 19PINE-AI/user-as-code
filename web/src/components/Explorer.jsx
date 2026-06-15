@@ -404,7 +404,7 @@ function SectionLabel({ n, text }) {
 /* UaC memory panel — the regenerated Phase-1 facts + Phase-2 state    */
 /* ------------------------------------------------------------------ */
 function MemoryPanel({ mem, kind }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   if (!mem) return null
   const facts = mem.facts || []
   const isAnalytical = kind === 'analytical'
