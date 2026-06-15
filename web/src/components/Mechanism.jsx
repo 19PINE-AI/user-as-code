@@ -51,56 +51,59 @@ function PipelineDiagram() {
 }
 
 /* ---------------- Running example: LOCOMO conv-30 (Jon & Gina) ----------------
-   Every snippet below is taken verbatim from the paper's worked appendix
-   (Appendix "Real Cases", LOCOMO conv-30): the raw conversation, the Phase-1
-   fact list our extractor produces, and the Phase-2 typed state. */
-const RX_CONV = `SESSION 1  ·  2023-01-20
+   These are GENUINE artifacts: we ran the real v5 pipeline
+   (experiments/user_as_code_v5.py) on LOCOMO conv-30 and dumped the output to
+   experiments/results/conv30_extraction/. RX_CONV is verbatim source dialogue;
+   RX_FACTS and RX_STATE are verbatim excerpts of the produced facts.py / state.py
+   (1,419 facts; 7 KB of code). */
+const RX_CONV = `SESSION 1  ·  20 January, 2023
+Gina: Hey Jon! Good to see you. What's up? Anything new?
 Jon:  Lost my job as a banker yesterday, so I'm gonna take
       a shot at starting my own business.
-Gina: Sorry about your job Jon! Unfortunately I also lost
+Gina: Sorry about your job Jon! Unfortunately, I also lost
       my job at Door Dash this month.
 Jon:  I'm starting a dance studio 'cause I'm passionate
-      about dancing and want to share it with others.
+      about dancing and it'd be great to share it.
 
-SESSION 2  ·  2023-01-29
-Jon:  On the hunt for the ideal spot for my studio... it's
-      downtown, easy to get to. Plus the natural light!
-Jon:  I'm after Marley flooring, what dance studios use.
-      Grippy but still lets you move.
+SESSION 2  ·  29 January, 2023
+Jon:  On the hunt for the ideal spot for my dance studio...
+      I even found a place with great natural light!
 
-SESSION 3  ·  2023-02-01
-Gina: Emailed wholesalers and one said yes today! Now I
-      can expand my clothing store.`
+SESSION 3  ·  1 February, 2023
+Gina: I emailed some wholesalers and one said yes today!
+      Now I can expand my clothing store.`
 
-const RX_FACTS = `facts = [   # append-only — never overwritten, never deleted
-  "[2023-01-19] Jon lost his job as a banker (one day before session 1)",
-  "[2023-01-20] Jon plans to start his own business: a dance studio",
-  "[2023-01-20] Jon's passion is dancing; contemporary is his favorite",
-  "[2023-01-20] Gina lost her job at Door Dash in January 2023",
-  "[2023-01-29] Jon is scouting downtown locations for the studio",
-  "[2023-01-29] Jon wants Marley flooring (standard for dance studios)",
-  "[2023-02-01] Gina secured a wholesaler to expand her clothing store",
-  # ... ~140 more facts across the full conversation ...
+const RX_FACTS = `facts = [   # append-only · 1,419 facts extracted from conv-30's 19 sessions
+    "[session_1, 4:04 pm on 20 January, 2023] Jon lost his job on January 19, 2023.",
+    "[session_1, 4:04 pm on 20 January, 2023] Jon's former job was as a banker.",
+    "[session_1, 4:04 pm on 20 January, 2023] Gina lost her job in January 2023.",
+    "[session_1, 4:04 pm on 20 January, 2023] Jon is starting a dance studio.",
+    "[session_2, 2:32 pm on 29 January, 2023] The studio location Jon found is in a downtown area.",
+    "[session_2, 2:32 pm on 29 January, 2023] Jon believes that good flooring is crucial for a dance studio.",
+    # ... 1,413 more facts across all 19 sessions ...
 ]`
 
 const RX_STATE = `@dataclass
 class Person:
     name: str
-    job_history: list["Job"] = field(default_factory=list)
-    interests: list[str] = field(default_factory=list)
+    passions: list[str] = field(default_factory=list)
+    skills: list[str] = field(default_factory=list)
+    jobs: list["JobHistory"] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
 jon = Person(
     name="Jon",
-    job_history=[Job(title="banker", employer="(unspecified)",
-                     end_date=date(2023, 1, 19), reason_ended="laid off")],
-    interests=["dancing", "contemporary dance"],
+    passions=["Dancing (Contemporary, Hip-hop)", "Sharing dance with others"],
+    skills=["Choreography", "Contemporary dance", "Hip-hop"],
 )
-jon_studio = BusinessVenture(
-    name="(unnamed dance studio)", type="dance studio",
-    status="scouting", started=date(2023, 1, 20),
-    requirements=["downtown location", "natural light",
-                  "Marley flooring", "good bounce for dancers"],
+jon.jobs.append(JobHistory(title="Banker", date_ended=date(2023, 1, 19),
+                           notes=["Lost job on Jan 19, 2023"]))
+
+jon_studio = Business(
+    name="Jon's Dance Studio", owner="Jon", industry="Dance Studio",
+    status="Establishing / Searching for location",
+    location_description="Downtown area (potential), ideally by the water",
+    features=["Marley flooring (planned for grip/durability)", "Natural light"],
 )`
 
 function StageHead({ n, title, sub, color, badge }) {
@@ -551,8 +554,9 @@ export default function Mechanism() {
 
           <div className="space-y-5 pt-2">
             <SubHead title="A real run: LOCOMO conv-30 (Jon &amp; Gina)">
-              Watch one conversation flow through both phases (from the paper’s worked appendix). The three
-              sessions are verbatim LOCOMO; the fact list and typed state are what our two phases produce from them.
+              We ran the actual v5 pipeline on this conversation. The sessions are verbatim LOCOMO; the fact list
+              and typed state below are the genuine output it produced — <span className="text-slate-300">1,419 facts</span> and{' '}
+              <span className="text-slate-300">7&nbsp;KB of code</span>, excerpted here.
             </SubHead>
             <RunningExample />
           </div>

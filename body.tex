@@ -110,17 +110,24 @@ Concretely, we model user memory as a self-evolving software project---typed dat
 \section{Related Work}
 \label{sec:related}
 
-LLM agent memory has grown rapidly in 2025--2026, with 20+ systems, 15+ benchmarks, and several surveys~\citep{hu2025memoryage, du2026memorysurvey, yang2026graphmemory}. We organize related work around three gaps UaC addresses.
+LLM agent memory has grown rapidly in 2025--2026, with 20+ systems, 15+ benchmarks, and several surveys~\citep{hu2025memoryage, du2026memorysurvey, yang2026graphmemory, wu2025humantoai, zhang2024memorysurvey}. The broader goal these systems serve---adapting a general model to an individual---is the subject of a parallel and equally active literature on LLM personalization~\citep{zhang2024personalization, liu2025personalizedllm}, increasingly framed around personalized \emph{agents} whose profile, memory, planning, and actions are all tailored to one user~\citep{xu2026personalizedagents}. UaC sits at the intersection: it is a memory mechanism whose purpose is personalization. We organize related work around three gaps UaC addresses, after first positioning it against the line of work that treats code---rather than text---as the medium an LLM reads and writes.
+
+\subsection{Code as a Representation for LLMs}
+\label{sec:related-code}
+
+A substantial line of work shows that generated code is a better substrate than free text when a task demands precise computation, composition, or verification. \textbf{Code as reasoning}: Program-of-Thoughts~\citep{chen2023pot} and PAL~\citep{gao2023pal} offload arithmetic and logic to a Python interpreter, decoupling \emph{what to compute} from \emph{computing it correctly}, and Chain-of-Code~\citep{li2024chainofcode} extends this to semantic sub-tasks by interleaving real execution with LM-emulated execution. \textbf{Code as structured representation}: even when the end task involves no source code, framing it as code generation makes LLMs better structured reasoners---CoCoGen~\citep{madaan2022cocogen} shows code-LMs emit cleaner structured (graph) outputs than NL-LMs, the same observation that motivates representing user state as typed Python rather than prose. \textbf{Code as action}: CodeAct~\citep{wang2024codeact} unifies an agent's action space into executable Python, outperforming JSON/text tool calls; this contrasts with the text-and-action interleaving of ReAct~\citep{yao2023react} and the natural-language self-reflection of Reflexion~\citep{shinn2023reflexion}. \textbf{Code as a skill/tool library}: Voyager~\citep{wang2024voyager} stores acquired behaviors as retrievable executable functions; LLMs-as-Tool-Makers~\citep{cai2023latm} and TroVE~\citep{wang2024trove} have models author and reuse their own verifiable Python utilities; and recent work distills agent experience into reusable procedural skills~\citep{mi2026skillpro}. \textbf{Code as policy}: Code-as-Policies~\citep{liang2023codeaspolicies} generates control programs for embodied agents, and neurosymbolic systems synthesize machine-checkable constraints from natural language for high-stakes domains~\citep{akinfaderin2025verafi}.
+
+\textbf{How UaC differs.} These systems apply code to \emph{reasoning}, \emph{actions}, \emph{skills}, \emph{tools}, or \emph{policies}---and even when they target a structured \emph{representation}~\citep{madaan2022cocogen}, the artifact is produced to accomplish one task and then discarded. UaC applies the same insight to the one thing they all leave in text: the \emph{persistent state of the user}. The user's profile, history, and the rules that govern them become a versioned directory of typed Python that an interpreter computes over directly, rather than a transcript an LLM re-reads each turn. The benefits these works document for transient code---determinism, composition, verifiability---we claim for long-lived memory.
 
 \subsection{Gap 1: Representation Separates Storage from Verification}
 
 Existing memory systems store user state in formats that cannot be directly executed. \textbf{Flat fact systems} like Mem0~\citep{chhikara2025mem0} extract atomic facts with a CRUD lifecycle. \textbf{Structured-note systems} like A-MEM~\citep{xu2025amem} use Zettelkasten-inspired notes with dynamic linking; ENGRAM~\citep{patel2025engram} shows that careful typing plus dense retrieval can match more complex architectures. \textbf{Knowledge-graph approaches} like Zep/Graphiti~\citep{rasmussen2025zep} build temporal KGs with bitemporal modeling; MAGMA~\citep{jiang2026magma} adds multi-graph traversal. \textbf{Hybrid architectures} like Hindsight~\citep{latimer2025hindsight} maintain four logical networks (91.4\% on LongMemEval); MemMachine~\citep{wang2026memmachine} stores entire episodes (91.7\% on LOCOMO). \textbf{OS-inspired systems} like MemGPT/Letta~\citep{packer2023memgpt} and MemOS~\citep{li2025memos} treat memory paging as an OS primitive: the agent edits text-based ``main context'' and ``recall storage'' pages through a custom API (Letta's \texttt{core\_memory\_replace}~/~\texttt{archival\_memory\_insert}), but the page contents remain unstructured text---the OS is around the memory, not in it. \textbf{Agent-editable instructions} are taken furthest by LangMem~\citep{langmem2025}, which lets the agent rewrite its own system-prompt directives over time; this is the closest existing system to ``executable memory,'' but the medium remains natural language interpreted by the LLM at read time, not typed objects an interpreter can run.
 
-\textbf{How UaC differs.} UaC commits to typed Python for the \emph{state itself}, not just for instructions or paging machinery. Concretely: (i)~user state is a directory of Python dataclass instances, not text pages---an interpreter indexes, groups, and computes over it without reparsing; (ii)~persistent ``rules'' are Python functions over that state (e.g., \texttt{check\_drug\_allergy(profile) -> list[Alert]}), not natural-language directives the LLM re-interprets each call; (iii)~MemGPT-style paging and LangMem-style instruction editing remain available on top---each domain is a module, each constraint a callable---but neither is required for the headline capabilities. The closest ``state-as-code'' work outside the memory community is constraint-as-code in policy languages (e.g., Rego/OPA); UaC differs in that schemas, instances, and constraints are all LLM-generated and evolve with the user, not human-authored and frozen.
+\textbf{How UaC differs.} UaC commits to typed Python for the \emph{state itself}, not just for instructions or paging machinery. Concretely: (i)~user state is a directory of Python dataclass instances, not text pages---an interpreter indexes, groups, and computes over it without reparsing; (ii)~persistent ``rules'' are Python functions over that state (e.g., \texttt{check\_drug\_allergy(profile) -> list[Alert]}), not natural-language directives the LLM re-interprets each call; (iii)~MemGPT-style paging and LangMem-style instruction editing remain available on top---each domain is a module, each constraint a callable---but neither is required for the headline capabilities. The closest ``state-as-code'' work outside the memory community is constraint-as-code in policy languages (e.g., Rego/OPA) and the LLM-generated, machine-checkable policies of neurosymbolic agents~\citep{liang2023codeaspolicies, akinfaderin2025verafi}; UaC differs in that schemas, instances, \emph{and} constraints are all LLM-generated over evolving user state, not human-authored and frozen, nor synthesized fresh per task and discarded.
 
 \subsection{Gap 2: No Benchmark Tests Proactive Memory-Triggered Alerting}
 
-LOCOMO~\citep{maharana2024locomo} provides 1,986 QA pairs; LongMemEval~\citep{wu2025longmemeval} tests 500 questions across six question types. LoCoMo-Plus~\citep{li2026locomoplus} tests implicit constraints; MemoryArena~\citep{he2026memoryarena} shows LOCOMO-saturated agents fail in agentic settings. ProAgentBench~\citep{tang2026proagentbench} tests proactive task assistance but not memory-triggered alerting. PersistBench~\citep{pulipaka2026persistbench} identifies memory safety risks. To our knowledge no existing benchmark tests the \emph{initiation asymmetry} central to Active Service---the system must produce alerts in the absence of a user query, triggered by state changes alone---which motivates the new Active Service benchmark in Section~\ref{sec:active-service}.
+LOCOMO~\citep{maharana2024locomo} provides 1,986 QA pairs; LongMemEval~\citep{wu2025longmemeval} tests 500 questions across six question types. LoCoMo-Plus~\citep{li2026locomoplus} tests implicit constraints; MemoryArena~\citep{he2026memoryarena} shows LOCOMO-saturated agents fail in agentic settings. Proactive assistance itself is an established goal---Proactive Agent~\citep{lu2025proactive} formalizes anticipating user needs without explicit requests---and ProAgentBench~\citep{tang2026proagentbench} tests proactive task assistance, but neither targets memory-triggered alerting. PersistBench~\citep{pulipaka2026persistbench} identifies memory safety risks. To our knowledge no existing benchmark tests the \emph{initiation asymmetry} central to Active Service---the system must produce alerts in the absence of a user query, triggered by state changes alone---which motivates the new Active Service benchmark in Section~\ref{sec:active-service}.
 
 \subsection{Gap 3: Memory Operations Are Not Yet Optimized End-to-End}
 
@@ -228,7 +235,7 @@ The first pipeline converts raw conversation into code. Our key architectural in
 
 \subsubsection{Phase 1: Memorize (per session, append-only)}
 
-An LLM extracts every individual fact as a flat string from each session (Gemini~3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved to absolute dates against the session timestamp. This produces $\sim$50 facts/session ($\sim$950 for a 19-session LOCOMO conversation). Each fact is indexed in ChromaDB; the raw conversation is also chunked and indexed in a second collection, which serves as a retrieval fallback for direct-quote queries (the \texttt{[ARCHIVE]} channel of Section~\ref{sec:retrieval}).
+An LLM extracts every individual fact as a flat string from each session (Gemini~3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved to absolute dates against the session timestamp. This produces roughly 50--75 facts/session (e.g., our v5 run extracts 1{,}419 facts from the 19-session \texttt{conv-30}; Appendix~\ref{app:cases}). Each fact is indexed in ChromaDB; the raw conversation is also chunked and indexed in a second collection, which serves as a retrieval fallback for direct-quote queries (the \texttt{[ARCHIVE]} channel of Section~\ref{sec:retrieval}).
 
 \subsubsection{Phase 2: Structure (periodic, from all facts)}
 
@@ -244,7 +251,7 @@ The second pipeline operates over the code the first one produced. It has two mo
 \subsubsection{Multi-Strategy Retrieval}
 \label{sec:retrieval}
 
-At query time, retrieval composes three channels rather than picking one. Each channel addresses a different failure mode of the others: the structured-code channel can return a typed object but only for facts the structuring step has captured; the fact-vector channel covers the long tail of facts that did not make it into the typed schema; and the raw-archive channel preserves the exact conversational phrasing for queries that hinge on wording.
+At query time, retrieval composes three channels rather than picking one. The two vector channels are standard retrieval-augmented generation~\citep{lewis2020rag} over the user's own history; the novel channel is the structured-code state, which the others backstop. Each channel addresses a different failure mode of the others: the structured-code channel can return a typed object but only for facts the structuring step has captured; the fact-vector channel covers the long tail of facts that did not make it into the typed schema; and the raw-archive channel preserves the exact conversational phrasing for queries that hinge on wording.
 
 \textbf{(1)~Structured code state.} The full \texttt{state.py} of the manifest-routed domain (or all domains, in the non-modular setting) is included verbatim in the prompt, truncated at 6{,}000 characters. The agent reads typed dataclass instances and the pre-computed \texttt{ACTIVE\_ALERTS} list with no parse step.
 
@@ -290,7 +297,7 @@ Three further principles guide production deployment but are not isolated by the
 
 \subsection{Setup}
 
-\textbf{LLM and judge.} Gemini~3 Flash (\texttt{gemini-3-flash-preview}) is used throughout with thinking enabled (answer-time budget 2048; no \texttt{max\_output\_tokens} cap). Evaluation is LLM-as-Judge with binary CORRECT/WRONG scoring (budget 256). The judge sees the question, gold answer, and prediction and is instructed to be generous: same-information-different-wording scores CORRECT; WRONG only when factually wrong or claiming unavailability when the gold exists.
+\textbf{LLM and judge.} Gemini~3 Flash (\texttt{gemini-3-flash-preview}) is used throughout with thinking enabled (answer-time budget 2048; no \texttt{max\_output\_tokens} cap). Evaluation is LLM-as-Judge~\citep{zheng2023mtbench} with binary CORRECT/WRONG scoring (budget 256). The judge sees the question, gold answer, and prediction and is instructed to be generous: same-information-different-wording scores CORRECT; WRONG only when factually wrong or claiming unavailability when the gold exists.
 
 \textbf{Baselines.} Five external memory systems plus a Full-Context upper bound (all raw transcripts in-prompt). \emph{Production libraries:} Mem0~\citep{chhikara2025mem0} (mem0ai 1.0.5; flat fact extraction) and A-MEM~\citep{xu2025amem} (Zettelkasten notes). \emph{Same-backbone reimplementations of recent SOTA systems} (Gemini~3 Flash + ChromaDB; fidelity statement in Appendix~\ref{app:reimpl}): MemMachine~\citep{wang2026memmachine} (sentence-level episodes, $\pm 3$ contextual expansion), Hindsight~\citep{latimer2025hindsight} (four-network fact graph, RRF fusion, cross-encoder rerank), EverMemOS~\citep{hu2026evermemos} (MemCell$\rightarrow$MemScene consolidation, Foresight-boosted retrieval).
 
@@ -776,7 +783,7 @@ This appendix walks through three end-to-end cases the main text only summarized
 
 \subsection{Case 1: LOCOMO \texttt{conv-30}, Jon and Gina}
 
-Listing~\ref{lst:app-locomo-conv} shows verbatim excerpts from three sessions of \texttt{conv-30} (Jon and Gina, January 2023). Listing~\ref{lst:app-locomo-facts} shows representative entries from the append-only fact list our Phase~1 extractor produces over those sessions ($\sim$50 facts per session in the full run; we show the ones that anchor the most-cited LOCOMO QAs). Listing~\ref{lst:app-locomo-state} shows the typed Python that Phase~2 generates from the complete fact corpus---absolute dates resolved, entities grouped, the \texttt{notes} field absorbing facts that do not fit typed fields. Listing~\ref{lst:app-locomo-query} traces a real LOCOMO question through this representation.
+Listing~\ref{lst:app-locomo-conv} shows verbatim excerpts from three sessions of \texttt{conv-30} (Jon and Gina, January 2023). Listing~\ref{lst:app-locomo-facts} shows representative entries from the append-only fact list our Phase~1 extractor produces over those sessions (our v5 run produced 1{,}419 facts for the full 19-session conversation, $\sim$75 per session; we show the six that anchor the most-cited LOCOMO QAs). Listing~\ref{lst:app-locomo-state} shows the typed Python that Phase~2 generates from the complete fact corpus---absolute dates resolved, entities grouped, the \texttt{notes} field absorbing facts that do not fit typed fields. Both listings are verbatim output of running the pipeline, not reconstructions. Listing~\ref{lst:app-locomo-query} traces a real LOCOMO question through this representation.
 
 \begin{lstlisting}[style=conversationstyle,caption={Verbatim excerpts from LOCOMO \texttt{conv-30} (Jon and Gina). Three sessions over twelve days.},label={lst:app-locomo-conv}]
 SESSION 1 -- DATE: 2023-01-20 16:04
@@ -804,59 +811,40 @@ Gina: Here's a peek at the space I designed. Cozy and inviting --
       perfect for customers to check out all the trendy pieces.
 \end{lstlisting}
 \vspace{-0.5em}
-\begin{lstlisting}[caption={Phase~1 output -- append-only fact list (representative entries from the full $\sim$150-fact corpus). Relative dates (``yesterday'', ``this month'') are resolved against the session timestamp.},label={lst:app-locomo-facts}]
+\begin{lstlisting}[caption={Phase~1 output -- append-only fact list, \emph{verbatim} from running our v5 pipeline on \texttt{conv-30} (1{,}419 facts over the 19 sessions; six representative entries shown). Each entry is prefixed with its session and timestamp, and relative dates are resolved against that timestamp---``lost my job \dots yesterday'' (session~1, 20~Jan) becomes \texttt{January 19, 2023}.},label={lst:app-locomo-facts}]
 facts = [
-    "[2023-01-19] Jon lost his job as a banker (one day before session 1)",
-    "[2023-01-20] Jon plans to start his own business: a dance studio",
-    "[2023-01-20] Jon's passion is dancing, contemporary is his favorite style",
-    "[2023-01-20] Gina lost her job at Door Dash in January 2023",
-    "[2023-01-29] Gina launched an ad campaign for her clothing store",
-    "[2023-01-29] Jon is scouting downtown locations for the studio",
-    "[2023-01-29] Jon wants Marley flooring (standard for dance studios)",
-    "[2023-02-01] Gina secured a wholesaler relationship to expand the store",
-    "[2023-02-01] Gina designed the store interior herself, choosing the decor",
-    # ... ~140 more facts from later sessions ...
+    "[session_1, 4:04 pm on 20 January, 2023] Jon lost his job on January 19, 2023.",
+    "[session_1, 4:04 pm on 20 January, 2023] Jon's former job was as a banker.",
+    "[session_1, 4:04 pm on 20 January, 2023] Gina lost her job in January 2023.",
+    "[session_1, 4:04 pm on 20 January, 2023] Jon is starting a dance studio.",
+    "[session_2, 2:32 pm on 29 January, 2023] The studio location Jon found is in a downtown area.",
+    "[session_2, 2:32 pm on 29 January, 2023] Jon believes that good flooring is crucial for a dance studio.",
+    # ... 1,413 more facts across all 19 sessions ...
 ]
 \end{lstlisting}
 \vspace{-0.5em}
-\begin{lstlisting}[caption={Phase~2 output -- typed Python state for Jon's side of \texttt{conv-30}, regenerated from the complete fact corpus. Gina's parallel module is structurally identical and is omitted for space.},label={lst:app-locomo-state}]
+\begin{lstlisting}[caption={Phase~2 output -- typed Python state for \texttt{conv-30}, a \emph{verbatim} excerpt of the 7\,KB \texttt{state.py} the pipeline regenerated from the full fact corpus. The model invented the \texttt{Person}/\texttt{JobHistory}/\texttt{Business} schema itself; \texttt{jon}'s long \texttt{notes} list and Gina's parallel objects are omitted for space.},label={lst:app-locomo-state}]
 @dataclass
 class Person:
     name: str
-    job_history: list["Job"] = field(default_factory=list)
-    interests: list[str] = field(default_factory=list)
-    notes: list[str] = field(default_factory=list)
-
-@dataclass
-class Job:
-    title: str
-    employer: str
-    end_date: date | None = None
-    reason_ended: str | None = None
-
-@dataclass
-class BusinessVenture:
-    name: str
-    type: str
-    status: str  # "planning", "scouting", "operating"
-    started: date
-    requirements: list[str] = field(default_factory=list)
+    passions: list[str] = field(default_factory=list)
+    skills: list[str] = field(default_factory=list)
+    jobs: list["JobHistory"] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
 jon = Person(
     name="Jon",
-    job_history=[Job(title="banker", employer="(unspecified)",
-                     end_date=date(2023, 1, 19), reason_ended="laid off")],
-    interests=["dancing", "contemporary dance"],
+    passions=["Dancing (Contemporary, Hip-hop)", "Sharing dance with others"],
+    skills=["Choreography", "Contemporary dance", "Hip-hop"],
 )
+jon.jobs.append(JobHistory(title="Banker", date_ended=date(2023, 1, 19),
+                           notes=["Lost job on Jan 19, 2023"]))
 
-jon_studio = BusinessVenture(
-    name="(unnamed dance studio)",
-    type="dance studio", status="scouting",
-    started=date(2023, 1, 20),
-    requirements=["downtown location", "natural light",
-                  "Marley flooring", "good bounce for dancers"],
-    notes=["Jon's first business; motivated by passion for dance"],
+jon_studio = Business(
+    name="Jon's Dance Studio", owner="Jon", industry="Dance Studio",
+    status="Establishing / Searching for location",
+    location_description="Downtown area (potential), ideally by the water",
+    features=["Marley flooring (planned for grip/durability)", "Natural light"],
 )
 \end{lstlisting}
 \vspace{-0.5em}
@@ -864,10 +852,11 @@ jon_studio = BusinessVenture(
 # Question (LOCOMO category 2, temporal):
 #   "When did Jon lose his job as a banker?"
 #
-# Retrieval (Section 3.5):
-#   [STATE]    jon.job_history[0].end_date == date(2023, 1, 19)
-#   [FACTS]    "[2023-01-19] Jon lost his job as a banker..."
-#   [ARCHIVE]  Session 1, Jon turn 1: "Lost my job as a banker yesterday"
+# Retrieval (Section 3.3.1):
+#   [STATE]    jon.jobs[0].date_ended == date(2023, 1, 19)
+#   [FACTS]    "[session_1, ...20 January, 2023] Jon lost his
+#               job on January 19, 2023."
+#   [ARCHIVE]  Session 1, Jon turn: "Lost my job as a banker yesterday"
 #
 # UaC answer:  "January 19, 2023"          -- judged CORRECT.
 # Mem0 answer: "No information available"   -- judged WRONG.

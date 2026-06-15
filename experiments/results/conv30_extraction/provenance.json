@@ -1,0 +1,8 @@
+{
+  "source": "benchmarks/locomo/data/locomo10.json :: conv-30 (Jon & Gina)",
+  "pipeline": "experiments/user_as_code_v5.py (UserAsCodeV5)",
+  "model": "gemini-3-flash-preview",
+  "sessions": 19,
+  "n_facts": 1419,
+  "state_chars": 7496
+}
