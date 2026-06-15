@@ -1,0 +1,1634 @@
+{
+  "strategy": "manifest",
+  "by_case": {
+    "trips_trips_count_2024": {
+      "target_domain": "trips",
+      "question": "How many trips did I take in 2024?",
+      "gold": 13,
+      "prediction": "13",
+      "correct": true,
+      "answer_time": 5.4,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4506,
+        "output": 495,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_sum_cost_2024": {
+      "target_domain": "trips",
+      "question": "What was my total trip cost in USD in 2024?",
+      "gold": 35319.35,
+      "prediction": "35319.35",
+      "correct": true,
+      "answer_time": 5.4,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5240,
+        "output": 401,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_avg_business_duration": {
+      "target_domain": "trips",
+      "question": "What was the average duration in days of my business trips?",
+      "gold": 11.11,
+      "prediction": "11.11111111111111",
+      "correct": true,
+      "answer_time": 6.2,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5904,
+        "output": 562,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_groupby_purpose": {
+      "target_domain": "trips",
+      "question": "List the trip purposes that account for at least 25% of all my trips.",
+      "gold": [
+        "personal"
+      ],
+      "prediction": "personal",
+      "correct": true,
+      "answer_time": 5.8,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4949,
+        "output": 622,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_window_jan_jun_2024": {
+      "target_domain": "trips",
+      "question": "How many trips did I take between 2024-01-01 and 2024-06-30 inclusive?",
+      "gold": 4,
+      "prediction": "4",
+      "correct": true,
+      "answer_time": 9.8,
+      "turns": 10,
+      "tool_calls": 9,
+      "usage": {
+        "prompt": 14178,
+        "output": 810,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_multi_asia_business": {
+      "target_domain": "trips",
+      "question": "How many of my trips were business trips to Asia?",
+      "gold": 3,
+      "prediction": "3",
+      "correct": true,
+      "answer_time": 5.1,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4873,
+        "output": 420,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_topk_country": {
+      "target_domain": "trips",
+      "question": "Which country did I visit the most? (single name)",
+      "gold": "Iceland",
+      "prediction": "Iceland",
+      "correct": true,
+      "answer_time": 2.3,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 1967,
+        "output": 148,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_min_max_longest": {
+      "target_domain": "trips",
+      "question": "What was the destination of my longest trip? If multiple are tied, give the earliest by date.",
+      "gold": "Reykjavik",
+      "prediction": "Reykjavik",
+      "correct": true,
+      "answer_time": 4.6,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4366,
+        "output": 465,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_long_count": {
+      "target_domain": "trips",
+      "question": "How many of my trips lasted 14 days or longer?",
+      "gold": 21,
+      "prediction": "21",
+      "correct": true,
+      "answer_time": 2.5,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 1954,
+        "output": 170,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "trips_trips_trend_yoy": {
+      "target_domain": "trips",
+      "question": "Did my trip count increase, decrease, or stay the same from 2023 to 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 5.6,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4797,
+        "output": 651,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_count_year": {
+      "target_domain": "contacts",
+      "question": "How many contacts have I been in touch with in the last 365 days (last contact on or after 2024-06-01)?",
+      "gold": 7,
+      "prediction": "7",
+      "correct": true,
+      "answer_time": 4.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3151,
+        "output": 364,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_count_undergrad": {
+      "target_domain": "contacts",
+      "question": "How many of my contacts did I first meet during undergrad?",
+      "gold": 7,
+      "prediction": "7",
+      "correct": true,
+      "answer_time": 3.8,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3018,
+        "output": 170,
+        "thoughts": 153,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_avg_friends": {
+      "target_domain": "contacts",
+      "question": "What fraction of my contacts are classified as friends? Give a decimal between 0 and 1, rounded to 2 places.",
+      "gold": 0.24,
+      "prediction": "0.24",
+      "correct": true,
+      "answer_time": 5.7,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4888,
+        "output": 595,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_groupby_topctx": {
+      "target_domain": "contacts",
+      "question": "What is the single most common context in which I met my contacts?",
+      "gold": "conference",
+      "prediction": "conference",
+      "correct": true,
+      "answer_time": 3.2,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2121,
+        "output": 283,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_window_2020": {
+      "target_domain": "contacts",
+      "question": "How many contacts did I first meet in calendar year 2020?",
+      "gold": 5,
+      "prediction": "5",
+      "correct": true,
+      "answer_time": 3.5,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2134,
+        "output": 321,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_multi_work_friends": {
+      "target_domain": "contacts",
+      "question": "How many contacts are friends I met at work?",
+      "gold": 2,
+      "prediction": "2",
+      "correct": true,
+      "answer_time": 5.7,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4577,
+        "output": 279,
+        "thoughts": 263,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_topk_relationships": {
+      "target_domain": "contacts",
+      "question": "List the relationship types that account for at least 25% of all my contacts.",
+      "gold": [
+        "family"
+      ],
+      "prediction": "family",
+      "correct": true,
+      "answer_time": 6.0,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5189,
+        "output": 606,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_earliest": {
+      "target_domain": "contacts",
+      "question": "What is the name of the contact I have known the longest (earliest met_date)?",
+      "gold": "Hayden Kim",
+      "prediction": "Hayden Kim",
+      "correct": true,
+      "answer_time": 9.3,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 8213,
+        "output": 459,
+        "thoughts": 789,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_long_known": {
+      "target_domain": "contacts",
+      "question": "How many contacts have I known for more than 5 years (met_date more than 5 years before 2025-06-01)?",
+      "gold": 39,
+      "prediction": "20",
+      "correct": false,
+      "answer_time": 12.8,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 5133,
+        "output": 3472,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "contacts_contacts_trend": {
+      "target_domain": "contacts",
+      "question": "Comparing the year I met the most recent contact vs the year I met the earliest, did I meet more, fewer, or the same number? (one word: increase/decrease/same)",
+      "gold": "decrease",
+      "prediction": "decrease",
+      "correct": true,
+      "answer_time": 6.3,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 4617,
+        "output": 1028,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_count_breakfast": {
+      "target_domain": "meals",
+      "question": "How many breakfasts did I eat in 2024?",
+      "gold": 13,
+      "prediction": "13",
+      "correct": true,
+      "answer_time": 7.1,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 6482,
+        "output": 375,
+        "thoughts": 527,
+        "cached": 0
+      }
+    },
+    "meals_meals_sum_total_cost": {
+      "target_domain": "meals",
+      "question": "What was my total spending on meals in USD in 2024?",
+      "gold": 1913.64,
+      "prediction": "1913.64",
+      "correct": true,
+      "answer_time": 6.9,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 12228,
+        "output": 554,
+        "thoughts": 0,
+        "cached": 1998
+      }
+    },
+    "meals_meals_avg_cost": {
+      "target_domain": "meals",
+      "question": "What was the average cost in USD of my meals in 2024? Round to 2 decimals.",
+      "gold": 38.27,
+      "prediction": "38.27",
+      "correct": true,
+      "answer_time": 3.1,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2229,
+        "output": 344,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_groupby_cuisines_15pct": {
+      "target_domain": "meals",
+      "question": "List the cuisines that account for at least 15% of all my meals.",
+      "gold": [],
+      "prediction": "",
+      "correct": true,
+      "answer_time": 14.2,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 14691,
+        "output": 2149,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_window_summer": {
+      "target_domain": "meals",
+      "question": "How many meals did I eat between 2024-06-01 and 2024-08-31 inclusive?",
+      "gold": 16,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 10.6,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 9792,
+        "output": 1011,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_multi_dined_dinner": {
+      "target_domain": "meals",
+      "question": "How many dinners did I eat that were dined-in (not takeout)?",
+      "gold": 5,
+      "prediction": "5",
+      "correct": true,
+      "answer_time": 4.5,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4070,
+        "output": 370,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_topk_cuisine": {
+      "target_domain": "meals",
+      "question": "What single cuisine appears most frequently in my meals?",
+      "gold": "american",
+      "prediction": "american",
+      "correct": true,
+      "answer_time": 4.8,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4244,
+        "output": 404,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meals_meals_max_calories": {
+      "target_domain": "meals",
+      "question": "How many meals had 1000 or more calories?",
+      "gold": 15,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 10.4,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 15196,
+        "output": 974,
+        "thoughts": 0,
+        "cached": 1961
+      }
+    },
+    "meals_meals_italian_count": {
+      "target_domain": "meals",
+      "question": "How many italian-cuisine meals did I have?",
+      "gold": 5,
+      "prediction": "5",
+      "correct": true,
+      "answer_time": 4.7,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3455,
+        "output": 161,
+        "thoughts": 335,
+        "cached": 0
+      }
+    },
+    "meals_meals_trend_h1_h2": {
+      "target_domain": "meals",
+      "question": "Did my total meal spending increase, decrease, or stay the same from H1 (Jan-Jun) to H2 (Jul-Dec) of 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 6.0,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5300,
+        "output": 756,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "transactions_tx_count_groceries": {
+      "target_domain": "transactions",
+      "question": "How many transactions are in the groceries category?",
+      "gold": 4,
+      "prediction": "4",
+      "correct": true,
+      "answer_time": 3.5,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2145,
+        "output": 106,
+        "thoughts": 230,
+        "cached": 0
+      }
+    },
+    "transactions_tx_sum_total": {
+      "target_domain": "transactions",
+      "question": "What was my total transaction amount in USD in 2024?",
+      "gold": 35866.58,
+      "prediction": "6586.58",
+      "correct": false,
+      "answer_time": 4.7,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4344,
+        "output": 407,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "transactions_tx_avg_dining": {
+      "target_domain": "transactions",
+      "question": "What was my average dining transaction amount in USD? Round to 2 decimals.",
+      "gold": 412.64,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 12.8,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 17827,
+        "output": 484,
+        "thoughts": 802,
+        "cached": 5891
+      }
+    },
+    "transactions_tx_groupby_top_category": {
+      "target_domain": "transactions",
+      "question": "Which category did I spend the most money on in total? (single category name)",
+      "gold": "rent",
+      "prediction": "",
+      "correct": true,
+      "answer_time": 16.1,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 20884,
+        "output": 1114,
+        "thoughts": 1347,
+        "cached": 5931
+      }
+    },
+    "transactions_tx_window_q4": {
+      "target_domain": "transactions",
+      "question": "How many transactions did I make in Q4 2024 (2024-10-01 through 2024-12-31)?",
+      "gold": 18,
+      "prediction": "18",
+      "correct": true,
+      "answer_time": 6.7,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5729,
+        "output": 663,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "transactions_tx_multi_cc_subs": {
+      "target_domain": "transactions",
+      "question": "How many subscription-category transactions were paid by credit card?",
+      "gold": 1,
+      "prediction": "1",
+      "correct": true,
+      "answer_time": 7.0,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 7278,
+        "output": 417,
+        "thoughts": 265,
+        "cached": 0
+      }
+    },
+    "transactions_tx_topk_payment_methods": {
+      "target_domain": "transactions",
+      "question": "List payment methods that account for at least 25% of all my transactions.",
+      "gold": [
+        "cash",
+        "debit_card"
+      ],
+      "prediction": "['debit_card', 'cash']",
+      "correct": true,
+      "answer_time": 3.7,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2348,
+        "output": 406,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "transactions_tx_big_count": {
+      "target_domain": "transactions",
+      "question": "How many transactions were 500 USD or more?",
+      "gold": 29,
+      "prediction": "29",
+      "correct": true,
+      "answer_time": 5.8,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4657,
+        "output": 219,
+        "thoughts": 347,
+        "cached": 0
+      }
+    },
+    "transactions_tx_q4_total": {
+      "target_domain": "transactions",
+      "question": "What was my total spending in USD in Q4 2024 (2024-10-01 through 2024-12-31)?",
+      "gold": 15824.31,
+      "prediction": "41434.1",
+      "correct": false,
+      "answer_time": 8.1,
+      "turns": 6,
+      "tool_calls": 9,
+      "usage": {
+        "prompt": 7429,
+        "output": 1165,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "transactions_tx_trend_q1_q4": {
+      "target_domain": "transactions",
+      "question": "Did my total spending increase, decrease, or stay the same from Q1 2024 to Q4 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 8.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 5401,
+        "output": 664,
+        "thoughts": 553,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_count_early_wake": {
+      "target_domain": "sleep",
+      "question": "On how many nights did I wake up before 07:00?",
+      "gold": 31,
+      "prediction": "31",
+      "correct": true,
+      "answer_time": 6.6,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5348,
+        "output": 415,
+        "thoughts": 470,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_avg_duration": {
+      "target_domain": "sleep",
+      "question": "What was my average sleep duration in hours? Round to 2 decimals.",
+      "gold": 7.2,
+      "prediction": "7.2",
+      "correct": true,
+      "answer_time": 3.2,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2077,
+        "output": 249,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_count_long": {
+      "target_domain": "sleep",
+      "question": "On how many nights did I sleep at least 8.0 hours?",
+      "gold": 11,
+      "prediction": "11",
+      "correct": true,
+      "answer_time": 7.8,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 6854,
+        "output": 351,
+        "thoughts": 546,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_groupby_top_quality": {
+      "target_domain": "sleep",
+      "question": "What sleep quality value (good/fair/poor) appears most often?",
+      "gold": "fair",
+      "prediction": "Fair",
+      "correct": true,
+      "answer_time": 4.9,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4173,
+        "output": 486,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_window_late_bed": {
+      "target_domain": "sleep",
+      "question": "On how many nights was my bedtime at or after 23:00 (or between 00:00 and 02:59)?",
+      "gold": 36,
+      "prediction": "36",
+      "correct": true,
+      "answer_time": 6.2,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2785,
+        "output": 317,
+        "thoughts": 599,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_multi_poor_short": {
+      "target_domain": "sleep",
+      "question": "On how many nights was sleep quality poor AND duration less than 6.5 hours?",
+      "gold": 7,
+      "prediction": "7",
+      "correct": true,
+      "answer_time": 6.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3846,
+        "output": 366,
+        "thoughts": 384,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_topk_qualities": {
+      "target_domain": "sleep",
+      "question": "List sleep quality categories that account for at least 25% of nights.",
+      "gold": [
+        "fair",
+        "poor"
+      ],
+      "prediction": "",
+      "correct": false,
+      "answer_time": 13.5,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 18101,
+        "output": 1739,
+        "thoughts": 0,
+        "cached": 5894
+      }
+    },
+    "sleep_sleep_max_duration_date": {
+      "target_domain": "sleep",
+      "question": "On which date (YYYY-MM-DD) did I sleep the longest?",
+      "gold": "2024-01-03",
+      "prediction": "",
+      "correct": true,
+      "answer_time": 15.5,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 15786,
+        "output": 1917,
+        "thoughts": 0,
+        "cached": 5840
+      }
+    },
+    "sleep_sleep_count_poor": {
+      "target_domain": "sleep",
+      "question": "How many nights had poor sleep quality?",
+      "gold": 18,
+      "prediction": "18",
+      "correct": true,
+      "answer_time": 7.7,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 7428,
+        "output": 347,
+        "thoughts": 329,
+        "cached": 0
+      }
+    },
+    "sleep_sleep_trend_q1_q2": {
+      "target_domain": "sleep",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "gold": "decrease",
+      "prediction": "",
+      "correct": true,
+      "answer_time": 14.6,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 26877,
+        "output": 2008,
+        "thoughts": 0,
+        "cached": 5971
+      }
+    },
+    "workouts_wo_count_cardio": {
+      "target_domain": "workouts",
+      "question": "How many cardio workouts did I do?",
+      "gold": 10,
+      "prediction": "10",
+      "correct": true,
+      "answer_time": 5.1,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4048,
+        "output": 218,
+        "thoughts": 184,
+        "cached": 0
+      }
+    },
+    "workouts_wo_sum_minutes": {
+      "target_domain": "workouts",
+      "question": "What was my total workout time in minutes?",
+      "gold": 3341,
+      "prediction": "2341",
+      "correct": false,
+      "answer_time": 3.1,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2133,
+        "output": 130,
+        "thoughts": 205,
+        "cached": 0
+      }
+    },
+    "workouts_wo_avg_calories": {
+      "target_domain": "workouts",
+      "question": "What was my average calories burned per workout? Round to 2 decimals.",
+      "gold": 413.48,
+      "prediction": "413.48",
+      "correct": true,
+      "answer_time": 4.6,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3495,
+        "output": 241,
+        "thoughts": 292,
+        "cached": 0
+      }
+    },
+    "workouts_wo_groupby_top_type": {
+      "target_domain": "workouts",
+      "question": "What single workout type did I do most often?",
+      "gold": "strength",
+      "prediction": "strength",
+      "correct": true,
+      "answer_time": 5.3,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4456,
+        "output": 490,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "workouts_wo_window_summer": {
+      "target_domain": "workouts",
+      "question": "How many workouts did I do between 2024-06-01 and 2024-08-31 inclusive?",
+      "gold": 8,
+      "prediction": "8",
+      "correct": true,
+      "answer_time": 6.1,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3449,
+        "output": 683,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "workouts_wo_multi_home_strength": {
+      "target_domain": "workouts",
+      "question": "How many workouts were home strength sessions (location=home AND type=strength)?",
+      "gold": 2,
+      "prediction": "2",
+      "correct": true,
+      "answer_time": 3.1,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2122,
+        "output": 278,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "workouts_wo_topk_locations": {
+      "target_domain": "workouts",
+      "question": "List the workout locations that account for at least 25% of my workouts.",
+      "gold": [
+        "trail"
+      ],
+      "prediction": "trail",
+      "correct": true,
+      "answer_time": 3.9,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3295,
+        "output": 470,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "workouts_wo_long_count": {
+      "target_domain": "workouts",
+      "question": "How many workouts lasted 60 minutes or longer?",
+      "gold": 28,
+      "prediction": "28",
+      "correct": true,
+      "answer_time": 8.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3509,
+        "output": 149,
+        "thoughts": 289,
+        "cached": 0
+      }
+    },
+    "workouts_wo_total_calories": {
+      "target_domain": "workouts",
+      "question": "What was my total calories burned across all workouts?",
+      "gold": 20674,
+      "prediction": "20674",
+      "correct": true,
+      "answer_time": 2.9,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 1922,
+        "output": 153,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "workouts_wo_trend_q1_q2": {
+      "target_domain": "workouts",
+      "question": "Did my workout count increase, decrease, or stay the same from Q1 to Q2 2024? (one word)",
+      "gold": "decrease",
+      "prediction": "decrease",
+      "correct": true,
+      "answer_time": 12.3,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5328,
+        "output": 558,
+        "thoughts": 449,
+        "cached": 0
+      }
+    },
+    "books_books_count_fiction": {
+      "target_domain": "books",
+      "question": "How many fiction-genre books did I read?",
+      "gold": 6,
+      "prediction": "6",
+      "correct": true,
+      "answer_time": 9.4,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 6967,
+        "output": 295,
+        "thoughts": 729,
+        "cached": 0
+      }
+    },
+    "books_books_count_five_star": {
+      "target_domain": "books",
+      "question": "How many books did I rate 5 stars?",
+      "gold": 13,
+      "prediction": "13",
+      "correct": true,
+      "answer_time": 3.7,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 2690,
+        "output": 207,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "books_books_avg_rating": {
+      "target_domain": "books",
+      "question": "What is my average book rating? Round to 2 decimals.",
+      "gold": 3.0,
+      "prediction": "3.00",
+      "correct": true,
+      "answer_time": 6.9,
+      "turns": 8,
+      "tool_calls": 7,
+      "usage": {
+        "prompt": 7603,
+        "output": 491,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "books_books_groupby_top_genre": {
+      "target_domain": "books",
+      "question": "What genre did I read most often?",
+      "gold": "history",
+      "prediction": "history",
+      "correct": true,
+      "answer_time": 2.1,
+      "turns": 2,
+      "tool_calls": 1,
+      "usage": {
+        "prompt": 1163,
+        "output": 70,
+        "thoughts": 101,
+        "cached": 0
+      }
+    },
+    "books_books_window_finished_2024": {
+      "target_domain": "books",
+      "question": "How many books did I finish in calendar year 2024?",
+      "gold": 24,
+      "prediction": "24",
+      "correct": true,
+      "answer_time": 5.5,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5659,
+        "output": 462,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "books_books_multi_long_5star": {
+      "target_domain": "books",
+      "question": "How many books were both 500+ pages AND rated 5 stars?",
+      "gold": 8,
+      "prediction": "8",
+      "correct": true,
+      "answer_time": 16.0,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 5954,
+        "output": 4151,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "books_books_topk_genres": {
+      "target_domain": "books",
+      "question": "List genres that account for at least 15% of my books read.",
+      "gold": [],
+      "prediction": "",
+      "correct": true,
+      "answer_time": 11.8,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 16033,
+        "output": 1309,
+        "thoughts": 0,
+        "cached": 3914
+      }
+    },
+    "books_books_avg_pages_scifi": {
+      "target_domain": "books",
+      "question": "What is the average page count of scifi books I read? Round to 2 decimals.",
+      "gold": 520.14,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 14.8,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 17484,
+        "output": 2173,
+        "thoughts": 0,
+        "cached": 1963
+      }
+    },
+    "books_books_long_count": {
+      "target_domain": "books",
+      "question": "How many books had 500 or more pages?",
+      "gold": 32,
+      "prediction": "32",
+      "correct": true,
+      "answer_time": 5.1,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4071,
+        "output": 368,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "books_books_trend_2024_h1_h2": {
+      "target_domain": "books",
+      "question": "Did my finished-book count increase, decrease, or stay the same from H1 to H2 of 2024? (one word)",
+      "gold": "increase",
+      "prediction": "increase",
+      "correct": true,
+      "answer_time": 4.0,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2478,
+        "output": 544,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_count_dental": {
+      "target_domain": "medical",
+      "question": "How many dental visits did I have?",
+      "gold": 5,
+      "prediction": "5",
+      "correct": true,
+      "answer_time": 8.9,
+      "turns": 8,
+      "tool_calls": 7,
+      "usage": {
+        "prompt": 8548,
+        "output": 729,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_sum_cost": {
+      "target_domain": "medical",
+      "question": "What was my total medical cost in USD across all visits?",
+      "gold": 13454.13,
+      "prediction": "13454.13",
+      "correct": true,
+      "answer_time": 4.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 2890,
+        "output": 329,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_avg_cost": {
+      "target_domain": "medical",
+      "question": "What was my average cost per medical visit in USD? Round to 2 decimals.",
+      "gold": 269.08,
+      "prediction": "269.08",
+      "correct": true,
+      "answer_time": 6.3,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 6661,
+        "output": 436,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_groupby_top_type": {
+      "target_domain": "medical",
+      "question": "Which visit type appears most often?",
+      "gold": "urgent-care",
+      "prediction": "urgent-care",
+      "correct": true,
+      "answer_time": 6.8,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5198,
+        "output": 213,
+        "thoughts": 532,
+        "cached": 0
+      }
+    },
+    "medical_med_window_2024": {
+      "target_domain": "medical",
+      "question": "How many medical visits did I have in calendar year 2024?",
+      "gold": 20,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 14.7,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 15829,
+        "output": 1803,
+        "thoughts": 0,
+        "cached": 5856
+      }
+    },
+    "medical_med_multi_24_with_meds": {
+      "target_domain": "medical",
+      "question": "How many 2024 medical visits resulted in at least one medication being prescribed?",
+      "gold": 13,
+      "prediction": "13",
+      "correct": true,
+      "answer_time": 6.7,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 5178,
+        "output": 751,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_topk_doctors": {
+      "target_domain": "medical",
+      "question": "List doctors who account for at least 15% of all my visits.",
+      "gold": [
+        "Dr. Kim",
+        "Dr. Lee",
+        "Dr. Nguyen"
+      ],
+      "prediction": "Dr. Kim, Dr. Lee, Dr. Nguyen",
+      "correct": true,
+      "answer_time": 5.3,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4282,
+        "output": 458,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_count_migraine": {
+      "target_domain": "medical",
+      "question": "How many medical visits noted 'migraine' as a condition?",
+      "gold": 6,
+      "prediction": "",
+      "correct": false,
+      "answer_time": 13.8,
+      "turns": 10,
+      "tool_calls": 10,
+      "usage": {
+        "prompt": 14331,
+        "output": 1489,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "medical_med_count_clean": {
+      "target_domain": "medical",
+      "question": "How many medical visits had neither conditions nor medications recorded?",
+      "gold": 9,
+      "prediction": "9",
+      "correct": true,
+      "answer_time": 10.3,
+      "turns": 10,
+      "tool_calls": 9,
+      "usage": {
+        "prompt": 13657,
+        "output": 845,
+        "thoughts": 0,
+        "cached": 1948
+      }
+    },
+    "medical_med_trend_22_24": {
+      "target_domain": "medical",
+      "question": "Did my medical visit count increase, decrease, or stay the same from 2022 to 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 8.1,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 13117,
+        "output": 846,
+        "thoughts": 0,
+        "cached": 4001
+      }
+    },
+    "meetings_meet_count_1on1": {
+      "target_domain": "meetings",
+      "question": "How many 1on1 meetings did I have?",
+      "gold": 17,
+      "prediction": "3",
+      "correct": false,
+      "answer_time": 4.3,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3004,
+        "output": 331,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_sum_minutes": {
+      "target_domain": "meetings",
+      "question": "What was my total meeting time in minutes?",
+      "gold": 2205,
+      "prediction": "2295",
+      "correct": false,
+      "answer_time": 12.7,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 5123,
+        "output": 3361,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_avg_attendees": {
+      "target_domain": "meetings",
+      "question": "What was the average number of attendees per meeting? Round to 2 decimals.",
+      "gold": 7.6,
+      "prediction": "7.60",
+      "correct": true,
+      "answer_time": 5.7,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5650,
+        "output": 496,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_groupby_top_topic": {
+      "target_domain": "meetings",
+      "question": "Which meeting topic appears most often?",
+      "gold": "1on1",
+      "prediction": "1on1",
+      "correct": true,
+      "answer_time": 1.4,
+      "turns": 2,
+      "tool_calls": 1,
+      "usage": {
+        "prompt": 1097,
+        "output": 74,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_window_morning": {
+      "target_domain": "meetings",
+      "question": "How many meetings started before 12:00?",
+      "gold": 24,
+      "prediction": "24",
+      "correct": true,
+      "answer_time": 5.3,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3428,
+        "output": 215,
+        "thoughts": 373,
+        "cached": 0
+      }
+    },
+    "meetings_meet_multi_long_big": {
+      "target_domain": "meetings",
+      "question": "How many meetings were both 60+ minutes AND had 8 or more attendees?",
+      "gold": 13,
+      "prediction": "13",
+      "correct": true,
+      "answer_time": 3.8,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 2910,
+        "output": 305,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_topk_types": {
+      "target_domain": "meetings",
+      "question": "List meeting types that account for at least 25% of all my meetings.",
+      "gold": [
+        "1on1"
+      ],
+      "prediction": "1on1",
+      "correct": true,
+      "answer_time": 2.9,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2127,
+        "output": 252,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_long_count": {
+      "target_domain": "meetings",
+      "question": "How many meetings lasted 60 minutes or longer?",
+      "gold": 16,
+      "prediction": "16",
+      "correct": true,
+      "answer_time": 2.9,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2017,
+        "output": 202,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_big_count": {
+      "target_domain": "meetings",
+      "question": "How many meetings had 8 or more attendees?",
+      "gold": 27,
+      "prediction": "27",
+      "correct": true,
+      "answer_time": 5.2,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 5287,
+        "output": 366,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "meetings_meet_trend_h1_h2": {
+      "target_domain": "meetings",
+      "question": "Did my meeting count increase, decrease, or stay the same from H1 to H2 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 4.8,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3618,
+        "output": 623,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_count_online": {
+      "target_domain": "purchases",
+      "question": "How many online purchases did I make?",
+      "gold": 27,
+      "prediction": "27",
+      "correct": true,
+      "answer_time": 2.5,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2058,
+        "output": 144,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_sum_total": {
+      "target_domain": "purchases",
+      "question": "What was my total spending on purchases in USD?",
+      "gold": 36864.52,
+      "prediction": "36864.52",
+      "correct": true,
+      "answer_time": 4.1,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 9198,
+        "output": 215,
+        "thoughts": 0,
+        "cached": 2004
+      }
+    },
+    "purchases_buy_avg_electronics": {
+      "target_domain": "purchases",
+      "question": "What was my average price for electronics-category purchases? Round to 2 decimals.",
+      "gold": 506.93,
+      "prediction": "506.93",
+      "correct": true,
+      "answer_time": 7.6,
+      "turns": 7,
+      "tool_calls": 6,
+      "usage": {
+        "prompt": 7854,
+        "output": 824,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_groupby_top_category": {
+      "target_domain": "purchases",
+      "question": "What single category did I purchase from most often?",
+      "gold": "clothing",
+      "prediction": "clothing",
+      "correct": true,
+      "answer_time": 7.1,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 6144,
+        "output": 219,
+        "thoughts": 491,
+        "cached": 0
+      }
+    },
+    "purchases_buy_window_h2": {
+      "target_domain": "purchases",
+      "question": "How many purchases did I make between 2024-07-01 and 2024-12-31 inclusive?",
+      "gold": 33,
+      "prediction": "33",
+      "correct": true,
+      "answer_time": 4.0,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 3209,
+        "output": 429,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_multi_online_books": {
+      "target_domain": "purchases",
+      "question": "How many of my purchases were online books-category?",
+      "gold": 3,
+      "prediction": "3",
+      "correct": true,
+      "answer_time": 8.8,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 7462,
+        "output": 279,
+        "thoughts": 723,
+        "cached": 0
+      }
+    },
+    "purchases_buy_topk_stores": {
+      "target_domain": "purchases",
+      "question": "List stores that account for at least 15% of all my purchases.",
+      "gold": [
+        "Sportie",
+        "TechStore"
+      ],
+      "prediction": "TechStore, Sportie",
+      "correct": true,
+      "answer_time": 6.6,
+      "turns": 6,
+      "tool_calls": 5,
+      "usage": {
+        "prompt": 6067,
+        "output": 640,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_expensive_count": {
+      "target_domain": "purchases",
+      "question": "How many purchases were 500 USD or more?",
+      "gold": 32,
+      "prediction": "32",
+      "correct": true,
+      "answer_time": 5.3,
+      "turns": 5,
+      "tool_calls": 4,
+      "usage": {
+        "prompt": 4264,
+        "output": 173,
+        "thoughts": 291,
+        "cached": 0
+      }
+    },
+    "purchases_buy_top_store": {
+      "target_domain": "purchases",
+      "question": "What store did I purchase from most often?",
+      "gold": "Sportie",
+      "prediction": "Sportie",
+      "correct": true,
+      "answer_time": 3.2,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "prompt": 2048,
+        "output": 229,
+        "thoughts": 0,
+        "cached": 0
+      }
+    },
+    "purchases_buy_trend_h1_h2": {
+      "target_domain": "purchases",
+      "question": "Did my purchase count increase, decrease, or stay the same from H1 to H2 2024? (one word)",
+      "gold": "increase",
+      "prediction": "Increase",
+      "correct": true,
+      "answer_time": 4.9,
+      "turns": 4,
+      "tool_calls": 3,
+      "usage": {
+        "prompt": 4028,
+        "output": 717,
+        "thoughts": 0,
+        "cached": 0
+      }
+    }
+  },
+  "aggregate": {
+    "n": 100,
+    "correct": 87,
+    "accuracy": 0.87,
+    "prompt_tokens": 624922,
+    "output_tokens": 64692,
+    "thoughts_tokens": 12598
+  }
+}

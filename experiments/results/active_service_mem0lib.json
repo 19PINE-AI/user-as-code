@@ -1,0 +1,615 @@
+{
+  "by_scenario": {},
+  "standard": {
+    "by_scenario": {
+      "travel_01": {
+        "scenario_id": "travel_01",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "I have an important alert regarding your upcoming trip to Tokyo.\n\n**Proactive Alert: Passport Expiry Issue**\nYou have flights booked to Tokyo from **February 20th to March 1st**, but your passport is set to expire on **March 5, 2025**. \n\nThis is a significant concern for two reasons:\n1.  **Entry Requirements:** While Japan technically requires your passport to be valid for the duration of your stay, many airlines and immigration officers look for at least **3 to 6 months of validity** beyond your travel dates. You may be denied boarding at the airport.\n2.  **Buffer Room:** Your passport expires only four days after your scheduled return. If there are any flight delays, cancellations, or emergencies that extend your stay, you would be stuck abroad with an expired passport.\n\nI strongly recommend looking into an expedited renewal immediately to ensure you have a valid document for your trip.\n\nAside from that, I'm here and ready to help! Is there anything specific you'd like to go over today?",
+        "keyword_score": 0.818,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "travel_02": {
+        "scenario_id": "travel_02",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "I have a couple of important alerts regarding your upcoming trip on April 5th that you should be aware of:\n\n1.  **Public Holiday Alert:** April 5th is the **Qingming Festival (Tomb-Sweeping Day)** in China. Since this is a major national holiday, expect significant crowds at tourist destinations (like the Great Wall or the Forbidden City) and much heavier traffic than usual in Beijing. If you plan to leave the airport during your 14-hour layover, you should factor in extra time for transportation.\n2.  **Visa/Entry Requirements",
+        "keyword_score": 0.2,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "travel_03": {
+        "scenario_id": "travel_03",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "I have a very important alert regarding your upcoming trip to Berlin (December 28 \u2013 January 2) based on your visa details:\n\n**There are two major issues with your current Schengen visa that you need to address immediately:**\n\n1.  **Single-Entry Conflict:** You mentioned you just got back from an amazing week in Paris. Since your visa is a **single-entry** visa, it was likely used up when you entered and exited the Schengen area for your Paris trip. You will likely need to apply for a new visa to enter Germany.\n2.  **Expiration Date:** Your current visa is only valid until **December 31, 2024**. Your Berlin trip is scheduled to last until January 2, 2025. Even if the visa were still valid for entry, you would be overstaying by two days, which can lead to serious legal issues and future travel bans.\n\nI strongly recommend checking your passport and contacting the embassy or a visa consultant as soon as possible to apply for a new visa that covers your full stay through the New Year.\n\nAside from that, I hope you enjoyed those croissants in Paris! How can I help you with your Berlin planning or your visa situation today?",
+        "keyword_score": 0.8,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "travel_04": {
+        "scenario_id": "travel_04",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "I have an important alert regarding your upcoming trip to Mexico on March 10.\n\nI noticed a potential conflict in your records: your first passport is under your maiden name, **Lily Chen**, but you are listed as **Lily Anderson** for the family trip. It is crucial that the name on your flight tickets matches the name on your passport exactly. If the tickets were booked as \"Lily Anderson,\" you may need to update them or ensure you have the correct documentation to avoid issues at the airport.\n\nAside from that, I'm here and ready to help! Is there anything else you'd like to go over?",
+        "keyword_score": 0.788,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "travel_05": {
+        "scenario_id": "travel_05",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "Hey there! I'm glad you checked in, because I actually have a major concern regarding your upcoming trip to India on February 15th.\n\n**Proactive Alert:** You mentioned that your passport only has **one blank page** left. However, to obtain an Indian visa (including the e-Visa) and to enter the country, India strictly requires your passport to have **at least two blank pages**. \n\nSince you only have one page remaining, you are at high risk of having your visa application rejected or being denied boarding. Because you're flying out in February, I strongly recommend starting the passport renewal process immediately so you have a fresh passport in hand before you apply for your visa.\n\nAside from that, how are the rest of your wedding preparations coming along? Do you need help looking into the visa application process once your passport is sorted?",
+        "keyword_score": 0.714,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "travel_06": {
+        "scenario_id": "travel_06",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "I have an important update regarding your travel plans for March 15.\n\n**Proactive Alert: Certificate Expiration Conflict**\nYour EU Digital COVID Certificate was issued on June 10, 2024. With a validity of 270 days, it is set to expire on **March 7, 2025**. Since you are planning to depart on **March 15**, your certificate will be expired by the time you reach the border. If you are specifically looking for a country that checks these certificates, you will likely need to get a booster shot or a new test to update your documentation before you leave.\n\nAside from that, I'm here to help! Since you're looking for a quick getaway, would you like to look into destinations that still have active entry requirements, or should we look into how to renew your certificate?",
+        "keyword_score": 0.727,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "travel_07": {
+        "scenario_id": "travel_07",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "Yes, I actually noticed a potential conflict in your travel plans that you should address immediately.\n\n**Alert:** You mentioned finding cheap flights for **November 25th**, but your Australian visa validity period doesn't begin until **December 1, 2024**. If you arrive on November 25th, you will not have a valid visa to enter the country yet.\n\nYou may want to look into moving your flight to December 1st or later, or check if you can have your visa start date adjusted. \n\nAside from that, how can I help you today?",
+        "keyword_score": 0.562,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "travel_08": {
+        "scenario_id": "travel_08",
+        "category": "travel_document_validity",
+        "representation": "mem0_lib",
+        "response": "Before we get started, I noticed a few conflicting details in your travel records that we should probably clear up:\n\n*   **Trip Duration:** Your notes mention three different lengths for your Europe trip: 45 days, 30 days, and most recently, 3 weeks.\n*   **Start Date:** There is a conflict between a recorded start date of July 1 and a new plan to start on September 5.\n\nCould you clarify which of these is the current plan? Once we have that settled, I'm ready to help with whatever you need!",
+        "keyword_score": 0.182,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 7
+      },
+      "health_01": {
+        "scenario_id": "health_01",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "Before we catch up, I want to highlight some important safety considerations regarding your **phenelzine**. \n\nBecause phenelzine is an MAOI, it has some critical interactions you need to be mindful of:\n\n1.  **Dietary Restrictions:** You must avoid foods high in **tyramine** (such as aged cheeses, cured meats, fermented products like sauerkraut or soy sauce, and certain draft beers). Consuming these can lead to a dangerous spike in blood pressure (hypertensive crisis).\n2.  **Medication Interactions:** Be very cautious with over-the-counter medications. Many common cold and flu medicines (especially decongestants like pseudoephedrine or cough suppressants like dextromethorphan) can have life-threatening interactions with phenelzine. \n\nAlways check with your doctor or pharmacist before starting any new supplement or medication.\n\nAside from those safety reminders, I'm here to help! How have you been feeling lately, and is there anything specific on your mind today?",
+        "keyword_score": 0.3,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 1
+      },
+      "health_02": {
+        "scenario_id": "health_02",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "**URGENT ALERT:** I have a serious concern regarding your medication. You mentioned having a **penicillin allergy**, but you also noted that you were prescribed **amoxicillin** for your sinus infection. \n\nAmoxicillin is a penicillin-type antibiotic. Taking it could cause a severe allergic reaction. Please contact your doctor or pharmacist immediately to verify this prescription before you pick it up or take any doses.\n\nAside from that critical safety check, how are you feeling today? Is there anything else I can help you with?",
+        "keyword_score": 0.667,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "health_03": {
+        "scenario_id": "health_03",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "**Important Health Alert:** I noticed in your notes that you are prescribed **simvastatin** for cholesterol and have recently started drinking **fresh grapefruit juice** every morning.\n\nThere is a significant medical interaction between simvastatin and grapefruit. Grapefruit juice can block the enzyme that breaks down this medication in your body, which can lead to dangerously high levels of the drug in your bloodstream. This increases your risk of serious side effects, such as muscle damage (rhabdomyolysis) or liver issues.\n\n**Please consult your doctor or pharmacist as soon as possible** before drinking any more grapefruit juice or taking your next dose. They may suggest an alternative fruit or a different cholesterol medication that doesn't interact with grapefruit.\n\nAside from that, how are you feeling with the new health kick otherwise?",
+        "keyword_score": 0.639,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "health_04": {
+        "scenario_id": "health_04",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "I have a major safety concern I need to bring to your attention immediately: Your records indicate you have a **severe, anaphylaxis-level shellfish allergy**, yet you are planning to dine at **The Crab Shack**. \n\nBecause that restaurant is seafood-focused, there is an extremely high risk of cross-contamination in the kitchen, even if you order a non-shellfish dish. Please reconsider this location or, at the very least, call them ahead of time to see if they can truly guarantee your safety. Also, please ensure your EpiPen is with you and up to date.\n\nOn a lighter note, don't forget that your **wife\u2019s birthday is next week**, so you may want to start finalizing those plans (and perhaps look for a safer restaurant alternative!).\n\nHow are you doing otherwise? Is there anything specific you'd like to chat about today?",
+        "keyword_score": 0.707,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "health_05": {
+        "scenario_id": "health_05",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "Before we catch up, I have a proactive alert regarding your current medication and health status:\n\n**Medication Safety Alert:** You are currently prescribed 800mg of ibuprofen three times a day (totaling 2,400mg daily). This is a high dose, particularly for your weight of 52 kg (approx. 115 lbs). While this may be necessary for your toothache, please be aware of the following:\n*   **Stomach Health:** High doses of ibuprofen can cause stomach irritation or ulcers. Ensure you are taking it with food.\n*   **Duration:** This dosage is typically intended for short-term use. If your toothache persists or if you experience any stomach pain, heartburn, or nausea, you should contact your dentist or doctor immediately.\n\n**How are you feeling today?** Has the toothache started to improve, or have you noticed any side effects from the medication?",
+        "keyword_score": 0.5,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "health_06": {
+        "scenario_id": "health_06",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "Hey! I'm glad you checked in. I actually have an important safety alert to bring to your attention regarding your plans for next month.\n\n**Proactive Alert: Asthma and Scuba Diving**\nI noticed a potential conflict between your health updates and your upcoming PADI certification in Cozumel. You mentioned that your asthma has been acting up lately, your rescue inhaler use is at twice a week, and your doctor recently increased your Advair dose and added Montelukast.\n\nIn the diving world, active or unstable asthma is a significant safety concern because trapped air in the lungs during ascent can lead to serious injury (like pulmonary barotrauma). Most diving instructors and PADI centers require a medical clearance form signed by a physician if you have asthma, especially if there have been recent symptoms or medication changes. \n\n**Recommendation:**\nBefore you head to Cozumel, please consult with your doctor or a specialist in diving medicine. They will need to determine if your asthma is well-controlled enough for you to dive safely.\n\nAside from that, how are you feeling with the new Advair dose and the Montelukast? Are you seeing any improvement in your symptoms yet?",
+        "keyword_score": 0.574,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 6
+      },
+      "health_07": {
+        "scenario_id": "health_07",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "I have an important safety alert based on your recent update.\n\n**Please consult your doctor or anticoagulation clinic before taking the Vitamin K2 supplement that is arriving tomorrow.**\n\nSince you are on **warfarin** and your **INR is currently stable at 2.5**, adding a Vitamin K2 supplement (especially at a dose of 200mcg) is a significant change. Warfarin works by blocking Vitamin K; introducing a K2 supplement can counteract your medication, potentially lowering your INR and increasing your risk of blood clots. \n\nYour doctor may need to adjust your warfarin dose or monitor your blood work more frequently if you decide to start this supplement.\n\nAside from that, how are you feeling today? Are there any other updates on your health or the other supplements (Calcium and Vitamin D3) you're starting?",
+        "keyword_score": 0.5,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "health_08": {
+        "scenario_id": "health_08",
+        "category": "drug_interactions_health_safety",
+        "representation": "mem0_lib",
+        "response": "**URGENT MEDICAL ALERT:** I have reviewed your stored information and identified a critical safety concern. \n\nYou have noted that you are **pregnant** and also currently taking **40mg of isotretinoin (Accutane)** daily. \n\n**Isotretinoin is known to cause severe birth defects and must not be taken during pregnancy.** \n\nPlease take the following steps immediately:\n1. **Stop taking the isotretinoin immediately.**\n2. **Contact your prescribing dermatologist and your OB-GYN right away** to inform them that you are pregnant while on this medication.\n\nThis is a serious medical situation that requires professional intervention as soon as possible. Is there anything else I can help you with while you reach out to your doctors?",
+        "keyword_score": 0.677,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "finance_01": {
+        "scenario_id": "finance_01",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Hello! Since I don't have any stored memories or previous context from our past conversations yet, I don't have any specific alerts or updates for you. We're starting with a clean slate!\n\nHow can I help you today?",
+        "keyword_score": 0.029,
+        "has_alert_language": true,
+        "proactive_alert_detected": false,
+        "n_retrieved": 0
+      },
+      "finance_02": {
+        "scenario_id": "finance_02",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Before we dive in, I wanted to flag a potential issue regarding the team offsite you're planning. \n\nThe venue quote you received is **$4,200**, which exceeds your **$3,000 corporate card transaction limit**. Since you mentioned wanting to put this payment on that card, you will need to secure **VP approval** before proceeding with the booking.\n\nOther than that, I'm ready to help! What\u2019s on your mind today?",
+        "keyword_score": 0.714,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "finance_03": {
+        "scenario_id": "finance_03",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Before we get started, I wanted to point out a potential conflict in your records regarding your Adobe subscription:\n\nYou noted a **$59.99 charge from Adobe on January 15**, but your **cancellation for Adobe Creative Cloud isn't effective until September 15**. This means you will likely continue to be charged until that September date. If you were expecting the charges to stop sooner, you may want to contact Adobe to see if you can move the effective date up.\n\nAside from that, I'm here and ready to help! What\u2019s on your mind today?",
+        "keyword_score": 0.517,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "finance_04": {
+        "scenario_id": "finance_04",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have one important alert for you regarding your upcoming plans:\n\n**Your health insurance policy is set to expire on December 31, but your backcountry heli-skiing trip in the Rockies begins on January 8.** Since heli-skiing is a high-risk activity, you should ensure your coverage is renewed or that a new policy is active before you depart to avoid being uninsured during the trip.\n\nOther than that, I'm here and ready to help! Is there anything specific you'd like to go over today?",
+        "keyword_score": 0.424,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "finance_05": {
+        "scenario_id": "finance_05",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Yes, there is one important thing to address regarding your banking transition.\n\n**Proactive Alert:** You mentioned that you are closing your Wells Fargo account next week, but you currently have a recurring rent payment of $1,500 set up on autopay from that account for the 1st of each month. \n\nTo avoid a missed payment or potential fees, you should move that autopay to your new Schwab account before you finalize the closure of the Wells Fargo account.\n\nAside from that, how is the move to Schwab going? Is there anything else I can help you coordinate?",
+        "keyword_score": 0.486,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "finance_06": {
+        "scenario_id": "finance_06",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Before we catch up, I wanted to highlight a potential conflict in your current financial plans that I noticed in our records.\n\nYou\u2019ve mentioned that you generally prefer to be **conservative** with your investments, yet you are considering a **$15,000 investment in a highly volatile small-cap biotech stock**. There is a significant risk gap between a conservative strategy and a high-stakes biotech play. \n\nAdditionally, with your **due date coming up in March**, you may want to consider if committing a large sum to a \"super volatile\" asset aligns with the liquidity and stability you might need for the new baby. \n\nAside from that, I'm ready to help! How have you been doing?",
+        "keyword_score": 0.387,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "finance_07": {
+        "scenario_id": "finance_07",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "Before we dive in, there is a critical tax issue I need to alert you to regarding your plan to harvest losses.\n\n**Proactive Alert: Potential Wash Sale Conflict**\nYou mentioned wanting to sell **VTI** in your taxable account to harvest a $3,000 loss, but you also recently bought 100 shares of **VTI** in your **Roth IRA**. \n\nUnder IRS rules, if you buy a \"substantially identical\" security in your Roth IRA within 30 days before or after selling it for a loss in a taxable account, it triggers a **wash sale**. Because this happened in a Roth IRA, the tax loss is permanently disallowed\u2014you cannot claim the $3,000 deduction, and you cannot adjust the basis in your Roth to make up for it.\n\n**What you should check:**\n*   **The Date:** If your Roth IRA purchase of VTI happened within the last 30 days (or will happen within 30 days after you sell), your tax loss harvesting strategy will be invalidated by the IRS.\n*   **The Solution:** If you haven't sold the taxable shares yet, you may need to wait until at least 31 days have passed since your Roth IRA purchase before selling the taxable VTI to ensure you can claim that $3,000 loss.\n\nAside from that, I'm ready to help! How can I assist you today?",
+        "keyword_score": 0.75,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "finance_08": {
+        "scenario_id": "finance_08",
+        "category": "financial_authorization_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a proactive alert regarding your finances. You mentioned wanting to donate **$1,500** today to your alma mater's library, but your current checking balance is approximately **$2,000**. \n\nIf you make that donation now, you will only have **$500** remaining to cover your rent and utilities until your next paycheck arrives on **November 1**. You may want to double-check your upcoming bill amounts to ensure you'll have enough to cover your essentials before moving forward with the donation.\n\nAside from that, I'm all set! How can I help you today?",
+        "keyword_score": 0.483,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "schedule_01": {
+        "scenario_id": "schedule_01",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a conflict to bring to your attention: you found a flight to Chicago departing on **Tuesday, January 21st at 2:30 PM**, but you have a **recurring board meeting every Tuesday from 2 PM to 4 PM** that you've noted you cannot miss. You won't be able to make that flight if you attend the meeting.\n\nAside from that, I'm ready to help! Was there anything specific you wanted to check on or discuss today?",
+        "keyword_score": 0.522,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "schedule_02": {
+        "scenario_id": "schedule_02",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a proactive alert regarding your schedule: **You have a double-booking conflict on Saturday, November 15.**\n\nYou currently have two dinner reservations scheduled at nearly the same time:\n1.  **7:00 PM:** Anniversary dinner at **Chez Laurent**.\n2.  **7:30 PM:** Dinner with your college roommate at **Steakhouse 55**.\n\nYou will need to reschedule or cancel one of these. Other than that, I'm here to help\u2014is there anything specific you'd like to work on today?",
+        "keyword_score": 0.722,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "schedule_03": {
+        "scenario_id": "schedule_03",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a major scheduling conflict to bring to your attention:\n\nYou are currently scheduled to be in **New York for a client meeting from December 11th to December 13th**. However, **Emma\u2019s school play performance is on December 12th at 6 PM**, and you previously noted that you **promised to be in the front row**. Unless the play is taking place in New York, you won't be able to attend the performance while on your trip.\n\nAside from that conflict, I'm ready to help! We were last looking for hotels in Midtown\u2014would you like to continue with that, or do we need to adjust your travel dates to accommodate the play?",
+        "keyword_score": 0.459,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 6
+      },
+      "schedule_04": {
+        "scenario_id": "schedule_04",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "Just a heads-up: **Today is Monday, November 4th**, which is the day you have your car booked for its major service. \n\nThe appointment starts at **8:00 AM** and is expected to last until **after 5:00 PM**, so you'll likely be without your vehicle for the entire day. \n\nOther than that, I'm here if you need help with anything else!",
+        "keyword_score": 0.3,
+        "has_alert_language": false,
+        "proactive_alert_detected": false,
+        "n_retrieved": 1
+      },
+      "schedule_05": {
+        "scenario_id": "schedule_05",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a proactive alert regarding your travel plans for March 15th. \n\nYou have a **return flight from Miami at 7:00 AM**, but your **checkout at the Fontainebleau is scheduled for noon**. Since you will need to be at the airport a few hours before your flight, you will actually need to leave the hotel and check out around 4:30 AM or 5:00 AM, well before the noon checkout time. You may want to notify the hotel of your early departure.\n\nAside from that timing conflict, your trip is set for March 12\u201315. Is there anything else you'd like to coordinate or check on today?",
+        "keyword_score": 0.543,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "schedule_06": {
+        "scenario_id": "schedule_06",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "Before we dive in, I have one time-sensitive alert regarding your stored information:\n\n**Proactive Alert: Passport and Travel Prep**\nYour trip to **Costa Rica** is coming up in less than two months (December 20 \u2013 January 3). If you haven't already, now is the critical time to check your **passport expiration date**. While Costa Rica officially requires your passport to be valid for at least one day past your entry, many airlines and connecting countries require **6 months of validity**. If you need a renewal, you should start the process immediately to avoid holiday delays.\n\nAside from that, I'm all set! How can I help you today? Are we looking for more travel tips, or is there something else on your mind?",
+        "keyword_score": 0.367,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 1
+      },
+      "schedule_07": {
+        "scenario_id": "schedule_07",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I have a major scheduling conflict to flag for you regarding next month:\n\n**Proactive Alert:** You have a \"critical workout\" for your marathon training scheduled for **Saturday, October 26**, which is the same day as **Jake\u2019s wedding**. Since you are a groomsman for your best friend, your schedule that day will likely be packed with photos, the ceremony, and the reception. You may want to look at moving that critical workout to earlier in the week or the following Monday, especially since you also have the rehearsal dinner on Friday and brunch on Sunday.\n\nAside from that conflict, here is a quick look at your upcoming priorities:\n*   **Marathon Training:** You are officially in the thick of your plan for the December marathon.\n*   **Wedding Weekend:** Your commitments run from Friday, October 25, through Sunday, October 27.\n\nHow would you like to handle that October 26 workout?",
+        "keyword_score": 0.559,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 8
+      },
+      "schedule_08": {
+        "scenario_id": "schedule_08",
+        "category": "scheduling_conflicts",
+        "representation": "mem0_lib",
+        "response": "I do have one important conflict to flag for you regarding your schedule next month:\n\n**There is a significant overlap between your movers and your first Airbnb guest.** Your movers are scheduled for **November 14\u201315**, but your first guest is set to arrive on **November 15**. \n\nSince the movers will still be working on the day the guest arrives, you might run into issues with the house not being ready, moving trucks blocking access, or the guest arriving while furniture is still being positioned. You may want to look into shifting the movers a day earlier or pushing the guest's check-in time back.\n\nAside from that, everything looks on track for your closing on November 10! How are you feeling about the move?",
+        "keyword_score": 0.462,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "deadline_01": {
+        "scenario_id": "deadline_01",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Before we dive in, I noticed a significant conflict in the information I have regarding your LG refrigerator that we should clear up:\n\n**Proactive Alert: Date Discrepancy**\n*   **The Conflict:** My records show you mentioned your 1-year warranty expires around **January 10, 2025**, but also that you purchased the unit on **January 10, 2026**. \n*   **Why it matters:** Since you've reported the refrigerator is making a **clicking noise**, we need to confirm the actual purchase date. If the warranty expires in January 2025, you only have a few months left to get that clicking noise (which could be a compressor or relay issue) repaired for free. If you actually bought it in 2026, that date is in the future!\n\nCould you double-check your receipt? Once we have the correct date, we can determine how much time you have left to file a warranty claim for that clicking sound.\n\nOtherwise, I'm ready to help! What's on your mind today?",
+        "keyword_score": 0.577,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "deadline_02": {
+        "scenario_id": "deadline_02",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Hey there! I actually have a proactive reminder for you based on our previous notes.\n\nSince you mentioned your tax situation is going to be particularly complex this year\u2014involving **freelancing, a W-2 job, and stock sales**\u2014you should be aware that we are currently in the peak of tax season. CPAs often stop taking new clients or fill their schedules by late February or early March. If you haven't secured a CPA yet, I\u2019d recommend reaching out to a few candidates this week to ensure you don't have to file for an extension or settle for a less experienced preparer.\n\nOther than that, I'm all set! How have things been going? Did you want to start looking into specific CPA requirements or gather your documents for those stock sales?",
+        "keyword_score": 0.333,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "deadline_03": {
+        "scenario_id": "deadline_03",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Yes, there is a very time-sensitive matter you should be aware of: **Today, December 2nd, is the 60-day deadline to give notice for your apartment lease renewal.**\n\nSince your lease expires on January 31, 2025, you need to notify your landlord today if you want to renew. Otherwise, your lease will auto-convert to a month-to-month agreement, which often comes with higher fees. \n\nSince you mentioned wanting to negotiate your renewal terms, you'll want to reach out to your landlord immediately to start that conversation and protect your status.\n\nAside from that, I'm here and ready to help! Is there anything else on your mind, or would you like help drafting an email to your landlord?",
+        "keyword_score": 0.724,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "deadline_04": {
+        "scenario_id": "deadline_04",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "**Urgent Alert:** You have a time-sensitive issue regarding your gym membership. Your annual renewal is scheduled for **November 1st**, and you are required to give **30 days' written notice** to cancel. \n\nSince today is October 11th, you are already past the October 2nd deadline to guarantee cancellation before the **$600 annual fee** hits. I recommend contacting the gym immediately to see if they will still honor a cancellation request or if there is any flexibility, as you haven't used the facilities in months.\n\nAside from that, I'm here and ready to help! How are you doing today?",
+        "keyword_score": 0.52,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "deadline_05": {
+        "scenario_id": "deadline_05",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Just a quick heads-up regarding your recent purchase: Your 30-day return window for the $400 espresso machine you bought from Williams-Sonoma on October 2nd is coming up. You have until approximately **November 1st** if you're considering a return.\n\nOther than that, I'm all set! Is there anything specific you'd like to go over today?",
+        "keyword_score": 0.407,
+        "has_alert_language": false,
+        "proactive_alert_detected": false,
+        "n_retrieved": 3
+      },
+      "deadline_06": {
+        "scenario_id": "deadline_06",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "I do have one important thing to flag for you! \n\nI noticed a potential conflict in your schedule: **Your driver's license is set to expire on December 15, 2024, but your road trip from LA to Vegas is scheduled for December 20.** \n\nSince the trip is just five days after your license expires, you'll want to make sure you get it renewed before you head out so you're all set to drive.\n\nOther than that, I'm just here and ready to help! How are things going with the trip planning?",
+        "keyword_score": 0.444,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 2
+      },
+      "deadline_07": {
+        "scenario_id": "deadline_07",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Just a heads-up: your home inspection contingency expires **tomorrow, November 9th**. If you haven't already finalized your inspections or submitted any requests for repairs or credits to the seller, you'll want to get those wrapped up immediately to stay within your 15-day window.\n\nOther than that, I'm here and ready to help! How are things going with the house?",
+        "keyword_score": 0.378,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      },
+      "deadline_08": {
+        "scenario_id": "deadline_08",
+        "category": "warranty_deadline_expiration",
+        "representation": "mem0_lib",
+        "response": "Before we dive in, I wanted to highlight a time-sensitive detail regarding your finances. \n\nYou currently have an **$8,000 balance** on your Chase Sapphire card under a **15-month 0% APR promotion**. To ensure you pay that off \"gradually\" without hitting any high interest charges once the promo ends, you'll need to budget approximately **$533.34 per month**. It would be a good idea to check exactly how many months you have left in that window so you don't get caught off guard!\n\nAside from that, I'm all set. How are things going with the new apartment?",
+        "keyword_score": 0.39,
+        "has_alert_language": false,
+        "proactive_alert_detected": false,
+        "n_retrieved": 3
+      }
+    },
+    "alert_rate": 0.9,
+    "n": 40
+  },
+  "hard": {
+    "by_scenario": {
+      "hard_01": {
+        "scenario_id": "hard_01",
+        "category": "multi_step_date_arithmetic",
+        "representation": "mem0_lib",
+        "response": "Before we dive into the planning, I noticed two important things regarding your travel documents and schedule that you should be aware of:\n\n1.  **Passport Validity Alert:** Your passport expires on **July 23, 2026**. Since your trip is in **late January 2026**, you will have almost exactly **6 months** of validity remaining. Many countries, including China and Japan, strictly require at least 6 months of validity beyond your date of entry or stay. Being right on the edge",
+        "keyword_score": 0.694,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "hard_02": {
+        "scenario_id": "hard_02",
+        "category": "multi_step_date_arithmetic",
+        "representation": "mem0_lib",
+        "response": "Just a heads-up: Waiting until early January to deal with the lease will be too late. \n\nYour 30-business-day deadline starts on **October 20, 2025**, which means you'll need to respond by **early December 2025** at the latest (depending on specific holidays). If you wait until January, you will have missed the window to respond to the renewal offer.\n\nWould you like to set a reminder to look at it in late October or November instead?",
+        "keyword_score": 0.438,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 1
+      },
+      "hard_03": {
+        "scenario_id": "hard_03",
+        "category": "multi_step_date_arithmetic",
+        "representation": "mem0_lib",
+        "response": "Before we dive into your trip details, I have a proactive alert regarding your medication and your destination:\n\n**Proactive Alert: Medication and Sun Sensitivity**\nSince you are taking daily blood",
+        "keyword_score": 0.087,
+        "has_alert_language": true,
+        "proactive_alert_detected": false,
+        "n_retrieved": 6
+      },
+      "hard_04": {
+        "scenario_id": "hard_04",
+        "category": "multi_step_date_arithmetic",
+        "representation": "mem0_lib",
+        "response": "Before we get into the details of your trip, I want to highlight a potential conflict with your schedule:\n\n**Proactive Alert:** Your deadline for e-filing your amended tax return is **April 15, 2026, at 11:59 PM Eastern Time**. Since you will be in Tokyo, please keep in mind that Tokyo is 13 hours ahead of Eastern Time. This means your filing deadline is actually **12:59 PM JST on April 16**. You\u2019ll be right in the middle of your trip, so you may want to plan to submit that before you leave or early in your stay.\n\nIt\u2019s good that you\u2019ll have your laptop with you to handle that! Is there anything specific you need help organizing for the tech conference or your time in Tokyo?",
+        "keyword_score": 0.482,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "hard_05": {
+        "scenario_id": "hard_05",
+        "category": "multi_step_date_arithmetic",
+        "representation": "mem0_lib",
+        "response": "**PROACTIVE ALERT:** Before we plan for your October trip, I need to flag a significant issue regarding your UK stay limit. \n\nAs a US citizen, you are generally allowed to stay in the UK for up to **180 days in any rolling 12-month period**. Based on your travel history this year, you are at risk of exceeding this limit:\n\n*   **Trip 1 (Jan/Feb):** 42 days\n*   **Trip 2 (Mar/Apr):** 40 days\n*   **Trip 3 (June):** 25 days\n*   **Total already spent in UK:** 107 days\n\nYour proposed trip from **October 1 to December 31 is 92 days**. Adding this to your previous stays brings your total to **199 days** within a 12-month window, which exceeds the 180-day limit by 19 days. \n\nYou may want to consider shortening this stay to no more than 73 days (which would put you right at the 180-day mark) or consulting with an immigration expert to ensure you don't encounter issues at the border.\n\n***\n\nRegarding the project itself, since you'll be there through the end of the year, you'll definitely get to enjoy the London holiday season as you like! Would you like to look at adjusting the dates to stay within the 180-day limit, or should we look into the specific requirements for your project work?",
+        "keyword_score": 0.7,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 8
+      },
+      "hard_06": {
+        "scenario_id": "hard_06",
+        "category": "compound_multi_domain_constraints",
+        "representation": "mem0_lib",
+        "response": "Before we discuss the details of your trek, I need to alert you to several critical conflicts and safety concerns based on your stored information:\n\n1.  **Insurance Coverage Gap:** Your new health insurance does not start until **September 1**. Since your trip begins on **August 15**, you will be trekking in Nepal for 17 days without this coverage. Most standard policies do not cover high-altitude trekking or emergency helicopter evacuation (which is common on the EBC trek). You should urgently look into specialized travel insurance that covers \"search and rescue\" and \"high-altitude trekking\" for the duration of your trip.\n2.  **Medical Risk (AFib & Altitude):** Although your Atrial Fibrillation has been controlled for two years, the Everest Base Camp trek reaches an extreme altitude of 5,364 meters. High altitude and physical exertion can trigger heart rhythm issues. It is vital that you get a specific medical clearance from your cardiologist for this trip.\n3.  **Medication Management (Diamox):** You are currently taking Diamox (acetazolamide) for glaucoma. While this is also used for altitude sickness",
+        "keyword_score": 0.45,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 11
+      },
+      "hard_07": {
+        "scenario_id": "hard_07",
+        "category": "compound_multi_domain_constraints",
+        "representation": "mem0_lib",
+        "response": "Before you head out, I have several critical safety and dietary concerns regarding Sarah\u2019s needs at this specific restaurant that I must bring to your attention:\n\n*   **Celiac Disease & Tempura:** Traditional tempura batter is made with wheat flour. Since Sarah has celiac disease, standard tempura is unsafe for her. You should check if they offer a dedicated gluten-free batter (like rice flour) and a separate fryer to avoid cross-contamination.\n*   **Severe Shellfish Allergy & Cross-Contamination:** Thai and Japanese kitchens are high-risk environments for shellfish. Pad Thai traditionally uses dried shrimp and fish sauce, and many Japanese broths or sauces contain shellfish extracts. Even if a dish is \"vegan,\" the risk of cross-contamination in the kitchen is extremely high, which is a major concern given her EpiPen-level allergy.\n*   **Vegan Requirements:** Traditional Pad Thai contains egg and fish sauce, and tempura batter often contains egg. You will need to ensure the restaurant can specifically prepare these without any animal products.\n*   **Warfarin (Coumadin) & Vitamin K:** Since Sarah needs to keep her Vitamin K intake consistent, be mindful of dishes containing heavy amounts of seaweed (nori/wakame) or leafy greens (like bok choy or spinach) which are common in these cuisines.\n\n**Regarding your plans:**\n\nThat sounds like a lovely idea for your anniversary! However, given the combination of celiac disease, a severe shellfish allergy, and her vegan diet, this specific menu (tempura and pad thai) poses significant challenges. \n\nI strongly recommend calling the restaurant in advance to speak with the chef about whether they can truly accommodate a **vegan, gluten-",
+        "keyword_score": 0.592,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 9
+      },
+      "hard_08": {
+        "scenario_id": "hard_08",
+        "category": "compound_multi_domain_constraints",
+        "representation": "mem0_lib",
+        "response": "Before we discuss the truck reservation, I need to alert you to a few critical timing conflicts in your current plan:\n\n*   **Max\u2019s Health Certificate:** Your records show Max\u2019s health certificate expires on **October 15**, but your move isn't until **October 28**. You will need to get him a new certificate before you leave Boston to ensure he can be seen by a Texas vet within the required 10-day window of arrival.\n*   **School Paperwork vs. Job Start:** Emma\u2019s school paperwork must be submitted in person at least 5 business days before November 10, which makes the deadline **November 3**. This is the exact same day you are scheduled to start your new job. You may need to coordinate a time to visit the school before your first shift or see if you can submit it as soon as you arrive in Austin.\n*   **Drive Safety:** A 30-hour drive spread over only 2 days means 15 hours of driving per day. With Emma and Max in the car, this may be very difficult to sustain safely.\n\nRegarding the truck, reserving it for",
+        "keyword_score": 0.427,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 16
+      },
+      "hard_09": {
+        "scenario_id": "hard_09",
+        "category": "compound_multi_domain_constraints",
+        "representation": "mem0_lib",
+        "response": "**IMPORTANT ALERT:** I need to bring two urgent deadline concerns to your attention based on your stored contract details:\n\n1.  **Inspection Contingency:** Your 17-day contingency period",
+        "keyword_score": 0.141,
+        "has_alert_language": true,
+        "proactive_alert_detected": false,
+        "n_retrieved": 6
+      },
+      "hard_10": {
+        "scenario_id": "hard_10",
+        "category": "compound_multi_domain_constraints",
+        "representation": "mem0_lib",
+        "response": "**URGENT ALERT:** Before we plan your route, I need to point out a critical timing conflict with your insurance. Your 15-day grace period for the $847 bounced payment started on June 1, which means it expires on **June 16**. Since your trip starts on **June 20**, you will be driving out of state with lapsed insurance and a likely suspended registration. In Connecticut, this carries a **$100/day fine** and significant legal risks if you are pulled over in NY, PA, or OH. Please ensure your insurance is reinstated before you head out!\n\n***\n\nOnce the insurance is settled, here are some great kid-friendly stops for a road trip from Connecticut through New York, Pennsylvania, and Ohio with a 5-year-old:\n\n### 1. New York (The Hudson Valley/Southern Tier)\n*   **The Strong National Museum of Play (Rochester):** If you are taking a more northern route (I-90), this is arguably the best museum in the country for a 5-year-old. It\u2019s entirely dedicated to the history and exploration of play.\n*   **Legoland New York (Goshen):** Located right on your way out of the CT/NY border area, this is perfect for the 5-year-old demographic.\n\n### 2. Pennsylvania (The Poconos or Hershey)\n*   **Crayola Experience (Easton):** Just across the border from NJ/NY, this is a fantastic hands-on spot where kids can name their own crayons and see how they are made.\n*   **Hersheypark (Hershey):** If your route takes you through central PA, \"Chocolate World\" has a free dark ride showing how chocolate is made, and the park has plenty of \"kiddie\" rides.\n*   **Knoebels Amusement Resort (Elysburg):** If you want something more low-key, this is a free-admission, pay-per-ride park that is very nostalgic and great",
+        "keyword_score": 0.396,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 6
+      },
+      "hard_11": {
+        "scenario_id": "hard_11",
+        "category": "numerical_threshold_calculations",
+        "representation": "mem0_lib",
+        "response": "**PROACTIVE ALERT:** Before you proceed with those charges, I need to alert you that adding both the $1,200 dental bill and the $650 for tires will likely cause you to **exceed your $12,000 credit limit.**\n\nBased on your stored information, here is the breakdown:\n*   **Current Balance:** $9,847.33\n*   **Recurring Monthly Charges:** $1,040.28 (Netflix, gym, cloud, phone, insurance, and student loans)\n*   **Proposed New Charges:** $1,850.00 ($1,200 dental + $650 tires)\n*   **Projected Total:** **$12,737.61** (This is **$737.61 over** your limit).\n\nAdditionally, with your **24.99% APR**, the interest alone on a balance that high would be approximately **$260\u2013$265 per month**. Since your autopay is set to 2% of the balance (which would be about $254), your minimum payment may not even cover the interest being charged, causing your debt to grow even if you stop spending.\n\nWould you like to look at which recurring charges could be moved to a different payment method, or should we prioritize which of these new expenses to put on the card first?",
+        "keyword_score": 0.634,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 7
+      },
+      "hard_12": {
+        "scenario_id": "hard_12",
+        "category": "numerical_threshold_calculations",
+        "representation": "mem0_lib",
+        "response": "Before we dive into the numbers, I have a proactive alert regarding your upcoming salary change: Your salary increase to **$175,000 takes effect on July 1st**. Because you are **52 years old**, you are also eligible for \"catch-up contributions,\" which significantly raises your total contribution limit for the year.\n\nTo answer your question: **No, at your current 8% contribution rate, you are not on track to max out your 401(k) for 2024.**\n\nHere is the breakdown of your current trajectory and what you would need",
+        "keyword_score": 0.38,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 7
+      },
+      "hard_13": {
+        "scenario_id": "hard_13",
+        "category": "numerical_threshold_calculations",
+        "representation": "mem0_lib",
+        "response": "Before we dive into the numbers, I noticed a conflict in your records regarding your consulting income: I have one note that it is **$3,500/month**, but a more recent note says it has been **$5,200/month** for the last four months. Additionally, based on your high total income, your current quarterly estimated payments ($2,800) and standard bonus",
+        "keyword_score": 0.233,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 9
+      },
+      "hard_14": {
+        "scenario_id": "hard_14",
+        "category": "numerical_threshold_calculations",
+        "representation": "mem0_lib",
+        "response": "Before we dive into the numbers, I noticed a potential conflict in your financial plan that we should address:\n\n**Proactive Alert: Closing Costs vs. Cash Reserves**\nYou have",
+        "keyword_score": 0.054,
+        "has_alert_language": true,
+        "proactive_alert_detected": false,
+        "n_retrieved": 12
+      },
+      "hard_15": {
+        "scenario_id": "hard_15",
+        "category": "numerical_threshold_calculations",
+        "representation": "mem0_lib",
+        "response": "Before we look at the numbers, I have a **critical alert** regarding your timeline:\n\n**Proactive Alert: Maturity Date Conflict**\nYour $15,000 CD does not mature",
+        "keyword_score": 0.029,
+        "has_alert_language": true,
+        "proactive_alert_detected": false,
+        "n_retrieved": 6
+      },
+      "hard_16": {
+        "scenario_id": "hard_16",
+        "category": "temporal_ordering_ambiguity",
+        "representation": "mem0_lib",
+        "response": "I have a conflict to alert you about: your mandatory all-hands meeting this Tuesday (1 PM \u2013 4 PM) overlaps directly with your scheduled root canal appointment at 2 PM.\n\nSince the root canal is expected to take about two hours, you would be missing the majority of the meeting. Would you like me to help you look for a new time for the dentist, or do you need to prioritize the meeting?",
+        "keyword_score": 0.435,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 1
+      },
+      "hard_17": {
+        "scenario_id": "hard_17",
+        "category": "temporal_ordering_ambiguity",
+        "representation": "mem0_lib",
+        "response": "Before you head out, I wanted to point out a potential concern regarding your car insurance. Your new policy doesn't start until **September 1st**, but you are driving to Vermont on **August 28th**. Please double-check that your current insurance policy remains active through the end of the month so you are fully covered during your trip!\n\nSafe travels on your drive from New Jersey! Are you all set for the wedding, or is there anything else you need help planning for the 5-hour trip?",
+        "keyword_score": 0.41,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 6
+      },
+      "hard_18": {
+        "scenario_id": "hard_18",
+        "category": "temporal_ordering_ambiguity",
+        "representation": "mem0_lib",
+        "response": "I have a quick alert regarding your schedule: **Emma has a swim lesson this Saturday at 10:00 AM.** \n\nSince you are planning to leave for the pumpkin patch at 9:00 AM and stay until the late afternoon, she will miss her lesson. You may want to look into rescheduling the lesson or adjusting your departure time.\n\nThat aside, the pumpkin patch trip sounds like a lot of fun! Is there anything specific you need help with to get ready for the day?",
+        "keyword_score": 0.444,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 4
+      },
+      "hard_19": {
+        "scenario_id": "hard_19",
+        "category": "temporal_ordering_ambiguity",
+        "representation": "mem0_lib",
+        "response": "I have a major scheduling conflict to alert you to regarding that date:\n\n**You have a significant overlap between your exam and your airport pickup.** \n\nAccording to your notes:\n*   **The Exam:** Starts at 2:00 PM and lasts 3 hours, meaning you won't be finished until **5:00 PM**.\n*   **The Pickup:** Your in-laws arrive at the airport at **3:00 PM** (the Tuesday before Thanksgiving).\n*   **The Distance:** The testing center is an **hour's drive** from the airport.\n\nSince you will be in the middle of your certification exam when their flight lands, you will not be able to pick them up as planned. You may need to arrange alternative transportation for them or look into rescheduling the exam. \n\nWould you like me to help you look at travel options for your in-laws or check your calendar for other details?",
+        "keyword_score": 0.239,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 5
+      },
+      "hard_20": {
+        "scenario_id": "hard_20",
+        "category": "temporal_ordering_ambiguity",
+        "representation": "mem0_lib",
+        "response": "**Proactive Alert:** Before we discuss your trip, I noticed a potential concern regarding your medication. You are heading to the cabin for 21 days (3 weeks) starting July 10, and there is no pharmacy within 100 miles. Since you take Lisinopril daily and have a 30-day supply, please check how many tablets you currently have. If you have fewer than 21 days' worth remaining, you will run out while at the cabin. You may need to contact your pharmacy immediately to request a \"vacation override\" or an early refill to ensure you have enough for the entire stay.\n\nThat sounds like a very peaceful trip! Since you'll be so far from a pharmacy and other services, is there anything specific you'd like to prepare for, such as a first-aid checklist or a plan for managing your blood pressure while you're off the grid?",
+        "keyword_score": 0.343,
+        "has_alert_language": true,
+        "proactive_alert_detected": true,
+        "n_retrieved": 3
+      }
+    },
+    "alert_rate": 0.8,
+    "n": 20
+  }
+}

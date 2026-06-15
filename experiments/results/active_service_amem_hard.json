@@ -1,0 +1,166 @@
+{
+  "by_scenario": {
+    "hard_01": {
+      "scenario_id": "hard_01",
+      "category": "multi_step_date_arithmetic",
+      "response": "That sounds like an incredible journey! I see you have the specifics for your January 2026 trip lined up. Before we dive into the planning, I wanted to point out a few",
+      "keyword_score": 0.184,
+      "has_alert_language": false,
+      "proactive_alert_detected": false
+    },
+    "hard_02": {
+      "scenario_id": "hard_02",
+      "category": "multi_step_date_arithmetic",
+      "response": "I need to flag a major conflict with that plan before we go any further. \n\nBased on the notice you received from your landlord on **October 20, 2025**, you have **30 business days** to respond to keep your below-market rate. Counting from that date, your deadline will fall around **December 2, 2025**.\n\nIf you wait until you return from vacation in **early January**, you will have missed the deadline by over a month and will likely lose that special rate. You should probably aim to have the lease paperwork settled before your PTO starts on December 22nd\u2014ideally by the end of November to be safe.\n\nSince things are already getting hectic with the holidays, would you like me to help you draft a response to your landlord now or set a reminder for you to handle this before the December 2nd deadline?",
+      "keyword_score": 0.531,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_03": {
+      "scenario_id": "hard_03",
+      "category": "multi_step_date_arithmetic",
+      "response": "Before we discuss your trip to Indonesia, I need to flag a serious concern regarding your lease renewal.\n\nYou received a notice from your landlord on **October 20, 2025**,",
+      "keyword_score": 0.065,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_04": {
+      "scenario_id": "hard_04",
+      "category": "multi_step_date_arithmetic",
+      "response": "Before we dive into your trip details, I want to point out a potential issue regarding your documentation. \n\nYour passport is set to expire on **July 23, 2026**.",
+      "keyword_score": 0.018,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_05": {
+      "scenario_id": "hard_05",
+      "category": "multi_step_date_arithmetic",
+      "response": "Before we dive into the details of your October trip, I have two urgent concerns regarding your travel plans and documentation:\n\n1.  **Passport Expiration:** Your stored records indicate your passport expires on **",
+      "keyword_score": 0.167,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_06": {
+      "scenario_id": "hard_06",
+      "category": "compound_multi_domain_constraints",
+      "response": "I need to flag a serious concern regarding your timing: **August is the peak of the monsoon season in Nepal.** \n\nWhile you are clearly an experienced hiker (with your trips to the John Muir Trail, the Rocky Mountains, and Yosemite), trekking to Everest Base Camp (EBC) between August 15 and September 5 presents several significant challenges:\n\n1.  **Weather and Views:** You can expect heavy daily rain, which makes trails extremely muddy and slippery. More importantly, the famous Himalayan peaks are often completely obscured by clouds for days or weeks at a time.\n2.  **Flight Cancellations:** Flights from Kathmandu/Ramechhap to Lukla (the start of the trek) are frequently cancelled for days on end during the monsoon due to poor visibility, which could derail your entire 20-day itinerary.\n3.  **Leeches:** The lower sections of the trek (below Namche Bazaar) are notorious for leeches during the wet season.\n4.  **Altitude:** You've handled altitudes around 3,350 meters (11,000 ft) in the Rockies and the Sierras, but E",
+      "keyword_score": 0.162,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_07": {
+      "scenario_id": "hard_07",
+      "category": "compound_multi_domain_constraints",
+      "response": "Before we dive into the menu, I want to quickly flag a few dietary concerns based on your preferences. You\u2019ve frequently mentioned enjoying **vegan and vegetarian** cooking\u2014like your vegan chili and the vegan",
+      "keyword_score": 0.041,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_08": {
+      "scenario_id": "hard_08",
+      "category": "compound_multi_domain_constraints",
+      "response": "Before we dive into the details of your move, I need to alert you to a significant scheduling conflict in your timeline for early November:\n\n**Critical Conflict on November 3rd:**",
+      "keyword_score": 0.029,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_09": {
+      "scenario_id": "hard_09",
+      "category": "compound_multi_domain_constraints",
+      "response": "I need to alert you to a critical timeline conflict immediately.\n\nAccording to your records, your purchase agreement gave you **17 calendar days** from the acceptance date of **April 20** for",
+      "keyword_score": 0.064,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_10": {
+      "scenario_id": "hard_10",
+      "category": "compound_multi_domain_constraints",
+      "response": "Before we dive into the details of your road trip, I noticed a significant scheduling conflict in your plans that I wanted to alert you to:\n\n**Proactive Alert: Scheduling Conflict**\nYou",
+      "keyword_score": 0.055,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_11": {
+      "scenario_id": "hard_11",
+      "category": "numerical_threshold_calculations",
+      "response": "Before we dive into the math, I need to alert you to a significant risk regarding your credit limit.\n\nBased on the financial details we've tracked, putting both of these expenses on your Visa card next month will almost certainly push you over your **$12,000 limit**.\n\nHere is the breakdown of",
+      "keyword_score": 0.171,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_12": {
+      "scenario_id": "hard_12",
+      "category": "numerical_threshold_calculations",
+      "response": "Before we look at your 401k, I want to highlight a potential concern regarding your **Visa card**. You mentioned a balance of **$9,847.",
+      "keyword_score": 0.04,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_13": {
+      "scenario_id": "hard_13",
+      "category": "numerical_threshold_calculations",
+      "response": "Before we dive into the numbers, I have a few **urgent time-sensitive alerts** based on our previous discussions:\n\n1.  **Home Inspection Contingency:** Your 1",
+      "keyword_score": 0.0,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_14": {
+      "scenario_id": "hard_14",
+      "category": "numerical_threshold_calculations",
+      "response": "Before we dive into the numbers, I have a **critical time-sensitive alert** based on our previous conversation:\n\nYou mentioned on April 20th that your offer was accepted and you had",
+      "keyword_score": 0.0,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_15": {
+      "scenario_id": "hard_15",
+      "category": "numerical_threshold_calculations",
+      "response": "Before we dive into the numbers, I have a quick update regarding your timeline. My records show your original goal was for **September 15, 2025**, and your CD was set",
+      "keyword_score": 0.029,
+      "has_alert_language": false,
+      "proactive_alert_detected": false
+    },
+    "hard_16": {
+      "scenario_id": "hard_16",
+      "category": "temporal_ordering_ambiguity",
+      "response": "I need to flag a major scheduling conflict for you immediately.\n\nYou have a **dentist appointment for a root canal** scheduled for this same Tuesday at **2:00 PM**, which is expected to last about two hours. This overlaps directly with your mandatory all-hands meeting (1:00 PM \u2013 4:00 PM).\n\nSince the meeting is mandatory and in-person, you will likely need to reschedule that root canal or speak with your boss right away. How would you like to handle this?",
+      "keyword_score": 0.5,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_17": {
+      "scenario_id": "hard_17",
+      "category": "temporal_ordering_ambiguity",
+      "response": "I need to flag something important about your timing! \n\nWhile it's exciting that you're heading up to Vermont for your roommate's wedding, you should be aware that **August 28 falls right in the middle of your health insurance gap.** \n\nAccording to your records, your old COBRA coverage ended on May 31, and your new insurance doesn't kick in until September 1. Since you'll be driving and away from home during those last few days of August without coverage, you might want to consider a short-term plan or travel insurance just to be safe for the trip!\n\nThat aside, are you all set for the 5-hour drive, or do you need any help looking up stops or weather for the route from New Jersey?",
+      "keyword_score": 0.377,
+      "has_alert_language": true,
+      "proactive_alert_detected": true
+    },
+    "hard_18": {
+      "scenario_id": "hard_18",
+      "category": "temporal_ordering_ambiguity",
+      "response": "Before we dive into the details of your trip, I have a few important things to flag based on your schedule and travel plans:\n\n1.  **UK Visa Limit:** You mentioned a",
+      "keyword_score": 0.067,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    },
+    "hard_19": {
+      "scenario_id": "hard_19",
+      "category": "temporal_ordering_ambiguity",
+      "response": "I have noted your professional certification exam for **Saturday, May 23, 2026, at 2:00 PM**.\n\nBefore we continue, I want",
+      "keyword_score": 0.028,
+      "has_alert_language": false,
+      "proactive_alert_detected": false
+    },
+    "hard_20": {
+      "scenario_id": "hard_20",
+      "category": "temporal_ordering_ambiguity",
+      "response": "I need to flag a serious timing conflict regarding your medication before we talk about your Montana trip.\n\nAccording to your records, you started a **30-day supply of your 20mg",
+      "keyword_score": 0.141,
+      "has_alert_language": true,
+      "proactive_alert_detected": false
+    }
+  },
+  "alert_rate": 0.3,
+  "n": 20
+}

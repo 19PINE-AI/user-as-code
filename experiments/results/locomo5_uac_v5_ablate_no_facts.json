@@ -1,0 +1,3048 @@
+{
+  "system": "uac_v5_ablate_no_facts",
+  "channels": {
+    "state": true,
+    "facts": false,
+    "archive": true
+  },
+  "model": "gemini-3-flash-preview",
+  "max_qa_per_conv": 60,
+  "per_conversation": {
+    "conv-26": {
+      "n_questions": 60,
+      "judge_accuracy": 0.7
+    },
+    "conv-30": {
+      "n_questions": 60,
+      "judge_accuracy": 0.8666666666666667
+    },
+    "conv-41": {
+      "n_questions": 60,
+      "judge_accuracy": 0.7333333333333333
+    },
+    "conv-42": {
+      "n_questions": 60,
+      "judge_accuracy": 0.48333333333333334
+    },
+    "conv-43": {
+      "n_questions": 60,
+      "judge_accuracy": 0.65
+    }
+  },
+  "details": {
+    "conv-26": [
+      {
+        "qa_idx": 0,
+        "question": "When did Caroline go to the LGBTQ support group?",
+        "gold": "7 May 2023",
+        "prediction": "May 7, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is the same date as the gold answer, just in a different format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 1,
+        "question": "When did Melanie paint a sunrise?",
+        "gold": "2022",
+        "prediction": "In 2022",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the same year as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 2,
+        "question": "What fields would Caroline be likely to pursue in her educaton?",
+        "gold": "Psychology, counseling certification",
+        "prediction": "According to the stored information, Caroline is highly likely to pursue education in **counseling or mental health**, with a specific interest in supporting individuals facing LGBTQ+ and transgender-related issues.",
+        "f1": 0.0606060606060606,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes \"counseling\" and \"mental health,\" which are synonymous with or closely related to the \"psychology\" and \"counseling\" mentioned in the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 3,
+        "question": "What did Caroline research?",
+        "gold": "Adoption agencies",
+        "prediction": "Caroline researched career options and adoption agencies.",
+        "f1": 0.4444444444444445,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the gold answer \"adoption agencies\" along with additional context.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 4,
+        "question": "What is Caroline's identity?",
+        "gold": "Transgender woman",
+        "prediction": "Caroline is a transgender woman.",
+        "f1": 0.5714285714285715,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the exact same information as the gold answer in a full sentence.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 5,
+        "question": "When did Melanie run a charity race?",
+        "gold": "The sunday before 25 May 2023",
+        "prediction": "Melanie ran the charity race for mental health on May 20, 2023.",
+        "f1": 0.3333333333333333,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The Sunday before 25 May 2023 was 21 May 2023, while the predicted answer states 20 May 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 6,
+        "question": "When is Melanie planning on going camping?",
+        "gold": "June 2023",
+        "prediction": "No specific future date is available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no date is available while the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 7,
+        "question": "What is Caroline's relationship status?",
+        "gold": "Single",
+        "prediction": "Caroline is single and has mentioned that she plans to be a single parent through the adoption process.",
+        "f1": 0.10526315789473684,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer accurately identifies that she is single, which is the core information required.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 8,
+        "question": "When did Caroline give a speech at a school?",
+        "gold": "The week before 9 June 2023",
+        "prediction": "Caroline gave a speech about her transgender journey at a school event on June 2, 2023.",
+        "f1": 0.18181818181818182,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted date of June 2, 2023, is exactly one week before June 9, 2023, thus matching the gold answer's timeframe.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 9,
+        "question": "When did Caroline meet up with her friends, family, and mentors?",
+        "gold": "The week before 9 June 2023",
+        "prediction": "Caroline met up with them during the first week of June 2023 (referred to as \"last week\" in a conversation on June 9, 2023).",
+        "f1": 0.33333333333333337,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies the same timeframe as the gold answer and provides the correct context.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 10,
+        "question": "How long has Caroline had her current group of friends for?",
+        "gold": "4 years",
+        "prediction": "4 years",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer matches the gold answer exactly.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 11,
+        "question": "Where did Caroline move from 4 years ago?",
+        "gold": "Sweden",
+        "prediction": "Sweden",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 12,
+        "question": "How long ago was Caroline's 18th birthday?",
+        "gold": "10 years ago",
+        "prediction": "10 years ago",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer is an exact match to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 13,
+        "question": "What career path has Caroline decided to persue?",
+        "gold": "counseling or mental health for Transgender people",
+        "prediction": "Counseling or mental health",
+        "f1": 0.7272727272727273,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer correctly identifies the core career path of counseling and mental health.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 14,
+        "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+        "gold": "Likely no",
+        "prediction": "It is unlikely she would pursue counseling, as she explicitly attributes her passion for the field to the support she received during her own journey.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer directly aligns with the gold answer's \"Likely no\" and provides the reasoning behind it.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 15,
+        "question": "What activities does Melanie partake in?",
+        "gold": "pottery, camping, painting, swimming",
+        "prediction": "Melanie partakes in painting (landscapes, still life, and nature-inspired works), running, reading, playing the violin, swimming, hiking, camping (including exploring forests/mountains and roasting marshmallows), pottery, and participating in charity races.",
+        "f1": 0.2222222222222222,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all the activities mentioned in the gold answer (pottery, camping, painting, and swimming) along with additional details and activities.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 16,
+        "question": "When did Melanie sign up for a pottery class?",
+        "gold": "2 July 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available when a specific date is provided in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 17,
+        "question": "When is Caroline going to the transgender conference?",
+        "gold": "July 2023",
+        "prediction": "Caroline went to the conference on July 10, 2023.",
+        "f1": 0.3636363636363636,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the month and year specified in the gold answer, providing even more specific detail.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 18,
+        "question": "Where has Melanie camped?",
+        "gold": "beach, mountains, forest",
+        "prediction": "Melanie has camped in the mountains and in the forest.",
+        "f1": 0.30769230769230765,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer is incomplete as it misses the \"beach\" mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 19,
+        "question": "What do Melanie's kids like?",
+        "gold": "dinosaurs, nature",
+        "prediction": "Melanie's kids like nature, hiking, exploring forests, pottery workshops (getting their hands dirty with clay), painting (especially nature-inspired scenes), and the dinosaur exhibit at the museum because they love learning about animals.",
+        "f1": 0.05555555555555555,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes both \"nature\" and \"dinosaurs\" along with additional specific details that align with the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 20,
+        "question": "When did Melanie go to the museum?",
+        "gold": "5 July 2023",
+        "prediction": "Melanie went to the museum on July 5, 2023.",
+        "f1": 0.5,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer, just in a full sentence format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 21,
+        "question": "When did Caroline have a picnic?",
+        "gold": "The week before 6 July 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the gold answer provides a specific timeframe, while the predicted answer incorrectly claims the information is not available.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 22,
+        "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+        "gold": "Yes, since she collects classic children's books",
+        "prediction": "Yes, Caroline likely has Dr. Seuss books on her bookshelf.",
+        "f1": 0.22222222222222224,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer confirms the affirmative \"Yes\" which is the core information required.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 23,
+        "question": "What books has Melanie read?",
+        "gold": "\"Nothing is Impossible\", \"Charlotte's Web\"",
+        "prediction": "Melanie has read the classic children's book \"Charlotte's Web,\" which she noted was a favorite from her childhood.",
+        "f1": 0.23076923076923075,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer omits one of the two books (\"Nothing is Impossible\") mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 24,
+        "question": "What does Melanie do to destress?",
+        "gold": "Running, pottery",
+        "prediction": "Painting, running, reading, playing the violin, swimming, and hiking in nature.",
+        "f1": 0.15384615384615385,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer omits \"pottery\" and includes several incorrect activities not mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 25,
+        "question": "When did Caroline go to the LGBTQ conference?",
+        "gold": "10 July 2023",
+        "prediction": "July 10, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is the same date as the gold answer, formatted differently.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 26,
+        "question": "When did Melanie read the book \"nothing is impossible\"?",
+        "gold": "2022",
+        "prediction": "No information available",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states the information is not available, but the gold answer provides the specific year (2022).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 27,
+        "question": "Would Caroline pursue writing as a career option?",
+        "gold": "LIkely no; though she likes reading, she wants to be a counselor",
+        "prediction": "No information available.",
+        "f1": 0.13333333333333333,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the predicted answer claims no information is available when the gold answer provides a specific conclusion and reasoning.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 28,
+        "question": "When did Caroline go to the adoption meeting?",
+        "gold": "The friday before 15 July 2023",
+        "prediction": "July 14, 2023",
+        "f1": 0.4444444444444444,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 14, 2023, is the Friday before July 15, 2023, so both answers refer to the same date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 29,
+        "question": "When did Melanie go to the pottery workshop?",
+        "gold": "The Friday before 15 July 2023",
+        "prediction": "July 14, 2023",
+        "f1": 0.4444444444444444,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 14, 2023 is indeed the Friday before 15 July 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 30,
+        "question": "Would Melanie be considered a member of the LGBTQ community?",
+        "gold": "Likely no, she does not refer to herself as part of it",
+        "prediction": "No information available.",
+        "f1": 0.13333333333333333,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer claims no information is available while the gold answer provides a specific conclusion (\"Likely no\").",
+        "category": "3"
+      },
+      {
+        "qa_idx": 31,
+        "question": "When did Melanie go camping in June?",
+        "gold": "The week before 27 June 2023",
+        "prediction": "June 18, 2023",
+        "f1": 0.4444444444444444,
+        "judge_correct": true,
+        "judge_reason": "CORRECT June 18, 2023, is the start of the calendar week preceding June 27, 2023, and thus conveys the same core information.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 32,
+        "question": "What LGBTQ+ events has Caroline participated in?",
+        "gold": "Pride parade, school speech, support group",
+        "prediction": "LGBTQ Support Group, School Event Talk, Counseling Workshop, LGBTQ Conference, Pride Event with mentee, Pride Parade, and a Transgender Poetry Reading.",
+        "f1": 0.37037037037037035,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all elements of the gold answer (Pride parade, school speech/talk, and support group) and provides additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 33,
+        "question": "When did Caroline go to a pride parade during the summer?",
+        "gold": "The week before 3 July 2023",
+        "prediction": "Caroline went to a pride parade on Friday, August 11, 2023, and also attended one \"a few weeks\" prior to July 15, 2023.",
+        "f1": 0.13793103448275862,
+        "judge_correct": true,
+        "judge_reason": "CORRECT because the predicted answer mentions a parade \"a few weeks\" prior to July 15, which aligns with the gold answer's timeframe of the week before July 3.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 34,
+        "question": "What events has Caroline participated in to help children?",
+        "gold": "Mentoring program, school speech",
+        "prediction": "Caroline participated in a school event talk on June 2, 2023, where she shared her transgender journey to inspire students and encourage their involvement in the LGBTQ community.",
+        "f1": 0.0625,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, although it omits the mentoring program, it accurately describes the school speech mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 35,
+        "question": "When did Melanie go camping in July?",
+        "gold": "two weekends before 17 July 2023",
+        "prediction": "Melanie went camping shortly before July 15, 2023.",
+        "f1": 0.42857142857142855,
+        "judge_correct": true,
+        "judge_reason": "CORRECT because \"shortly before July 15\" is a reasonable, albeit less precise, description of the weekend of July 8-9, 2023 (which is two weekends before July 17).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 36,
+        "question": "When did Caroline join a mentorship program?",
+        "gold": "The weekend before 17 July 2023",
+        "prediction": "July 15\u201316, 2023",
+        "f1": 0.4,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 15\u201316, 2023, is the weekend immediately preceding July 17, 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 37,
+        "question": "What did Melanie paint recently?",
+        "gold": "sunset",
+        "prediction": "Melanie recently painted a sunset-inspired piece with calming colors and an abstract painting featuring peaceful blue streaks to portray tranquility and serenity.",
+        "f1": 0.08333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer includes the core information that she painted a sunset-inspired piece.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 38,
+        "question": "What activities has Melanie done with her family?",
+        "gold": "Pottery, painting, camping, museum, swimming, hiking",
+        "prediction": "Melanie has gone camping in the mountains and forests, hiked, explored nature, roasted marshmallows and told stories around campfires, visited the beach, played games, eaten meals together, and taken road trips.",
+        "f1": 0.05405405405405405,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer misses the majority of the specific activities listed in the gold answer (pottery, painting, museum, swimming) and includes several others not mentioned.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 39,
+        "question": "In what ways is Caroline participating in the LGBTQ community?",
+        "gold": "Joining activist group, going to pride parades, participating in an art show, mentoring program",
+        "prediction": "Caroline participates in the LGBTQ community by attending support groups, conferences, and counseling workshops; speaking at schools about her transition; joining the \"Connected LGBTQ Activists\" group to plan advocacy campaigns; mentoring others; creating community-focused art including murals, stained glass for a church, and hosting an LGBTQ art show; and participating in Pride parades and events.",
+        "f1": 0.3142857142857143,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all elements of the gold answer (activism, pride parades, art show, and mentoring) while providing additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 40,
+        "question": "How many times has Melanie gone to the beach in 2023?",
+        "gold": "2",
+        "prediction": "Based on the available information, Melanie has gone to the beach once in 2023.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states she went once, while the gold answer states she went twice.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 41,
+        "question": "When did Caroline join a new activist group?",
+        "gold": "The Tuesday before 20 July 2023",
+        "prediction": "July 11, 2023",
+        "f1": 0.4444444444444444,
+        "judge_correct": false,
+        "judge_reason": "WRONG - The Tuesday before 20 July 2023 was July 18, 2023, so July 11, 2023 is factually incorrect.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 42,
+        "question": "Would Melanie be more interested in going to a national park or a theme park?",
+        "gold": "National park; she likes the outdoors",
+        "prediction": "Melanie would be more interested in a national park.",
+        "f1": 0.26666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer accurately identifies Melanie's preference for a national park.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 43,
+        "question": "What kind of art does Caroline make?",
+        "gold": "abstract art",
+        "prediction": "Caroline makes paintings and drawings, specifically focusing on abstract art, nature (such as flowers and sunsets), and pieces that express her journey as a transgender woman and themes of inclusivity and diversity.",
+        "f1": 0.11764705882352941,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer explicitly mentions \"abstract art,\" which is the core information required, while providing additional context.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 44,
+        "question": "When is Melanie's daughter's birthday?",
+        "gold": "13 August",
+        "prediction": "August 13",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer is the same date as the gold answer, just in a different format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 45,
+        "question": "When did Caroline attend a pride parade in August?",
+        "gold": "The Friday before 14 August 2023",
+        "prediction": "Caroline attended a pride parade on August 11, 2023 (mentioned as \"last Friday\" in a conversation on Monday, August 14, 2023).",
+        "f1": 0.2962962962962963,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies the specific date (August 11, 2023) that corresponds exactly to the \"Friday before 14 August 2023\" mentioned in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 46,
+        "question": "Would Melanie be considered an ally to the transgender community?",
+        "gold": "Yes, she is supportive",
+        "prediction": "Melanie is an ally.",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same core information as the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 47,
+        "question": "Who supports Caroline when she has a negative experience?",
+        "gold": "Her mentors, family, and friends",
+        "prediction": "Caroline is supported by her **friends, family, and mentors** (whom she refers to as her \"rocks\"), as well as her friend **Melanie** and her **LGBTQ support group**.",
+        "f1": 0.3125,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all elements of the gold answer (friends, family, and mentors) and provides additional specific details.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 48,
+        "question": "What types of pottery have Melanie and her kids made?",
+        "gold": "bowls, cup",
+        "prediction": "Melanie and her kids have made pots, a cup, bowls, a plate, and a blue vase.",
+        "f1": 0.2222222222222222,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer contains both items mentioned in the gold answer (bowls and cup) along with additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 49,
+        "question": "When did Caroline and Melanie go to a pride fesetival together?",
+        "gold": "2022",
+        "prediction": "Based on the conversation on August 17, 2023, Caroline and Melanie attended a pride festival together last year, which would have been in 2022.",
+        "f1": 0.07999999999999999,
+        "judge_correct": true,
+        "judge_reason": "CORRECT (The predicted answer correctly identifies 2022 as the year, providing additional context.)",
+        "category": "2"
+      },
+      {
+        "qa_idx": 50,
+        "question": "What would Caroline's political leaning likely be?",
+        "gold": "Liberal",
+        "prediction": "Liberal / Progressive",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT (The predicted answer includes the gold answer and a synonymous term.)",
+        "category": "3"
+      },
+      {
+        "qa_idx": 51,
+        "question": "What has Melanie painted?",
+        "gold": "Horse, sunset, sunrise",
+        "prediction": "Melanie has painted a lake sunrise, landscapes, still life, a sunset-inspired piece, and an abstract painting featuring blue streaks.",
+        "f1": 0.1739130434782609,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer omits \"horse,\" which is a core component of the gold answer, and includes several other subjects not mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 52,
+        "question": "What are Melanie's pets' names?",
+        "gold": "Oliver, Luna, Bailey",
+        "prediction": "Luna, Oliver, and Bailey",
+        "f1": 0.8571428571428571,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer contains all three names listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 53,
+        "question": "When did Caroline apply to adoption agencies?",
+        "gold": "The week of 23 August 2023",
+        "prediction": "Caroline applied to adoption agencies during the week of August 23, 2023.",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer provides the exact same date and timeframe as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 54,
+        "question": "When did Caroline draw a self-portrait?",
+        "gold": "The week before 23 August 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, because the predicted answer claims no information is available when the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 55,
+        "question": "What subject have Caroline and Melanie both painted?",
+        "gold": "Sunsets",
+        "prediction": "According to the conversation on October 13, 2023, Caroline and Melanie have both painted abstract works.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG The predicted answer identifies \"abstract works\" as the subject, which contradicts the gold answer of \"sunsets.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 56,
+        "question": "What symbols are important to Caroline?",
+        "gold": "Rainbow flag, transgender symbol",
+        "prediction": "Caroline values a necklace from her grandmother in Sweden (symbolizing love, faith, strength, and her roots), a hand-painted bowl from a friend (representing art and self-expression), a rainbow flag mural (reflecting the courage and strength of the trans community), and an eagle (symbolizing freedom, pride, and resilience). She also cherishes her own artwork, including a stained glass window (representing her journey, growth, and potential) and a painting of unity and strength, as well as the color blue and flowers like sunflowers (warmth and happiness) and roses (love and beauty).",
+        "f1": 0.042105263157894736,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the rainbow flag and references to the trans community, which aligns with the gold answer, while providing additional context and symbols.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 57,
+        "question": "When did Caroline encounter people on a hike and have a negative experience?",
+        "gold": "The week before 25 August 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the gold answer provides specific timing, whereas the predicted answer incorrectly states no information is available.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 58,
+        "question": "When did Melanie make a plate in pottery class?",
+        "gold": "24 August 2023",
+        "prediction": "August 24, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the dates are identical and refer to the same day, just in a different format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 59,
+        "question": "Would Caroline be considered religious?",
+        "gold": "Somewhat, but not extremely religious",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the gold answer provides information about her religiosity, while the predicted answer incorrectly states it is unavailable.",
+        "category": "3"
+      }
+    ],
+    "conv-30": [
+      {
+        "qa_idx": 0,
+        "question": "When Jon has lost his job as a banker?",
+        "gold": "19 January, 2023",
+        "prediction": "Jon lost his job as a banker on January 19, 2023.",
+        "f1": 0.42857142857142855,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 1,
+        "question": "When Gina has lost her job at Door Dash?",
+        "gold": "January, 2023",
+        "prediction": "Gina lost her job at Door Dash in January 2023.",
+        "f1": 0.33333333333333337,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same month and year as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 2,
+        "question": "How do Jon and Gina both like to destress?",
+        "gold": "by dancing",
+        "prediction": "Jon and Gina both like to destress through dancing.",
+        "f1": 0.1818181818181818,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same core information as the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 3,
+        "question": "What do Jon and Gina both have in common?",
+        "gold": "They lost their jobs and decided to start their own businesses.",
+        "prediction": "Jon and Gina are both entrepreneurs, contemporary dancers, and have both visited Rome.",
+        "f1": 0.08333333333333334,
+        "judge_correct": false,
+        "judge_reason": "WRONG, while it mentions they are entrepreneurs, it misses the fact that they lost their jobs and adds unsupported information about dancing and visiting Rome.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 4,
+        "question": "Why did Jon decide to start his dance studio?",
+        "gold": "He lost his job and decided to start his own business to share his passion.",
+        "prediction": "Jon decided to start his dance studio because his job loss acted as a catalyst to turn his lifelong passion for dance and his desire to teach others into a business.",
+        "f1": 0.47826086956521735,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures both key elements of the gold answer: the job loss and the motivation to turn his passion into a business.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 5,
+        "question": "What Jon thinks the ideal dance studio should look like?",
+        "gold": "By the water, with natural light and Marley flooring",
+        "prediction": "Jon's ideal dance studio is located by the water with a great view or in a downtown area with plenty of natural light. It features professional Marley flooring that is grippy, durable, easy to clean, and has enough bounce to ensure dancer safety.",
+        "f1": 0.339622641509434,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes all the core elements of the gold answer: the location by the water, natural light, and Marley flooring.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 6,
+        "question": "When is Jon's group performing at a festival?",
+        "gold": "February, 2023",
+        "prediction": "February 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same month and year as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 7,
+        "question": "When did Gina launch an ad campaign for her store?",
+        "gold": "29 January, 2023",
+        "prediction": "Gina launched an advertising campaign for her clothing store in late January 2023 (specifically mentioned on January 29, 2023).",
+        "f1": 0.2727272727272727,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer explicitly includes the correct date (January 29, 2023) specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 8,
+        "question": "When was Jon in Paris?",
+        "gold": "28 January 2023",
+        "prediction": "Jon was in Paris on January 28, 2023.",
+        "f1": 0.5454545454545454,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer provides the exact same date as the gold answer in a full sentence.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 9,
+        "question": "Which city have both Jean and John visited?",
+        "gold": "Rome",
+        "prediction": "Rome",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 10,
+        "question": "When did Gina team up with a local artist for some cool designs?",
+        "gold": "February, 2023",
+        "prediction": "Gina teamed up with a local artist for new designs shortly before February 8, 2023.",
+        "f1": 0.23529411764705882,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer specifies a date in February 2023, which aligns with the core information of the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 11,
+        "question": "When did Gina get her tattoo?",
+        "gold": "A few years ago",
+        "prediction": "A few years before February 2023",
+        "f1": 0.6,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same core information as the gold answer by specifying a timeframe consistent with \"a few years ago.\"",
+        "category": "2"
+      },
+      {
+        "qa_idx": 12,
+        "question": "When did Jon start to go to the gym?",
+        "gold": "March, 2023",
+        "prediction": "The week of March 5, 2023.",
+        "f1": 0.5,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is consistent with the gold answer, providing a more specific timeframe within the same month and year.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 13,
+        "question": "When did Gina open her online clothing store?",
+        "gold": "16 March, 2023",
+        "prediction": "Gina opened her online clothing store on March 16, 2023.",
+        "f1": 0.4615384615384615,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer provides the exact same date as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 14,
+        "question": "When did Jon start expanding his studio's social media presence?",
+        "gold": "April, 2023",
+        "prediction": "According to the conversation on April 3, 2023, Jon stated he was expanding his dance studio's social media presence at that time.",
+        "f1": 0.16,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the correct month and year (April 2023) specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 15,
+        "question": "When did Jon host a dance competition?",
+        "gold": "May, 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states that no information is available, which contradicts the gold answer providing a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 16,
+        "question": "When did Jon go to a fair to get more exposure for his dance studio?",
+        "gold": "24 April, 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available when the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 17,
+        "question": "Why did Gina decide to start her own clothing store?",
+        "gold": "She always loved fashion trends and finding unique pieces and she lost her job so decided it was time to start her own business.",
+        "prediction": "After losing her job at Door Dash, Gina decided to start her own clothing store to take control of her destiny and combine her passions for fashion and dance as a creative outlet.",
+        "f1": 0.3508771929824562,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer includes the core reasons from the gold answer: losing her job and her passion for fashion.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 18,
+        "question": "Do Jon and Gina start businesses out of what they love?",
+        "gold": "Yes",
+        "prediction": "Yes, they both started businesses based on their passions.",
+        "f1": 0.19999999999999998,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer confirms the gold answer and accurately reflects the core information using synonymous phrasing.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 19,
+        "question": "When did Gina interview for a design internship?",
+        "gold": "10 May, 2023",
+        "prediction": "May 10, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer, using a different standard date format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 20,
+        "question": "When did Gina get accepted for the design internship?",
+        "gold": "27 May, 2023",
+        "prediction": "May 27, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: Both answers represent the same date in different formats.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 21,
+        "question": "When did Jon start reading \"The Lean Startup\"?",
+        "gold": "May, 2023",
+        "prediction": "May 27, 2023",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer provides a specific date that falls within the month and year specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 22,
+        "question": "When did Gina develop a video presentation to teach how to style her fashion pieces? ",
+        "gold": "June, 2023",
+        "prediction": "June 13, 2023",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides a more specific date that falls within the month and year specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 23,
+        "question": "How did Gina promote her clothes store?",
+        "gold": "worked with an artist to make unique fashion pieces, made limited-edition sweatshirts, got some new offers and promotions for online store, developed a video presentation showing how to style her pieces",
+        "prediction": "Gina promoted her store through ad campaigns, special offers, collaborating with a local artist, creating styling videos, and planning partnerships with fashion influencers.",
+        "f1": 0.2909090909090909,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the core elements of the gold answer, including the artist collaboration, special offers, and styling videos.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 24,
+        "question": "Which events has Jon participated in to promote his business venture?",
+        "gold": "fair, networking events, dance competition",
+        "prediction": "Jon has participated in a festival (February 2023), a local dance competition to showcase his skills (March 2023), various networking events to meet investors (June and July 2023), and has hosted his own dance competition to showcase local talent and promote his studio (May 2023). He also conducts workshops and classes at local schools and community centers.",
+        "f1": 0.12903225806451613,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the dance competition, networking events, and a festival (which corresponds to the gold answer's \"fair\"), while providing additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 25,
+        "question": "What does Jon's dance studio offer?",
+        "gold": "one-on-one metoring and training to dancers,  workshops and classes to local schools and centers",
+        "prediction": "Jon's dance studio offers dance classes, workshops, and one-on-one mentoring and training.",
+        "f1": 0.5161290322580646,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the core services mentioned: one-on-one mentoring, training, classes, and workshops.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 26,
+        "question": "When did Jon receive mentorship to promote his venture?",
+        "gold": "15 June, 2023",
+        "prediction": "Jon received mentorship from an \"amazing business dude\" on June 15, 2023 (the day before his conversation with Gina on June 16, 2023).",
+        "f1": 0.23076923076923078,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the correct date (June 15, 2023) matching the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 27,
+        "question": "Did Jon and Gina both participate in dance competitions?",
+        "gold": "Yes",
+        "prediction": "Yes, both Jon and Gina have participated in dance competitions.",
+        "f1": 0.18181818181818182,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer confirms the \"Yes\" from the gold answer and provides additional context that matches the core information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 28,
+        "question": "When was Jon in Rome?",
+        "gold": "June 2023",
+        "prediction": "The week before June 19, 2023 (approximately June 11\u201317, 2023).",
+        "f1": 0.3076923076923077,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer falls within the month of June 2023, providing a more specific timeframe for the same core information.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 29,
+        "question": "Which cities has Jon visited?",
+        "gold": "Paris, Rome",
+        "prediction": "Paris and Rome",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer provides the exact same cities as the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 30,
+        "question": "When Jon is planning to open his dance studio?",
+        "gold": "20 June, 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available when the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 31,
+        "question": "How long did it take for Jon to open his studio?",
+        "gold": "six months",
+        "prediction": "It took Jon exactly five months to open his studio.",
+        "f1": 0.16666666666666669,
+        "judge_correct": false,
+        "judge_reason": "WRONG, because the predicted answer states \"five months\" while the gold answer specifies \"six months.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 32,
+        "question": "When did Gina design a limited collection of hoodies?",
+        "gold": "June 2023",
+        "prediction": "The week before June 21, 2023 (mid-June 2023)",
+        "f1": 0.3636363636363636,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is more specific but remains consistent with the gold answer of June 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 33,
+        "question": "When did Jon visit networking events for his store?",
+        "gold": "20 June, 2023",
+        "prediction": "Jon visited networking events on June 20, 2023 (mentioned as \"yesterday\" in a conversation on June 21), and attended another event shortly before July 21, 2023.",
+        "f1": 0.20689655172413793,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the date specified in the gold answer (June 20, 2023) along with additional context.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 34,
+        "question": "When did Gina start being recognized by fashion editors?",
+        "gold": "July 2023",
+        "prediction": "The week of July 2, 2023",
+        "f1": 0.5,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer provides a specific date range within the correct month and year specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 35,
+        "question": "When did Jon start learning marketing and analytics tools?",
+        "gold": "July, 2023",
+        "prediction": "July 9, 2023",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is more specific but matches the month and year provided in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 36,
+        "question": "When did Jon and Gina decide to collaborate to create dance content?",
+        "gold": "21 July 2023",
+        "prediction": "Jon and Gina decided to collaborate at 5:44 pm on 21 July, 2023.",
+        "f1": 0.35294117647058826,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer provides the correct date specified in the gold answer, along with additional specific details.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 37,
+        "question": "When did Gina mention Shia Labeouf?",
+        "gold": " 23 July, 2023",
+        "prediction": "6:46 pm on 23 July, 2023",
+        "f1": 0.6,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the correct date specified in the gold answer, along with additional specific timing.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 38,
+        "question": "When did Gina go to a dance class with a group of friends?",
+        "gold": "21 July 2023",
+        "prediction": "Gina went to a dance class with a group of friends on Friday, July 21, 2023.",
+        "f1": 0.3157894736842105,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the correct date (July 21, 2023) and provides the full sentence context.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 39,
+        "question": "What is Gina's favorite style of dance?",
+        "gold": "Contemporary",
+        "prediction": "Contemporary",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 40,
+        "question": "What is Jon's favorite style of dance?",
+        "gold": "Contemporary",
+        "prediction": "Contemporary",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer is an exact match to the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 41,
+        "question": "What was Gina's favorite dancing memory?",
+        "gold": "Winning first place at a regionals dance competition",
+        "prediction": "Gina's favorite dancing memory was when her team won first place at a regional competition when she was fifteen years old, performing an emotional contemporary piece titled \"Finding Freedom.\"",
+        "f1": 0.2631578947368421,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the core information of winning first place at a regional competition, along with additional details.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 42,
+        "question": "What kind of dance piece did Gina's team perform to win first place?",
+        "gold": "\"Finding Freedom\"",
+        "prediction": "Gina's team performed an emotional and powerful contemporary piece titled \"Finding Freedom.\"",
+        "f1": 0.2666666666666667,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the exact title \"Finding Freedom\" specified in the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 43,
+        "question": "What do the dancers in the photo represent?",
+        "gold": "They are performing at the festival",
+        "prediction": "The dancers represent the group Jon is choreographing for an upcoming performance at a nearby festival.",
+        "f1": 0.2727272727272727,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the core information that the dancers are for a festival performance.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 44,
+        "question": "What does Gina say about the dancers in the photo?",
+        "gold": "They look graceful",
+        "prediction": "Regarding the dancers in the photo from the festival performance, Gina says they are \"so graceful\" and \"look great.\" Regarding a photo of Jon dancing in his studio, she mentions he looks \"so happy.\"",
+        "f1": 0.1621621621621622,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes \"so graceful,\" which matches the core information of the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 45,
+        "question": "What is Jon's attitude towards being part of the dance festival?",
+        "gold": "Glad",
+        "prediction": "Jon was extremely positive and excited, stating he \"can't wait\" and was \"glad to be part of it\"; after performing, he described the experience as \"awesome\" and a joyful reminder of his passion for dance.",
+        "f1": 0.05405405405405406,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the gold answer (\"glad\") and provides additional context that aligns with that sentiment.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 46,
+        "question": "What kind of flooring is Jon looking for in his dance studio?",
+        "gold": "Marley flooring",
+        "prediction": "Marley flooring",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 47,
+        "question": "What did Gina find for her clothing store on 1 February, 2023?",
+        "gold": "The perfect spot for her store",
+        "prediction": "On February 1, 2023, Gina found a wholesaler for her clothing store after one replied to her email and agreed to work with her.",
+        "f1": 0.2,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer identifies a wholesaler whereas the gold answer specifies she found a location (spot) for her store.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 48,
+        "question": "What did Gina design for her store?",
+        "gold": "the space, furniture, and decor",
+        "prediction": "Gina designed the store's interior to be a cozy and inviting \"cool oasis,\" specifically selecting comfortable furniture and a glam-style chandelier. Additionally, she designed a limited edition clothing line (including a hoodie), dance-inspired items, and collaborated with a local artist on unique fashion designs.",
+        "f1": 0.11538461538461536,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the core elements (interior/space, furniture, and decor/chandelier) while providing additional detail.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 49,
+        "question": "What did Gina want her customers to feel in her store?",
+        "gold": "cozy and comfortable",
+        "prediction": "Gina wanted her customers to feel cozy, comfortable, and invited, describing the intended experience as being in a \"cool oasis\" with a \"glam feel.\"",
+        "f1": 0.2222222222222222,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the core elements \"cozy\" and \"comfortable\" along with additional descriptive details.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 50,
+        "question": "What did Jon say about Gina's progress with her store?",
+        "gold": "hard work's paying off",
+        "prediction": "Jon said \"Congrats on your store, Gina! Happy for you! It looks sick.\"",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT because it captures the same core sentiment of Jon expressing positive feedback and approval regarding Gina's store.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 51,
+        "question": "What made Gina choose the furniture and decor for her store?",
+        "gold": "personal style and customer comfort",
+        "prediction": "Gina chose furniture and decor to reflect her own personal style and ensure her customers felt cozy, comfortable, and invited into a \"cool oasis.\" She specifically selected a chandelier to provide a glam feel that matched the store's style.",
+        "f1": 0.13333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes both core elements of the gold answer: personal style and customer comfort.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 52,
+        "question": "What did Jon say about creating a special experience for customers?",
+        "gold": "It's the key to making them feel welcome and coming back",
+        "prediction": "Jon said that creating a special experience for customers is the key to making them feel welcome and coming back.",
+        "f1": 0.625,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the exact information from the gold answer, phrased in a complete sentence.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 53,
+        "question": "What did Gina say about creating an experience for her customers?",
+        "gold": "making them want to come back",
+        "prediction": "Gina said that making her store comfortable and inviting is key because she wants customers to feel like they are in a \"cool oasis,\" creating a special experience that makes them want to come back.",
+        "f1": 0.2926829268292683,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the gold answer (\"makes them want to come back\") and provides additional context that supports the core information.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 54,
+        "question": "How is Gina's store doing?",
+        "gold": "The store is doing great.",
+        "prediction": "Gina's online clothing store is growing successfully; after launching an ad campaign in January 2023 and securing a wholesaler in February, she has seen increased sales, expanded her inventory with unique and limited-edition pieces, and recently launched a new website for customer orders.",
+        "f1": 0.07999999999999999,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys that the store is doing well (\"growing successfully\" and \"increased sales\"), which matches the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 55,
+        "question": "What does Gina's tattoo symbolize?",
+        "gold": "Freedom and expressing herself through dance",
+        "prediction": "Freedom, dancing without worrying what people think, and a reminder to follow her passions and express herself.",
+        "f1": 0.2608695652173913,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures both \"freedom\" and \"expressing herself through dance\" while providing slightly more detail.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 56,
+        "question": "What did Jon and Gina compare their entrepreneurial journeys to?",
+        "gold": "dancing together and supporting each other",
+        "prediction": "Jon and Gina compared their entrepreneurial journeys to a **roller coaster**, a **balancing act**, and a **tough road**. Gina specifically described her store's progress as a \"roller coaster\" and mentioned that tracking goals is like a \"picture of all your progress,\" while Jon referred to juggling his business and dance passions as a \"balancing act.\"",
+        "f1": 0.03225806451612903,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer provides different metaphors (roller coaster, balancing act) than the core comparison identified in the gold answer (dancing together).",
+        "category": "4"
+      },
+      {
+        "qa_idx": 57,
+        "question": "What advice does Gina give to Jon about running a successful business?",
+        "gold": "build relationships with customers, create a strong brand image, stay positive",
+        "prediction": "Gina advises Jon to stay passionate, focused, and resilient; believe in himself and his abilities; focus on why he started (his love for dance); view setbacks and failures as opportunities for comebacks and growth; remain open to learning and improving; and track plans and goals to visualize progress.",
+        "f1": 0.03389830508474576,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer misses the specific business advice regarding building customer relationships and creating a brand image, focusing instead on different motivational advice.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 58,
+        "question": "Why did Jon shut down his bank account?",
+        "gold": "for his business",
+        "prediction": "Jon shut down his bank account because he believed it was necessary to help his business grow.",
+        "f1": 0.2,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the core reason (his business) and provides additional context that does not contradict the gold answer.",
+        "category": "4"
+      },
+      {
+        "qa_idx": 59,
+        "question": "Why did Gina combine her clothing business with dance?",
+        "gold": "she is passionate about dance and fashion",
+        "prediction": "Gina combined her clothing business with dance through a collaboration with Jon to make an impact, demonstrate their collective skills, and bring \"dance magic\" to the world.",
+        "f1": 0.11764705882352941,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer provides a detailed explanation of the motivation and goal behind the combination, which aligns with the core idea of being passionate about both fields and bringing them together.",
+        "category": "4"
+      }
+    ],
+    "conv-41": [
+      {
+        "qa_idx": 0,
+        "question": "Who did Maria have dinner with on May 3, 2023?",
+        "gold": "her mother",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG (The predicted answer states information is not available when the gold answer provides a specific factual response.)",
+        "category": "2"
+      },
+      {
+        "qa_idx": 1,
+        "question": "When did Maria donate her car?",
+        "gold": "21 December 2022",
+        "prediction": "December 21, 2022",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer, using a different standard date format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 2,
+        "question": "What martial arts has John done?",
+        "gold": "Kickboxing, Taekwondo",
+        "prediction": "John has done kickboxing and taekwondo.",
+        "f1": 0.5,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same core information as the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 3,
+        "question": "What type of volunteering have John and Maria both done?",
+        "gold": "Volunteering at a homeless shelter",
+        "prediction": "John and Maria have both volunteered at a homeless shelter.",
+        "f1": 0.5333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the exact core information specified in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 4,
+        "question": "When did John join the online support group?",
+        "gold": "The week before 1 January 2023",
+        "prediction": "December 25, 2022",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT December 25, 2022, is exactly one week before January 1, 2023, and thus falls within the specified timeframe.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 5,
+        "question": "When did Maria go to the beach?",
+        "gold": "December 2022",
+        "prediction": "December 2022",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 6,
+        "question": "Where has Maria made friends?",
+        "gold": "homeless shelter, gym, church",
+        "prediction": "Maria has made friends while volunteering at a homeless shelter, specifically becoming friends with a fellow volunteer there around January 9, 2023.",
+        "f1": 0.15384615384615385,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer is incomplete as it omits two of the three locations (the gym and the church) provided in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 7,
+        "question": "What items des John mention having as a child?",
+        "gold": "A doll, a film camera",
+        "prediction": "John mentioned having a film camera (which he used to take beach pictures) and a little doll that made him feel better.",
+        "f1": 0.37037037037037035,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies both the film camera and the doll, which are the core items listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 8,
+        "question": "What might John's financial status be?",
+        "gold": "Middle-class or wealthy",
+        "prediction": "John likely has a modest, middle-income status that is currently stabilizing following a period of financial difficulty.",
+        "f1": 0.0909090909090909,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer conveys the core information of being middle-income, which aligns with the \"middle-class\" portion of the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 9,
+        "question": "Who gave Maria's family money when she was younger and her family was going through tough times?",
+        "gold": "Her aunt",
+        "prediction": "Maria's aunt",
+        "f1": 0.4,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies the same person (the aunt) as the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 10,
+        "question": "When did Maria meet Jean?",
+        "gold": "February 24, 2023",
+        "prediction": "Maria met Jean on February 24, 2023 (the day before her conversation with John on February 25, 2023).",
+        "f1": 0.2857142857142857,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the exact date specified in the gold answer along with additional context.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 11,
+        "question": "What people has Maria met and helped while volunteering?",
+        "gold": "David, Jean, Cindy, Laura",
+        "prediction": "Jean and Cindy",
+        "f1": 0.5714285714285715,
+        "judge_correct": true,
+        "judge_reason": "CORRECT although the list is incomplete, the names provided are factually accurate based on the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 12,
+        "question": "What test has John taken multiple times?",
+        "gold": "The military aptitude test",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states no information is available, which is incorrect as the gold answer provides a specific response.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 13,
+        "question": "When did Maria's grandmother pass away?",
+        "gold": "The week before 6 March 2023",
+        "prediction": "The week of February 26 to March 4, 2023.",
+        "f1": 0.5333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides specific dates that accurately define the week before March 6, 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 14,
+        "question": "Would John be considered a patriotic person?",
+        "gold": "Yes",
+        "prediction": "John is a very patriotic person.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer directly confirms that John is patriotic, matching the meaning of \"Yes.\"",
+        "category": "3"
+      },
+      {
+        "qa_idx": 15,
+        "question": "What writing classes has Maria taken?",
+        "gold": "Poetry, creative writing",
+        "prediction": "Maria has taken a creative writing class and a poetry class.",
+        "f1": 0.42857142857142855,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer includes both the poetry and creative writing classes mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 16,
+        "question": "When did John get his degree?",
+        "gold": "The week before 2 April 2023",
+        "prediction": "John graduated in the last week of March 2023.",
+        "f1": 0.4,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The last week of March 2023 is the same timeframe as the week before 2 April 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 17,
+        "question": "What might John's degree be in?",
+        "gold": "Political science, Public administration, Public affairs",
+        "prediction": "Public Policy or Political Science",
+        "f1": 0.5454545454545454,
+        "judge_correct": true,
+        "judge_reason": "CORRECT because the predicted answer includes \"Political Science\" (an exact match) and \"Public Policy,\" which is semantically similar to \"Public administration\" or \"Public affairs.\"",
+        "category": "3"
+      },
+      {
+        "qa_idx": 18,
+        "question": "Who did John go to yoga with?",
+        "gold": "Rob",
+        "prediction": "John went to yoga with a colleague.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG: The predicted answer provides a relationship/category (\"a colleague\") instead of the specific name (\"Rob\") provided in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 19,
+        "question": "What damages have happened to John's car?",
+        "gold": "Broken windshield, Car broke down",
+        "prediction": "John's car broke down on his way to work in April 2023; he also noted that potholes in his neighborhood (specifically West County) are damaging to cars.",
+        "f1": 0.18181818181818182,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer misses the \"broken windshield,\" which is a specific piece of damage included in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 20,
+        "question": "When did John take a road trip to the Pacific Northwest?",
+        "gold": "2022",
+        "prediction": "John took a road trip to the Pacific Northwest in 2022, returning on December 16, 2022.",
+        "f1": 0.11764705882352941,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes the correct year (2022) as specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 21,
+        "question": "What areas of the U.S. has John been to or is planning to go to?",
+        "gold": "Pacific northwest, east coast",
+        "prediction": "West County and a coastal/beach area.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. \"West County\" and \"coastal/beach area\" are not equivalent to the specific geographic regions \"Pacific northwest\" and \"east coast.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 22,
+        "question": "When did John go to a convention with colleagues?",
+        "gold": "March 2023",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer claims the information is not available when a specific date is provided in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 23,
+        "question": "What desserts has Maria made?",
+        "gold": "Banana split sundae, Peach cobbler",
+        "prediction": "Maria has made peach cobbler and banana split sundaes.",
+        "f1": 0.5714285714285714,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes both desserts mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 24,
+        "question": "When did John start boot camp with his family?",
+        "gold": "April.2023",
+        "prediction": "John started boot camp with his family in April 2023.",
+        "f1": 0.33333333333333337,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 25,
+        "question": "What European countries has Maria been to?",
+        "gold": "Spain, England",
+        "prediction": "Spain",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT although incomplete, the predicted answer is factually accurate regarding one of the countries mentioned.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 26,
+        "question": "What has Maria done to feel closer to her faith?",
+        "gold": "Join a local church, buy a cross necklace",
+        "prediction": "Maria joined a nearby church and bought a cross necklace.",
+        "f1": 0.5555555555555556,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures both key actions mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 27,
+        "question": "When did John have a party with veterans?",
+        "gold": "The Friday before 20 May 2023",
+        "prediction": "John threw a party with veterans on May 19, 2023 (the Friday prior to his May 20, 2023 conversation).",
+        "f1": 0.39999999999999997,
+        "judge_correct": true,
+        "judge_reason": "CORRECT is the same date as \"the Friday before 20 May 2023\" is indeed May 19, 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 28,
+        "question": "What causes does John feel passionate about supporting?",
+        "gold": "Veterans, schools, infrastructure",
+        "prediction": "John is passionate about education, infrastructure, veterans' rights, community safety and firefighting, domestic abuse awareness, and supporting those affected by unemployment through initiatives like food drives.",
+        "f1": 0.13793103448275862,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all three core elements from the gold answer (veterans, schools/education, and infrastructure) along with additional related details.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 29,
+        "question": "What events is Maria planning for the homeless shelter funraiser?",
+        "gold": "Chili cook-off, ring-toss tournament",
+        "prediction": "Maria is planning a ring-toss tournament and a chili cook-off.",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains both of the events listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 30,
+        "question": "What shelters does Maria volunteer at?",
+        "gold": "The homeless shelter, the dog shelter",
+        "prediction": "Based on the stored information and conversation excerpts, Maria volunteers at a local homeless shelter, though the specific name of the shelter is not mentioned.",
+        "f1": 0.3225806451612903,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer fails to mention the dog shelter, which is half of the information provided in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 31,
+        "question": "When did John get his dog Max?",
+        "gold": "In 2013",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the gold answer provides a specific year (2013) while the predicted answer incorrectly states the information is unavailable.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 32,
+        "question": "What outdoor activities has John done with his colleagues?",
+        "gold": "Hiking, mountaineering",
+        "prediction": "Mountaineering",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - While it only mentions one of the two activities, it is factually accurate according to the gold answer and provides core information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 33,
+        "question": "What types of yoga has Maria practiced?",
+        "gold": "Aerial, kundalini",
+        "prediction": "Aerial yoga and kundalini yoga",
+        "f1": 0.5714285714285715,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same specific types of yoga listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 34,
+        "question": "When did Maria join a gym?",
+        "gold": "The week before 16 June 2023",
+        "prediction": "Maria joined a gym the week prior to June 16, 2023.",
+        "f1": 0.5882352941176471,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same date and information as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 35,
+        "question": "What states has Maria vacationed at?",
+        "gold": "Oregon, Florida",
+        "prediction": "Based on the conversation records, Maria has vacationed in Florida and Oregon.",
+        "f1": 0.2857142857142857,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer includes both Florida and Oregon, which are the two states listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 36,
+        "question": "What music events has John attended?",
+        "gold": "Live music event, violin concert",
+        "prediction": "John has attended a violin concert.",
+        "f1": 0.3636363636363636,
+        "judge_correct": false,
+        "judge_reason": "CORRECT John's attendance at a violin concert is factually accurate according to the gold answer, and while incomplete, it is not factually wrong.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 37,
+        "question": "What events for veterans has John participated in?",
+        "gold": "Petition, march, party, visiting veterans hospital, 5K charity run",
+        "prediction": "John has participated in a marching event for veterans' rights, organized a 5K charity run for veterans and their families, visited a military memorial with his children, visited a veteran's hospital, hosted a party for veterans to share their stories, started a petition for veterans' rights, and participates in a virtual support group for military advocacy.",
+        "f1": 0.2121212121212121,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all the events mentioned in the gold answer (petition, march, party, visiting hospital, 5K run) and provides additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 38,
+        "question": "When did Maria get in a car accident?",
+        "gold": "July 2, 2023",
+        "prediction": "July 2, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 39,
+        "question": "Around which US holiday did Maria get into a car accident?",
+        "gold": "Independence Day",
+        "prediction": "Independence Day",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 40,
+        "question": "What are the names of John's children?",
+        "gold": "Kyle, Sara",
+        "prediction": "Kyle",
+        "f1": 0.6666666666666666,
+        "judge_correct": false,
+        "judge_reason": "WRONG The predicted answer is incomplete as it misses one of the two names provided in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 41,
+        "question": "Does John live close to a beach or the mountains?",
+        "gold": "beach",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer claims the information is not available, while the gold answer provides a specific location.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 42,
+        "question": "What area was hit by a flood?",
+        "gold": "West County",
+        "prediction": "West County",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 43,
+        "question": "When was John's old area hit with a flood?",
+        "gold": "The week before 7 July 2023",
+        "prediction": "The week of June 25, 2023",
+        "f1": 0.5,
+        "judge_correct": true,
+        "judge_reason": "CORRECT (The week of June 25 and the week before July 7 describe the same general timeframe for the event.)",
+        "category": "2"
+      },
+      {
+        "qa_idx": 44,
+        "question": "What activities has Maria done with her church friends?",
+        "gold": "Hiking, picnic, volunteer work",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available while the gold answer provides specific activities.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 45,
+        "question": "Would John be open to moving to another country?",
+        "gold": "No, he has goals specifically in the U.S. like joining the military and running for office.",
+        "prediction": "John would not be open to moving to another country.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - It accurately conveys the core information that John would not be open to moving.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 46,
+        "question": "When did Maria go hiking with her church friends?",
+        "gold": "The weekend before 22 July 2023",
+        "prediction": "July 15\u201316, 2023",
+        "f1": 0.4,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 15\u201316, 2023, is the weekend immediately preceding July 22, 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 47,
+        "question": "What exercises has John done?",
+        "gold": "Weight training, Circuit training, Kickboxing, yoga",
+        "prediction": "John has done kickboxing, Taekwondo, family boot camps, weekend beginner yoga, weight training, and regular walks.",
+        "f1": 0.36363636363636365,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes weight training, kickboxing, and yoga, and while it omits the specific term \"circuit training,\" it provides a more detailed list of exercises that covers the core information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 48,
+        "question": "When did John have his first firefighter call-out?",
+        "gold": "The sunday before 3` July 2023",
+        "prediction": "July 30, 2023",
+        "f1": 0.4444444444444444,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer (July 30) is a completely different date than the gold answer (July 2).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 49,
+        "question": "What food item did Maria drop off at the homeless shelter?",
+        "gold": "Cakes",
+        "prediction": "No information available",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer claims no information is available, but the gold answer provides a specific fact (Cakes).",
+        "category": "1"
+      },
+      {
+        "qa_idx": 50,
+        "question": "What attributes describe John?",
+        "gold": "Selfless, family-oriented, passionate, rational",
+        "prediction": "John is a resilient, community-minded, and family-oriented individual who values service, nature, and personal growth. He is an assistant manager, a mentor, and a volunteer who has shown persistence in his career and military aspirations while finding peace through nature photography and fitness activities like kickboxing and Taekwondo.",
+        "f1": 0.07272727272727272,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, as the predicted answer includes \"family-oriented\" and conveys \"selfless\" through descriptions like \"community-minded\" and \"volunteer,\" while capturing the essence of the other attributes through a more detailed character description.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 51,
+        "question": "When did Maria start volunteering at the homeless shelter?",
+        "gold": "Around August 2022",
+        "prediction": "August 2022",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer conveys the same core information as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 52,
+        "question": "Who have written notes of gratitude to Maria?",
+        "gold": "Cindy, Laura",
+        "prediction": "Laura and Cindy",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer contains the same names as the gold answer, just in a different order and joined by a conjunction.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 53,
+        "question": "When did John help renovate his hometown community center?",
+        "gold": "2022",
+        "prediction": "John helped renovate his hometown community center in 2022.",
+        "f1": 0.19999999999999998,
+        "judge_correct": false,
+        "judge_reason": "CORRECT or WRONG: CORRECT. The predicted answer contains the correct year (2022) as specified in the gold answer, just in a full sentence format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 54,
+        "question": "When did Maria take up community work with her church friends?",
+        "gold": "August 4, 2023",
+        "prediction": "August 4, 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 55,
+        "question": "When did Maria receive a medal from the homeless shelter?",
+        "gold": "The week before 9 August 2023",
+        "prediction": "Maria received a medal from the homeless shelter during the week prior to August 9, 2023.",
+        "f1": 0.45454545454545453,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is factually identical to the gold answer, using slightly different wording to convey the same date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 56,
+        "question": "When did John participate in a 5K charity run?",
+        "gold": "first weekend of August 2023",
+        "prediction": "August 5 or 6, 2023",
+        "f1": 0.4000000000000001,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, as August 5 and 6, 2023, correspond exactly to the first weekend of August 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 57,
+        "question": "What causes has John done events for?",
+        "gold": "Toy drive, Community food drive, veterans, domestic violence",
+        "prediction": "John has organized or participated in events for veterans and their families, victims of domestic abuse, and unemployed community members.",
+        "f1": 0.21428571428571425,
+        "judge_correct": true,
+        "judge_reason": "CORRECT while it misses the specific toy and food drives, it correctly identifies veterans and domestic violence, which are key components of the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 58,
+        "question": "When did Maria get Coco?",
+        "gold": "Two weeks before 11 August 2023",
+        "prediction": "July 28, 2023",
+        "f1": 0.2222222222222222,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 28, 2023 is exactly two weeks before August 11, 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 59,
+        "question": "When did John go on a camping trip with Max?",
+        "gold": "The summer of 2022",
+        "prediction": "Summer of 2022",
+        "f1": 0.8571428571428571,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same season and year as the gold answer.",
+        "category": "2"
+      }
+    ],
+    "conv-42": [
+      {
+        "qa_idx": 0,
+        "question": "Is it likely that Nate has friends besides Joanna?",
+        "gold": "Yesteammates on hisvideo game team.",
+        "prediction": "It is highly likely Nate has many friends, particularly within the gaming community.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same core information as the gold answer, confirming he has friends within the gaming context.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 1,
+        "question": "What kind of interests do Joanna and Nate share?",
+        "gold": "Watching movies, making desserts",
+        "prediction": "Based on their conversations, Joanna and Nate share an interest in **watching movies**, **cooking** (specifically dairy-free recipes), and using **visual motivation** (like cork boards and figures) to stay focused on their personal goals. They also both enjoy **nature**, with Joanna often hiking and Nate taking his turtles for walks.",
+        "f1": 0.07407407407407407,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes \"watching movies\" and \"cooking,\" which aligns with the gold answer's \"watching movies\" and \"making desserts.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 2,
+        "question": "When did Joanna first watch \"Eternal Sunshine of the Spotless Mind?",
+        "gold": "2019",
+        "prediction": "January 2019",
+        "f1": 0.6666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer includes the correct year and provides additional specific detail.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 3,
+        "question": "When did Nate win his first video game tournament?",
+        "gold": "the week before 21Janury, 2022",
+        "prediction": "January 10, 2022",
+        "f1": 0.25,
+        "judge_correct": false,
+        "judge_reason": "WRONG, January 10, 2022, is not within the week before January 21, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 4,
+        "question": "What pets wouldn't cause any discomfort to Joanna?",
+        "gold": "Hairless cats or pigs,since they don't have fur, which is one of the main causes of Joanna's allergy.",
+        "prediction": "Joanna is allergic to animals with fur, most reptiles (including turtles), and cockroaches, so her only confirmed discomfort-free \"pets\" are stuffed animals, such as her stuffed dog Tilly.",
+        "f1": 0.12000000000000001,
+        "judge_correct": false,
+        "judge_reason": "WRONG: The predicted answer identifies stuffed animals as the only option, contradicting the gold answer which identifies specific living animals (hairless cats and pigs) as discomfort-free.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 5,
+        "question": "What are Joanna's hobbies?",
+        "gold": "Writing, watchingmovies, exploringnature, hanging withfriends.",
+        "prediction": "Joanna's hobbies are writing, reading, watching movies, exploring nature, and cooking.",
+        "f1": 0.11764705882352941,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer misses one of the gold hobbies (hanging with friends) and incorrectly adds two others (reading, cooking) not found in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 6,
+        "question": "How long has Nate had his first two turtles?",
+        "gold": "three years",
+        "prediction": "As of January 23, 2022, Nate stated that he had been a owner of his first two turtles for 3 years.",
+        "f1": 0.08695652173913042,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same core information (\"3 years\") as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 7,
+        "question": "When did Joanna finish her first screenplay?",
+        "gold": "The Friday before 23January, 2022",
+        "prediction": "January 21, 2022",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The Friday before January 23, 2022, is indeed January 21, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 8,
+        "question": "When did Nate get his first two turtles?",
+        "gold": "2019",
+        "prediction": "2019",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 9,
+        "question": "What major achievement did Joanna accomplish in January 2022?",
+        "gold": "finished her screenplay and printed it",
+        "prediction": "Joanna completed her first full screenplay (a drama/romance).",
+        "f1": 0.26666666666666666,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer captures the core information of finishing her screenplay.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 10,
+        "question": "What emotions is Joanna feeling about  the screenplay she submitted?",
+        "gold": "Relief, excitement,worry, hope,anxiety.",
+        "prediction": "Regarding her submitted screenplay, Joanna has described a \"rollercoaster\" of mixed emotions, specifically feeling relief, excitement, anxiety, and worry.",
+        "f1": 0.3333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT because the predicted answer identifies almost all the specific emotions mentioned in the gold answer (relief, excitement, anxiety, worry) and captures the overall sentiment.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 11,
+        "question": "What is Joanna allergic to?",
+        "gold": "Most reptiles,animals with fur,cockroaches, dairy",
+        "prediction": "Joanna is allergic to most animals with fur, most reptiles, and is lactose intolerant.",
+        "f1": 0.4761904761904762,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the main components (animals with fur, reptiles, and dairy/lactose), although it misses cockroaches.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 12,
+        "question": "What underlying condition might Joanna have based on her allergies?",
+        "gold": "asthma",
+        "prediction": "Lactose intolerance",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, because lactose intolerance is a digestive enzyme deficiency and is not the same condition as asthma.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 13,
+        "question": "When did Joanna have an audition for a writing gig?",
+        "gold": "23 March, 2022.",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG The predicted answer states no information is available, but the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 14,
+        "question": "What nickname does Nate use for Joanna?",
+        "gold": "Jo",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states no information is available, but the gold answer provides the nickname \"Jo.\"",
+        "category": "3"
+      },
+      {
+        "qa_idx": 15,
+        "question": "When did Nate get purple hair?",
+        "gold": "The week before 15April, 2022.",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG: The gold answer provides a specific date, making the \"no information available\" response incorrect according to the instructions.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 16,
+        "question": "What physical transformation did Nate undergo in April 2022?",
+        "gold": "dyed his hair purple",
+        "prediction": "Nate dyed his hair a bright and bold color.",
+        "f1": 0.46153846153846156,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, as the predicted answer captures the core information of Nate dyeing his hair a notable color, which is consistent with the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 17,
+        "question": "What movie did Joanna watch on 1 May, 2022?",
+        "gold": "Lord of the Rings",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the predicted answer claims no information is available when the gold answer provides a specific movie.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 18,
+        "question": "Which outdoor spot did Joanna visit in May?",
+        "gold": "Whispering Falls waterfall",
+        "prediction": "Whispering Falls",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies the specific location \"Whispering Falls,\" which conveys the same core information as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 19,
+        "question": "How many times has Joanna found new hiking trails?",
+        "gold": "twice",
+        "prediction": "3 times",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted number (3) contradicts the gold answer (twice/2).",
+        "category": "1"
+      },
+      {
+        "qa_idx": 20,
+        "question": "When did Nate adopt Max?",
+        "gold": "May 2022",
+        "prediction": "Nate adopted Max sometime between May 12, 2022, and May 20, 2022.",
+        "f1": 0.2857142857142857,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer falls within the timeframe of the gold answer and provides more specific detail while remaining accurate to the month and year.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 21,
+        "question": "Who was the new addition to Nate's family in May 2022?",
+        "gold": "Max",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the predicted answer claims no information is available when the gold answer provides the specific name \"Max.\"",
+        "category": "2"
+      },
+      {
+        "qa_idx": 22,
+        "question": "When did Joanna start writing her third screenplay?",
+        "gold": "May 2022",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer says information is not available while the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 23,
+        "question": "Which of Joanna's screenplay were rejected from production companies?",
+        "gold": "first screenplay on drama and romance, third screenplay on loss identity and connection",
+        "prediction": "Joanna's first screenplay (a drama/romance mix) was rejected by a major company.",
+        "f1": 0.29629629629629634,
+        "judge_correct": false,
+        "judge_reason": "WRONG, as it only identifies the first screenplay and misses the third screenplay mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 24,
+        "question": "When is Nate hosting a gaming party?",
+        "gold": "The weekend after 3June, 2022.",
+        "prediction": "The weekend of June 18, 2022",
+        "f1": 0.5454545454545454,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer specifies June 18, while the gold answer refers to the weekend after June 3 (which would be June 11-12).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 25,
+        "question": "When did Joanna hike with her buddies?",
+        "gold": "The weekend after 3June, 2022.",
+        "prediction": "Joanna planned to go hiking with her buddies the weekend of June 4\u20135, 2022.",
+        "f1": 0.3,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer specifies the exact dates (June 4\u20135) that correspond to the weekend after June 3, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 26,
+        "question": "When did Nate win his third tourney?",
+        "gold": "The week before 3June, 2022",
+        "prediction": "No specific date is available for the third win, though it was celebrated on June 3, 2022.",
+        "f1": 0.1818181818181818,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states no specific date is available, whereas the gold answer provides a specific timeframe (the week before June 3, 2022).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 27,
+        "question": "What places has Joanna submitted her work to?",
+        "gold": "film contest, film festival.",
+        "prediction": "Joanna has submitted her work to film festivals and has presented her script and vision to movie producers and directors.",
+        "f1": 0.08333333333333334,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes film festivals, which is the core of the gold answer, and mentions related submissions to producers and directors.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 28,
+        "question": "When did Nate make vegan icecream and share it with a vegan diet group?",
+        "gold": "The Friday before 24June, 2022.",
+        "prediction": "Nate discovered he could make coconut milk ice cream around February 7, 2022, and mentioned making a chocolate and vanilla swirl version for a friend on February 25, 2022; however, there is no information available regarding him sharing it with a vegan diet group.",
+        "f1": 0.04081632653061225,
+        "judge_correct": false,
+        "judge_reason": "WRONG, because the predicted answer states there is no information available when the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 29,
+        "question": "When is Joanna going to make Nate's ice cream for her family?",
+        "gold": "The weekend of 24June, 2022.",
+        "prediction": "Joanna planned to make Nate's ice cream for her family during the weekend of June 25\u201326, 2022.",
+        "f1": 0.3333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer specifies the dates of the weekend following June 24, 2022, conveying the same core information.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 30,
+        "question": "What kind of writings does Joanna do?",
+        "gold": "Screenplays,books, online blog posts, journal",
+        "prediction": "Joanna writes screenplays and movie scripts (primarily in the drama and romance genres), books, and online blog posts, often focusing on personal themes such as loss, identity, self-discovery, and redemption.",
+        "f1": 0.27027027027027023,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the majority of the items listed in the gold answer (screenplays, books, and blog posts), only omitting \"journal.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 31,
+        "question": "When did Nate win his fourth video game tournament?",
+        "gold": "The Friday before 10July, 2022.",
+        "prediction": "July 8, 2022",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT July 8, 2022, was indeed the Friday before July 10, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 32,
+        "question": "Where did Joanna travel to in July 2022?",
+        "gold": "Woodhaven",
+        "prediction": "Joanna traveled to Woodhaven, a small town in the Midwest.",
+        "f1": 0.18181818181818182,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the correct destination, Woodhaven, along with additional descriptive details.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 33,
+        "question": "When did someone write Joanna a touching letter?",
+        "gold": "The week before 14August, 2022.",
+        "prediction": "Based on the conversation on August 14, 2022, someone wrote Joanna a touching letter the previous week (the week of August 7, 2022).",
+        "f1": 0.21428571428571427,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same core information as the gold answer, specifying the same time period.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 34,
+        "question": "What book recommendations has Joanna given to Nate?",
+        "gold": "\"Little Women\",'A Court of Thorns andRoses'.",
+        "prediction": "Based on the conversation on August 22, 2022, Joanna recommended that Nate find a fantasy book series to read for relaxation.",
+        "f1": 0.07142857142857142,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer mentions a general category (fantasy series) but fails to provide the specific book titles listed in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 35,
+        "question": "When did Nate take time off to chill with his pets?",
+        "gold": "The weekend of 22August, 2022.",
+        "prediction": "November 10, 2022",
+        "f1": 0.25,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted date (November 10) is different from the gold answer date (August 22).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 36,
+        "question": "When did Joanna share her book with her writers group?",
+        "gold": "The week before 22August, 2022.",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer states no information is available, while the gold answer provides a specific timeframe.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 37,
+        "question": "When did Nate win an international tournament?",
+        "gold": "21 August, 2022",
+        "prediction": "August 21, 2022",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer, just in a different format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 38,
+        "question": "When did Joanna make a desert with almond milk?",
+        "gold": "The Friday before 14September, 2022",
+        "prediction": "September 9, 2022",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT September 9, 2022, is the Friday immediately preceding September 14, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 39,
+        "question": "When did Nate attend a cooking show?",
+        "gold": "The Monday before 14September, 2022",
+        "prediction": "September 12, 2022",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT September 12, 2022, is the Monday before September 14, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 40,
+        "question": "When did Joanna's laptop crash?",
+        "gold": "The week before 14September, 2022",
+        "prediction": "Joanna's laptop crashed the week prior to September 14, 2022.",
+        "f1": 0.37499999999999994,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the exact same date and timeframe as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 41,
+        "question": "When did Joanna make a chocolate tart with raspberries?",
+        "gold": "5 October, 2022",
+        "prediction": "October 5, 2022",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer provides the same date in a different format.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 42,
+        "question": "What movies have both Joanna and Nate seen?",
+        "gold": "\"Little Women\", \"Lord of the Rings\"",
+        "prediction": "Based on the provided information, there are no specific movies that both Joanna and Nate have confirmed seeing. While Joanna has seen several movies\u2014including a romantic drama about memory, *Little Women*, and three movies based on her own scripts\u2014Nate only expressed the intent to watch them or added them to his \"watch list.\" No information available.",
+        "f1": 0.09375,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer incorrectly states that there is no information available and that Nate hasn't seen the movies, which contradicts the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 43,
+        "question": "How long did it take for Joanna to finish writing her book?",
+        "gold": "four months",
+        "prediction": "No information available",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the predicted answer claims no information is available when the gold answer provides a specific duration.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 44,
+        "question": "When did Nate win a lot of money in a video game tournament?",
+        "gold": "September 2022",
+        "prediction": "Nate won a lot of money in a video game tournament the week prior to October 6, 2022.",
+        "f1": 0.09999999999999999,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies a timeframe (the week prior to October 6, 2022) that largely overlaps with and supports the gold answer (September 2022).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 45,
+        "question": "When did Joanna finish up the writing for her book?",
+        "gold": "The week before 6October, 2022",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer claims no information is available while the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 46,
+        "question": "What board games has Nate played?",
+        "gold": "Chess, Catan.",
+        "prediction": "Chess",
+        "f1": 0.6666666666666666,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer is incomplete as it misses \"Catan,\" which is part of the core information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 47,
+        "question": "What places has Nate met new people?",
+        "gold": "A tournament and agaming convention.",
+        "prediction": "Nate has met new people at a gaming tournament and a game convention.",
+        "f1": 0.4444444444444444,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies both a tournament and a convention, which matches the core information of the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 48,
+        "question": "When did Nate go to a convention and meet new people?",
+        "gold": "The Friday before 9October, 2022.",
+        "prediction": "October 7, 2022",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT October 7, 2022, is the Friday before October 9, 2022.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 49,
+        "question": "How many times has Joanna's scripts been rejected?",
+        "gold": "Twice",
+        "prediction": "Joanna's scripts have been rejected once.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states the scripts were rejected once, whereas the gold answer states they were rejected twice.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 50,
+        "question": "What is something Nate gave to Joanna that brings her a lot of joy?",
+        "gold": "stuffed toy pup",
+        "prediction": "Based on the conversation excerpts, Nate provides Joanna with consistent **support and encouragement** regarding her screenwriting, which she notes brings her a lot of joy and makes her journey easier.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer describes emotional support rather than the specific physical object (stuffed toy pup) mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 51,
+        "question": "When did Nate get Tilly for Joanna?",
+        "gold": "25 May, 2022",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states the information is unavailable when a specific date is provided in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 52,
+        "question": "How many of Joanna's writing have made it to the big screen?",
+        "gold": "two",
+        "prediction": "3",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted number 3 is factually different from the gold answer 2.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 53,
+        "question": "How many times has Nate taken his turtles on a walk?",
+        "gold": "Twice.",
+        "prediction": "1",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer is 1 while the gold answer is 2 (twice).",
+        "category": "1"
+      },
+      {
+        "qa_idx": 54,
+        "question": "When was Joanna's second movie script shown on the big screens?",
+        "gold": "The Sunday before 25October, 2022.",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the gold answer provides a specific date while the predicted answer incorrectly states that no information is available.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 55,
+        "question": "What is Joanna inspired by?",
+        "gold": "Personal experiences,her own journey ofself discovery, Nate,nature, validation,stories about findingcourage and takingrisks, people she knows, stuff she sees, imagination",
+        "prediction": "Joanna is inspired by her personal experiences, dreams, people she knows, nature, real-life history, and her family.",
+        "f1": 0.39999999999999997,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer captures several key elements from the gold answer, including personal experiences, nature, and people she knows, which conveys the core information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 56,
+        "question": "What animal do both Nate and Joanna like?",
+        "gold": "Turtles.",
+        "prediction": "Turtles and dogs",
+        "f1": 0.5,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer includes \"dogs,\" which is an additional animal not supported by the gold answer, making the statement factually incorrect.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 57,
+        "question": "When did Joanna plan to go over to Nate's and share recipes?",
+        "gold": "5 November, 2022.",
+        "prediction": "No information available",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available while the gold answer provides a specific date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 58,
+        "question": "What things has Nate reccomended to Joanna?",
+        "gold": "A pet,\"The Lord of the Rings\" movies,a dragon book series,coconut flavoring,\"Project Hail Mary\" book,Xenoblade Chronicles, dairy-free margarine, coconut oil",
+        "prediction": "Nate recommended the movie Little Women and coconut milk ice cream.",
+        "f1": 0.1111111111111111,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer lists items (Little Women, coconut milk ice cream) that are not included in the gold answer and misses all the correct items.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 59,
+        "question": "What does Joanna do to remember happy memories?",
+        "gold": "Hangs them on a corkboard, writes themin a notebook.",
+        "prediction": "Joanna writes her favorite memories down and keeps a cork board filled with photos, quotes, and keepsakes to remind her of the love and encouragement from her family.",
+        "f1": 0.10810810810810811,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures both key elements of the gold answer: writing the memories down and using a corkboard.",
+        "category": "1"
+      }
+    ],
+    "conv-43": [
+      {
+        "qa_idx": 0,
+        "question": "what are John's goals with regards to his basketball career?",
+        "gold": "improve shooting percentage, win a championship",
+        "prediction": "John's primary goal is winning a championship, while his specific performance goals include improving his shooting percentage and accuracy, making more of an impact on the court, and being known as a consistent performer who helps his team. Additionally, he aims to build his personal brand through endorsements and use his platform to inspire others and perform charity work, such as starting a foundation.",
+        "f1": 0.11267605633802817,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes both core goals from the gold answer (improving shooting percentage and winning a championship) along with additional context.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 1,
+        "question": "What are John's goals for his career that are not related to his basketball skills?",
+        "gold": "get endorsements, build his brand, do charity work",
+        "prediction": "John's career goals unrelated to his basketball skills include building his personal brand, securing more endorsements with major companies (specifically wanting to work with Under Armour), and preparing for life after basketball by using his platform to make a positive difference through charity work and starting a foundation for disadvantaged youth.",
+        "f1": 0.16666666666666669,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all the core elements of the gold answer (endorsements, building brand, charity work) with additional relevant detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 2,
+        "question": "What items does John collect?",
+        "gold": "sneakers, fantasy movie DVDs, jerseys",
+        "prediction": "John collects sneakers and has the full collection of Harry Potter movies.",
+        "f1": 0.11764705882352941,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer omits \"jerseys,\" which is a distinct category of items John collects mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 3,
+        "question": "Would Tim enjoy reading books by C. S. Lewis or John Greene?",
+        "gold": "C. S.Lewis",
+        "prediction": "Tim would likely enjoy C.S. Lewis.",
+        "f1": 0.6,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer conveys the same core information as the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 4,
+        "question": "What books has Tim read?",
+        "gold": "Harry Potter, Game of Thrones, the Name of the Wind, The Alchemist, The Hobbit, A Dance with Dragons, and the Wheel of Time.",
+        "prediction": "Tim has read the **Harry Potter** series, the **Game of Thrones** (A Song of Ice and Fire) series (including **A Dance with Dragons**), **The Name of the Wind** by Patrick Rothfuss, **The Alchemist** by Paulo Coelho, and various non-fiction books on **personal development, psychology, and growth**.",
+        "f1": 0.5714285714285714,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer misses \"The Hobbit\" and \"The Wheel of Time,\" which are included in the gold answer, and includes additional categories not mentioned in the gold.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 5,
+        "question": "Based on Tim's collections, what is a shop that he would enjoy visiting in New York city?",
+        "gold": "House of MinaLima",
+        "prediction": "Given Tim's passion for the **Harry Potter** universe and his specific collection of artwork from **MinaLima** (the graphic designers for the films), he would likely enjoy visiting the **Harry Potter New York** flagship store, which houses an official **MinaLima** gallery and shop.",
+        "f1": 0.08695652173913045,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer correctly identifies that the Harry Potter New York flagship store contains the MinaLima gallery and shop.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 6,
+        "question": "In which month's game did John achieve a career-high score in points?",
+        "gold": "June 2023",
+        "prediction": "July",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted month (July) is different from the correct month (June).",
+        "category": "2"
+      },
+      {
+        "qa_idx": 7,
+        "question": "Which geographical locations has Tim been to?",
+        "gold": "California, London, the Smoky Mountains",
+        "prediction": "London",
+        "f1": 0.33333333333333337,
+        "judge_correct": false,
+        "judge_reason": "CORRECT while it is incomplete, it is not factually wrong and contains a correct location from the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 8,
+        "question": "Which outdoor gear company likely signed up John for an endorsement deal?",
+        "gold": "Under Armour",
+        "prediction": "No information available",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available while the gold answer identifies a specific company.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 9,
+        "question": "Which endorsement deals has John been offered?",
+        "gold": "basketball shoes and gear deal with Nike, potential sponsorship with Gatorade, Moxie a popular beverage company, outdoor gear company",
+        "prediction": "Nike, Gatorade, and a renowned outdoor gear company.",
+        "f1": 0.5185185185185185,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer captures the core information by identifying the Nike, Gatorade, and outdoor gear deals, even though it omits the Moxie beverage company.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 10,
+        "question": "When was John in Seattle for a game?",
+        "gold": "early August, 2023",
+        "prediction": "John was in Seattle for a game in August 2023.",
+        "f1": 0.30769230769230765,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the core information of the month and year specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 11,
+        "question": "What sports does John like besides basketball?",
+        "gold": "surfing",
+        "prediction": "Surfing",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer, differing only in capitalization.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 12,
+        "question": "What year did John start surfing?",
+        "gold": "2018",
+        "prediction": "2018",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer is identical to the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 13,
+        "question": "What does Tim do to escape reality?",
+        "gold": "Read fantasy books.",
+        "prediction": "To escape reality, Tim gets lost in fantasy worlds by reading books (such as Harry Potter and Lord of the Rings), watching movies, exploring fictional maps, playing movie themes on the piano, and surrounding himself with collections like his MinaLima picture.",
+        "f1": 0.0909090909090909,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes the core information (reading fantasy books) while providing additional detail.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 14,
+        "question": "What kind of writing does Tim do?",
+        "gold": "comments on favorite books in a fantasy literature forum, articles on fantasy novels, studying characters, themes, and making book recommendations, writing a fantasy novel",
+        "prediction": "Tim writes articles about fantasy novels for an online magazine, focusing on character studies, themes, and book recommendations, and also works on his own creative fiction stories.",
+        "f1": 0.35294117647058826,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer covers the key types of writing mentioned: articles on fantasy novels (including character studies, themes, and recommendations) and creative fiction/novels.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 15,
+        "question": "Who is Anthony?",
+        "gold": "likely John's friend, colleague or family",
+        "prediction": "Anthony is a friend or acquaintance of John who attended a charity event and a Harry Potter trivia contest with him.",
+        "f1": 0.21428571428571427,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer identifies Anthony as a friend or acquaintance of John, which matches the core information in the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 16,
+        "question": "After how many weeks did Tim reconnect with the fellow Harry Potter fan from California?",
+        "gold": "three weeks",
+        "prediction": "4 weeks",
+        "f1": 0.5,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer specifies 4 weeks, which is different from the gold answer of three weeks.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 17,
+        "question": "How many games has John mentioned winning?",
+        "gold": "6",
+        "prediction": "John has mentioned winning 6 specific games.",
+        "f1": 0.25,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer provides the correct number of 6 games as specified in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 18,
+        "question": "What authors has Tim read books from?",
+        "gold": "J.K. Rowling, R.R. Martin, Patrick Rothfuss, Paulo Coelho, and J. R. R. Tolkien.",
+        "prediction": "Tim has read books by Patrick Rothfuss, J.K. Rowling, George R. R. Martin, Paulo Coelho, and J.R.R. Tolkien.",
+        "f1": 0.8333333333333333,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all the authors listed in the gold answer, with George R. R. Martin being the full name of the R.R. Martin mentioned.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 19,
+        "question": "What is a prominent charity organization that John might want to work with and why?",
+        "gold": "Good Sports, because they work with Nike, Gatorade, and Under Armour and they aim toprovide youth sports opportunities for kids ages 3-18 in high-need communities.",
+        "prediction": "No information available for a specific named organization.",
+        "f1": 0.05714285714285714,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer states no information is available when the gold answer identifies a specific organization (Good Sports).",
+        "category": "3"
+      },
+      {
+        "qa_idx": 20,
+        "question": "Which city was John in before traveling to Chicago?",
+        "gold": "Seattle",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer claims no information is available while the gold answer provides the specific location.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 21,
+        "question": "Which US cities does John mention visiting to Tim?",
+        "gold": "Seattle, Chicago, New York",
+        "prediction": "John mentions visiting Chicago and New York City.",
+        "f1": 0.5,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer omits Seattle, which is one of the three cities mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 22,
+        "question": "When did John meet with his teammates after returning from Chicago?",
+        "gold": "August 15, 2023",
+        "prediction": "On August 15, 2023.",
+        "f1": 0.8571428571428571,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer provides the exact same date as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 23,
+        "question": "When is Tim attending a book conference?",
+        "gold": "September 2023",
+        "prediction": "Based on a conversation on August 17, 2023, Tim mentioned he was hoping to attend a book conference in September 2023.",
+        "f1": 0.17391304347826084,
+        "judge_correct": true,
+        "judge_reason": "CORRECT, the predicted answer includes the same core information (September 2023) as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 24,
+        "question": "Where was John between August 11 and August 15 2023?",
+        "gold": "Chicago",
+        "prediction": "Seattle",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. Seattle is a different city than Chicago, so the answer is factually incorrect.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 25,
+        "question": "What similar sports collectible do Tim and John own?",
+        "gold": "signed basketball",
+        "prediction": "A signed basketball",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical in meaning to the gold answer, differing only by an article and capitalization.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 26,
+        "question": "Which TV series does Tim mention watching?",
+        "gold": "That, Wheel of Time",
+        "prediction": "The Wheel of Time",
+        "f1": 0.75,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer identifies the same TV series as the gold answer, simply including the definite article.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 27,
+        "question": "Which popular time management technique does Tim use to prepare for exams?",
+        "gold": "Pomodoro technique",
+        "prediction": "The Pomodoro Technique",
+        "f1": 0.8,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer, including only a definite article.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 28,
+        "question": "Which popular music composer's tunes does Tim enjoy playing on the piano?",
+        "gold": "John Williams",
+        "prediction": "John Williams",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 29,
+        "question": "What schools did John play basketball in and how many years was he with his team during high school?",
+        "gold": "Middle school, high school, and college and he was with his high school team for 4 years.",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG: The predicted answer states no information is available, but the gold answer provides specific details about the schools and years.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 30,
+        "question": "Which cities has John been to?",
+        "gold": "Seattle, Chicago, New York, and Paris.",
+        "prediction": "New York City, Chicago, Paris, and Seattle.",
+        "f1": 0.923076923076923,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer lists all the same cities as the gold answer, with \"New York City\" being synonymous with \"New York.\"",
+        "category": "1"
+      },
+      {
+        "qa_idx": 31,
+        "question": "What month did Tim plan on going to Universal Studios?",
+        "gold": "September, 2023",
+        "prediction": "Tim planned on going to Universal Studios in September 2023.",
+        "f1": 0.33333333333333337,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the exact month and year specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 32,
+        "question": "Which US states might Tim be in during September 2023 based on his plans of visiting Universal Studios?",
+        "gold": "California or Florida",
+        "prediction": "Florida or California",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same two states as the gold answer.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 33,
+        "question": "When does John plan on traveling with his team on a team trip?",
+        "gold": "October, 2023",
+        "prediction": "John and his team plan on taking a trip in October 2023.",
+        "f1": 0.2857142857142857,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the exact date and month specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 34,
+        "question": "What could John do after his basketball career?",
+        "gold": "become a basketball coach since he likes giving back and leadership",
+        "prediction": "John has expressed interest in using his platform to make a positive difference by starting a foundation, doing charity work, and inspiring others to leave a meaningful legacy.",
+        "f1": 0.10256410256410255,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer describes starting a foundation and charity work, while the gold answer specifically mentions becoming a basketball coach.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 35,
+        "question": "What outdoor activities does John enjoy?",
+        "gold": "Hiking, surfing",
+        "prediction": "John enjoys basketball, surfing, hiking, and camping.",
+        "f1": 0.4444444444444445,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer includes additional activities (basketball and camping) not present in the gold answer, making it factually incorrect based on the provided information.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 36,
+        "question": "Who is Tim and John's favorite basketball player?",
+        "gold": "LeBron James",
+        "prediction": "LeBron James",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer is identical to the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 37,
+        "question": "Which week did Tim visit the UK for the Harry Potter Conference?",
+        "gold": "The week before October 13th, 2023.",
+        "prediction": "The first week of October 2023.",
+        "f1": 0.6666666666666666,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The week before October 13th covers the period roughly from October 6th to 12th, whereas the first week of October is October 1st to 7th.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 38,
+        "question": "which country has Tim visited most frequently in his travels?",
+        "gold": "UK",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the gold answer provides a specific location (UK), while the predicted answer incorrectly states the information is not available.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 39,
+        "question": "What year did Tim go to the Smoky Mountains?",
+        "gold": "2022",
+        "prediction": "2022",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 40,
+        "question": "Has Tim been to North Carolina and/or Tennesee states in the US?",
+        "gold": "Yes",
+        "prediction": "No information available.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The gold answer confirms a \"Yes,\" while the predicted answer incorrectly claims the information is not available.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 41,
+        "question": "What kind of fiction stories does Tim write?",
+        "gold": "Fantasy stories with plot twists",
+        "prediction": "Tim writes fantasy stories.",
+        "f1": 0.4444444444444445,
+        "judge_correct": true,
+        "judge_reason": "CORRECT - The predicted answer identifies the core genre (fantasy) mentioned in the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 42,
+        "question": "What has John cooked?",
+        "gold": "Soup, a slow cooker meal, and honey garlic chicken with roasted veg.",
+        "prediction": "John has cooked a soup seasoned with sage and a honey garlic chicken with roasted vegetables.",
+        "f1": 0.5714285714285715,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer captures the main dishes (soup and honey garlic chicken) mentioned in the gold answer, omitting only the general descriptor \"a slow cooker meal\" which may refer to one of the items already listed.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 43,
+        "question": "What does John like about Lebron James?",
+        "gold": "His heart, determination, skills, and leadership.",
+        "prediction": "John loves LeBron James's skills, leadership, work ethic, dedication, determination, and heart.",
+        "f1": 0.5263157894736842,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer includes all components of the gold answer (heart, determination, skills, and leadership).",
+        "category": "1"
+      },
+      {
+        "qa_idx": 44,
+        "question": "When did John and his wife go on a European vacation?",
+        "gold": "November, 2023.",
+        "prediction": "John and his wife went on a road trip along the European coastline shortly before November 11, 2023, and John also visited Italy in December 2023.",
+        "f1": 0.14285714285714288,
+        "judge_correct": true,
+        "judge_reason": "CORRECT. The predicted answer includes the correct month and year (November 2023) for the European vacation.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 45,
+        "question": "Which country was Tim visiting in the second week of November?",
+        "gold": "UK",
+        "prediction": "UK",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer matches the gold answer exactly.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 46,
+        "question": "Where was Tim in the week before 16 November 2023?",
+        "gold": "UK",
+        "prediction": "Tim was in the United Kingdom, where he visited a castle.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer identifies the United Kingdom, which is the same location as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 47,
+        "question": "When did John get married at a greenhouse?",
+        "gold": "last week of September 2023",
+        "prediction": "John and his girlfriend had their wedding ceremony at a greenhouse in late September 2023 (specifically the week prior to October 2, 2023).",
+        "f1": 0.21428571428571427,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer conveys the same specific timeframe as the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 48,
+        "question": "When did John get an ankle injury in 2023?",
+        "gold": "around November 16, 2023",
+        "prediction": "No information available for a specific date of an ankle injury occurring within the 2023 calendar year.",
+        "f1": 0.09523809523809523,
+        "judge_correct": false,
+        "judge_reason": "WRONG because the predicted answer states no information is available when the gold answer provides a specific date.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 49,
+        "question": "How many times has John injured his ankle?",
+        "gold": "two times",
+        "prediction": "One time.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer provides a different number than the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 50,
+        "question": "Which book was John reading during his recovery from an ankle injury?",
+        "gold": "The Alchemist",
+        "prediction": "John was reading \"The Alchemist\" by Paulo Coelho.",
+        "f1": 0.4,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: The predicted answer identifies the correct book title and provides additional accurate context.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 51,
+        "question": "What kind of yoga for building core strength might John benefit from?",
+        "gold": "Hatha Yoga",
+        "prediction": "John would benefit from poses that emphasize balance and stability, such as Warrior II or similar core-focused holds.",
+        "f1": 0.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: While the predicted answer specifies poses rather than naming the \"Hatha\" style, it describes the foundational elements of Hatha yoga (balance, stability, and holds) which fulfill the core requirement of the question.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 52,
+        "question": "What does John do to supplement his basketball training?",
+        "gold": "Yoga, strength training",
+        "prediction": "John incorporates a structured strength training routine into his workout plan.",
+        "f1": 0.28571428571428575,
+        "judge_correct": true,
+        "judge_reason": "CORRECT Although it misses the mention of yoga, it accurately identifies strength training as a supplement to his basketball training.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 53,
+        "question": "What other exercises can help John with his basketball performance?",
+        "gold": "Sprinting, long-distance running, and boxing.",
+        "prediction": "Based on the conversation from August 21, 2023, John incorporates **strength training** into his routine to build muscle, increase power, prevent injuries, and improve explosiveness, agility, and speed.",
+        "f1": 0.058823529411764705,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The predicted answer mentions strength training, while the gold answer specifies sprinting, long-distance running, and boxing.",
+        "category": "3"
+      },
+      {
+        "qa_idx": 54,
+        "question": "When did John take a trip to the Rocky Mountains?",
+        "gold": "2022",
+        "prediction": "John took his trip to the Rocky Mountains in 2022.",
+        "f1": 0.18181818181818182,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the correct year (2022) as specified in the gold answer.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 55,
+        "question": "When did John start playing professionally?",
+        "gold": "May, 2023",
+        "prediction": "John started playing professionally in late 2022 or early 2023.",
+        "f1": 0.16666666666666669,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer includes late 2022 and early 2023, which contradicts the specific date of May 2023.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 56,
+        "question": "When did Tim start playing the violin?",
+        "gold": "August 2023",
+        "prediction": "Recently started (as of December 6, 2023)",
+        "f1": 0.22222222222222224,
+        "judge_correct": true,
+        "judge_reason": "CORRECT: \"Recently started\" relative to December 2023 is a reasonable description of an August 2023 start date.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 57,
+        "question": "What instruments does Tim play?",
+        "gold": "piano, violin",
+        "prediction": "Tim plays the piano and the violin.",
+        "f1": 0.4444444444444445,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer contains the same instruments as the gold answer.",
+        "category": "1"
+      },
+      {
+        "qa_idx": 58,
+        "question": "When did John attend the Harry Potter trivia?",
+        "gold": "August 2023.",
+        "prediction": "August 2023",
+        "f1": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT The predicted answer matches the gold answer exactly.",
+        "category": "2"
+      },
+      {
+        "qa_idx": 59,
+        "question": "Which career-high performances did John achieve in 2023?",
+        "gold": "highest point score, highest assist",
+        "prediction": "- A career-high in assists during a game against a rival on Friday, December 8, 2023.",
+        "f1": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG, the predicted answer omits the career-high point score, which is a significant part of the core information provided in the gold answer.",
+        "category": "1"
+      }
+    ]
+  },
+  "aggregate": {
+    "judge_accuracy": 0.6866666666666666,
+    "n": 300
+  }
+}

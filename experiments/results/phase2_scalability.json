@@ -1,0 +1,46 @@
+{
+  "base_sessions": 19,
+  "base_facts": 1569,
+  "rows": [
+    {
+      "input_tokens": 62627,
+      "output_tokens": 3777,
+      "thoughts_tokens": 1843,
+      "wall_seconds": 30.01,
+      "est_usd": 0.03284,
+      "output_chars": 12441,
+      "n_sessions": 19,
+      "n_facts": 1558
+    },
+    {
+      "input_tokens": 177940,
+      "output_tokens": 3151,
+      "thoughts_tokens": 1396,
+      "wall_seconds": 39.4,
+      "est_usd": 0.06475,
+      "output_chars": 9705,
+      "n_sessions": 50,
+      "n_facts": 4100
+    },
+    {
+      "input_tokens": 200730,
+      "output_tokens": 3134,
+      "thoughts_tokens": 1195,
+      "wall_seconds": 36.56,
+      "est_usd": 0.07104,
+      "output_chars": 10228,
+      "n_sessions": 100,
+      "n_facts": 8200
+    },
+    {
+      "input_tokens": 200731,
+      "output_tokens": 3242,
+      "thoughts_tokens": 1151,
+      "wall_seconds": 34.13,
+      "est_usd": 0.0712,
+      "output_chars": 10197,
+      "n_sessions": 200,
+      "n_facts": 16400
+    }
+  ]
+}
