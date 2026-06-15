@@ -1,22 +1,33 @@
 \documentclass[11pt]{article}
 
-% arXiv-friendly packages
+% Encoding
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{booktabs}
+
+% Professional preprint style: fonts, geometry, headings, title, header.
+\usepackage{arxiv}
+
+% Content packages
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{booktabs}
 \usepackage{listings}
-\usepackage{xcolor}
 \usepackage{subcaption}
 \usepackage{enumitem}
-\usepackage{microtype}
 \usepackage{natbib}
-\usepackage[margin=1in]{geometry}
+
+% hyperref loaded late, then coloured to match the palette.
+\usepackage{hyperref}
+\usepackage{url}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=arxivaccent,
+  citecolor=arxivaccent,
+  urlcolor=arxivaccent,
+  filecolor=arxivaccent,
+  breaklinks=true,
+}
 
 % Python code listing style
 \definecolor{codebg}{rgb}{0.95,0.95,0.97}
@@ -98,11 +109,11 @@
 
 \author{
   Bojie Li \\
-  Pine AI \\
-  \texttt{boj@19pine.ai}
+  Pine AI
 }
 
 \date{}
+\runningtitle{User as Code: Executable Memory for Personalized Agents}
 
 \begin{document}
 \maketitle
