@@ -8,6 +8,19 @@ __pycache__/
 *.pdf
 .DS_Store
 lancedb_*/
-experiments/results/
-benchmarks/
+
+# Regenerable vector-index cache
 experiments/chroma_db/
+
+# Third-party benchmark datasets — fetch via benchmarks/fetch_benchmarks.sh
+# (see benchmarks/README.md). The README + fetch script themselves are tracked.
+benchmarks/*/data/
+
+# Large regenerable LongMemEval-derived dumps — rebuilt from the fetched
+# dataset by build_lme_full_500.py / sample_lme_200.py / the UaC pipeline.
+experiments/results/memory_lme.json
+experiments/results/lme_500_full.json
+experiments/results/lme_200_sample.json
+
+# Submission artifact
+arxiv_submission.tar.gz
