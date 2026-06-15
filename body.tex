@@ -224,15 +224,17 @@ ACTIVE_ALERTS = [
 \subsection{Extraction: Memorize, then Structure}
 \label{sec:extraction}
 
-The first pipeline converts raw conversation into code. Our key architectural insight, validated by ablation (Section~\ref{sec:ablation}), is that the two jobs it does---memorizing and structuring---must be separate concerns:
+The first pipeline converts raw conversation into code. Our key architectural insight, validated by ablation (Section~\ref{sec:ablation}), is that its two jobs---memorizing and structuring---must be separate concerns.
 
-\textbf{Phase 1 --- Memorizing (per session, append-only).} An LLM extracts every individual fact as a flat string from each session (Gemini~3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved to absolute dates against the session timestamp. This produces $\sim$50 facts/session ($\sim$950 for a 19-session LOCOMO conversation). Facts are indexed in ChromaDB.
+\subsubsection{Phase 1: Memorize (per session, append-only)}
 
-\textbf{Phase 2 --- Structuring (periodic, from all facts).} An LLM regenerates the entire structured Python from the accumulated fact list (thinking budget 16{,}384), organizing facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, \texttt{notes: list[str]} for hard-to-type facts. Because the code is regenerated fresh from the complete corpus---not edited incrementally---no information is lost in the fact-to-structure transition. Code size scales with distinct facts ($\sim$7K characters for a 19-session LOCOMO conversation; 50--55K for the analytical benchmark at $N{=}500$).
+An LLM extracts every individual fact as a flat string from each session (Gemini~3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved to absolute dates against the session timestamp. This produces $\sim$50 facts/session ($\sim$950 for a 19-session LOCOMO conversation). Each fact is indexed in ChromaDB; the raw conversation is also chunked and indexed in a second collection, which serves as a retrieval fallback for direct-quote queries (the \texttt{[ARCHIVE]} channel of Section~\ref{sec:retrieval}).
 
-\textbf{Archive (raw conversation).} Raw conversation chunks are also indexed in ChromaDB as a retrieval fallback for direct-quote queries.
+\subsubsection{Phase 2: Structure (periodic, from all facts)}
 
-\textbf{Phase~2 cost scaling.} Wall time stays at 30--40 seconds across $\{19, 50, 100, 200\}$-session corpora, and cost flattens at $\sim$\$0.07 once our 500K-character input cap engages around $n{=}100$ sessions (Appendix~\ref{sec:phase2-scalability})---a known limitation that motivates hierarchical structuring at production scale.
+An LLM regenerates the entire structured Python from the accumulated fact list (thinking budget 16{,}384), organizing facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, \texttt{notes: list[str]} for hard-to-type facts. Because the code is regenerated fresh from the complete corpus---not edited incrementally---no information is lost in the fact-to-structure transition. Code size scales with distinct facts ($\sim$7K characters for a 19-session LOCOMO conversation; 50--55K for the analytical benchmark at $N{=}500$).
+
+\textbf{Cost scaling.} Wall time stays at 30--40 seconds across $\{19, 50, 100, 200\}$-session corpora, and cost flattens at $\sim$\$0.07 once our 500K-character input cap engages around $n{=}100$ sessions (Appendix~\ref{sec:phase2-scalability})---a known limitation that motivates hierarchical structuring at production scale.
 
 \subsection{Retrieval and Use}
 \label{sec:retrieval-use}

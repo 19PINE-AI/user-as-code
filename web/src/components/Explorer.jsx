@@ -77,7 +77,15 @@ function Layout({ filters, list, detail, count, total, sel, setSel }) {
 
 function ListRow({ active, onClick, badge, title, meta, status }) {
   const ref = React.useRef(null)
+  const mounted = React.useRef(false)
   useEffect(() => {
+    // Skip the first run: otherwise the default-selected row scrolls itself
+    // into view on mount, dragging the whole page down to the (below-the-fold)
+    // Explorer the moment it lazy-loads. Only scroll on real user selection.
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
     if (active && ref.current) ref.current.scrollIntoView({ block: 'nearest' })
   }, [active])
   return (
