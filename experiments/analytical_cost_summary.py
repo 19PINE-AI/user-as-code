@@ -149,7 +149,7 @@ def main():
         ax.set_ylabel("Cost per case (m\\$, log scale)")
         ax.set_title("Per-case cost vs. record count", fontweight="bold")
         ax.grid(True, alpha=0.3, linewidth=0.5)
-        ax.legend(loc="lower right", framealpha=0.9, fontsize=9)
+        ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), framealpha=0.9, fontsize=9)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         plt.tight_layout()
