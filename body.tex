@@ -391,7 +391,7 @@ $N$ & UaC structuring & UaC query & FC+REPL query & UaC payback \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{figures/analytical_cost.pdf}
+\includegraphics[width=0.85\textwidth]{figures/analytical_cost.pdf}
 \caption{Per-case Gemini~3 Flash cost vs.\ record count $N$ (log--log). UaC and Full Context costs grow with $N$ (more records to structure or read in-head); FC+REPL grows fastest because the records JSON is re-included in the LLM's context every tool turn. Retrieval-based systems (MemMachine, Mem0) are cheap but bottom out on accuracy (Figure~\ref{fig:analytical-scaling}).}
 \label{fig:analytical-cost}
 \end{figure}
