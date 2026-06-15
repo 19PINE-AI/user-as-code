@@ -1,0 +1,24 @@
+# Python dependencies for the User as Code experiments (experiments/) and the
+# reference prototype (prototype/). Python 3.10+ recommended.
+#
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements.txt
+
+# --- Core: UaC pipeline, retrieval, and evaluation ---
+google-genai>=0.3.0          # Gemini backbone (extraction, structuring, answering, judge)
+openai>=1.0.0                # GPT-5.4 cross-LLM run; OpenRouter-routed calls
+chromadb>=0.5.0              # vector store for the fact and archive channels
+sentence-transformers>=2.2.0 # dense retrieval encoders (baseline reimplementations)
+rank-bm25>=0.2.2             # lexical retrieval (Hindsight reimplementation)
+nltk>=3.8                    # tokenization for the distinctive-token drop audit
+numpy>=1.24
+regex>=2023.0
+tqdm>=4.65
+
+# --- Baseline memory libraries (production-library comparisons) ---
+# Installed separately from their own sources; pin versions to match the paper:
+#   mem0ai==1.0.5            # Mem0   -> pip install mem0ai==1.0.5
+#   A-MEM (agentic_memory)   -> install from https://github.com/agiresearch/A-mem
+# MemMachine, EverMemOS, and Hindsight are reimplemented in experiments/
+# (run_locomo_memmachine.py, evermemos_lite.py, hindsight_lite.py) and need no
+# extra package.
