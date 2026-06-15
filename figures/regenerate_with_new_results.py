@@ -44,7 +44,7 @@ def main():
                          "savefig.pad_inches": 0.05, "figure.dpi": 300})
 
     sysnames = [
-        ("uac_v5",       "UaC v5",      BLUE),
+        ("uac_v5",       "UaC",         BLUE),
         ("full_context", "Full Ctx",    GRAY),
         ("memmachine",   "MemMachine",  GREEN),
         ("evermemos",    "EverMemOS",   PURPLE),

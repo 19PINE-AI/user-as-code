@@ -145,7 +145,7 @@ def fig_benchmarks():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.2))
 
     # LOCOMO (5 conversations, 300 QAs total)
-    systems = ['UaC v5\n(ours)', 'Full\nContext', 'MemMachine', 'Hindsight\n(lite)', 'EverMemOS\n(lite)', 'A-MEM', 'Mem0']
+    systems = ['UaC\n(ours)', 'Full\nContext', 'MemMachine', 'Hindsight\n(lite)', 'EverMemOS\n(lite)', 'A-MEM', 'Mem0']
     locomo = [78.0, 82.3, 75.3, 70.0, 55.0, 56.7, 32.7]
     colors_l = [BLUE, GRAY, GREEN, ORANGE, LIGHTBLUE, ORANGE, RED]
 
@@ -164,7 +164,7 @@ def fig_benchmarks():
     bars[0].set_linewidth(2)
 
     # LongMemEval (200-question stratified sample)
-    systems2 = ['UaC v5\n(ours)', 'Full\nContext', 'MemMachine', 'EverMemOS\n(lite)', 'Hindsight\n(lite)', 'A-MEM', 'Mem0']
+    systems2 = ['UaC\n(ours)', 'Full\nContext', 'MemMachine', 'EverMemOS\n(lite)', 'Hindsight\n(lite)', 'A-MEM', 'Mem0']
     lme = [84.5, 86.5, 84.0, 79.5, 70.5, 58.0, 24.5]
     colors_r = [BLUE, GRAY, GREEN, LIGHTBLUE, ORANGE, ORANGE, RED]
 
@@ -194,7 +194,7 @@ def fig_benchmarks():
 def fig_active_service():
     fig, ax = plt.subplots(figsize=(5, 3.2))
 
-    systems = ['UaC v5\n+ pipeline', 'Mem0', 'Full Context', 'UaC v5\n(no alerts)']
+    systems = ['UaC\n+ pipeline', 'Mem0', 'Full Context', 'UaC\n(no alerts)']
     standard = [100, 92.5, 0, 52.5]
     hard = [85, 65, 55, 45]
     has_standard = [True, True, False, True]
@@ -245,7 +245,7 @@ def fig_active_service():
 def fig_ablation():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
 
-    versions = ['v2\nBasic', 'v3\nFlat\nFacts', 'v4\nCode+\nNotes', 'v5\nTwo-\nPhase', 'v5+\nPipeline']
+    versions = ['Basic\n3-tier', 'Flat\nfacts', 'Incremental\ncode', 'Two-\nphase', '+\npipeline']
     locomo_j = [56.7, 75.7, 65.7, 78.0, 78.0]
     active_s = [30.0, 37.5, 40.0, 67.5, 100.0]
 

@@ -16,7 +16,7 @@ R = pathlib.Path(__file__).resolve().parent / "results"
 
 SYSTEMS = [
     ("fc_repl", "Full Context + REPL"),
-    ("uac_v5", "UaC v5 (structured + REPL)"),
+    ("uac_v5", "UaC (structured + REPL)"),
     ("full_context", "Full Context (no tool)"),
     ("memmachine", "MemMachine"),
     ("mem0", "Mem0"),
@@ -120,7 +120,7 @@ def main():
         ns = [20, 50, 100, 200, 500]
         plot_systems = [
             ("fc_repl", "Full Context + REPL", "#4A90D9"),
-            ("uac_v5", "UaC v5 (1 query)", "#50B86C"),
+            ("uac_v5", "UaC (1 query)", "#50B86C"),
             ("full_context", "Full Context (no tool)", "#9CA3AF"),
             ("memmachine", "MemMachine", "#F5A623"),
             ("mem0", "Mem0", "#D94A4A"),
@@ -139,7 +139,7 @@ def main():
                 else:
                     ys.append(0)
             ax.plot(ns, ys, marker="o", color=color, label=label, linewidth=2)
-        # Add UaC v5 amortized line: structuring cost stays fixed, per-query goes to ~$0.001
+        # Add UaC amortized line: structuring cost stays fixed, per-query goes to ~$0.001
         # Approximate: UaC structuring is ~98% of one-shot cost, query is ~$0.0014/case
         ax.set_xscale("log")
         ax.set_yscale("log")

@@ -1,6 +1,6 @@
 """Generate the analytical-benchmark scaling-by-N figure.
 
-A line plot of accuracy vs N for each system, highlighting how UaC v5 and
+A line plot of accuracy vs N for each system, highlighting how UaC and
 FC+REPL stay flat while MemMachine collapses and Full Context (no tool)
 degrades past N=100.
 """
@@ -48,7 +48,7 @@ def per_n(name):
 def main():
     systems = [
         ("fc_repl", "Full Context + REPL", BLUE, "o", "-"),
-        ("uac_v5", "UaC v5 (ours)", GREEN, "s", "-"),
+        ("uac_v5", "UaC (ours)", GREEN, "s", "-"),
         ("full_context", "Full Context (no tool)", GRAY, "^", "--"),
         ("memmachine", "MemMachine", ORANGE, "d", ":"),
         ("mem0", "Mem0", RED, "v", ":"),

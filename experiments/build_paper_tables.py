@@ -110,7 +110,7 @@ def main():
 \midrule""")
     rows = [
         ("Full Context (upper bound)", res["fc_locomo"]),
-        ("UaC v5 (ours, Gemini)", res["uac_v5_locomo"]),
+        ("UaC (ours, Gemini)", res["uac_v5_locomo"]),
         ("MemMachine~\\citep{wang2026memmachine}", res["memmachine_locomo"]),
         ("Hindsight (lite)~\\citep{latimer2025hindsight}", res["hindsight_locomo"]),
         ("EverMemOS (lite)~\\citep{hu2026evermemos}", res["evermemos_locomo"]),
@@ -130,7 +130,7 @@ def main():
     out.append(r"\multicolumn{4}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\")
     if res["gpt54_locomo"]:
         r = res["gpt54_locomo"]
-        out.append(f"UaC v5 (ours, GPT-5.4) & {fmt_pct(r['judge'])}\\% & {r['f1']:.3f} & {r['n']} \\\\")
+        out.append(f"UaC (ours, GPT-5.4) & {fmt_pct(r['judge'])}\\% & {r['f1']:.3f} & {r['n']} \\\\")
     out.append(r"""\bottomrule
 \end{tabular}
 \end{table}""")
@@ -149,7 +149,7 @@ def main():
              "single-session-preference", "single-session-user", "temporal-reasoning"]
     for label, r in [
         ("Full Context", res["fc_lme"]),
-        ("UaC v5 (ours)", res["uac_v5_lme"]),
+        ("UaC (ours)", res["uac_v5_lme"]),
         ("EverMemOS (lite)", res["evermemos_lme"]),
         ("Hindsight (lite)", res["hindsight_lme"]),
         ("A-MEM", res["amem_lme"]),
@@ -180,7 +180,7 @@ def main():
     if ana_data:
         out.append(r"""\begin{table}[t]
 \centering
-\caption{Analytical inference benchmark: 100 cases across 10 record types (10 per type) with $N$ records per case ($N \in \{20, 50, 100, 200, 500\}$). Exact-match scoring against deterministic ground truth. \emph{FC+REPL} is Full Context with a Python REPL tool; \emph{UaC v5} loads structured records into a typed-Python REPL.}
+\caption{Analytical inference benchmark: 100 cases across 10 record types (10 per type) with $N$ records per case ($N \in \{20, 50, 100, 200, 500\}$). Exact-match scoring against deterministic ground truth. \emph{FC+REPL} is Full Context with a Python REPL tool; \emph{UaC} loads structured records into a typed-Python REPL.}
 \label{tab:analytical}
 \begin{tabular}{@{}lccccccc@{}}
 \toprule
@@ -188,7 +188,7 @@ def main():
 \midrule""")
         labels = {
             "fc_repl": "Full Context + Python REPL",
-            "uac_v5": "UaC v5 (structured + REPL)",
+            "uac_v5": "UaC (structured + REPL)",
             "full_context": "Full Context (no tool)",
             "memmachine": "MemMachine",
             "mem0": "Mem0",
