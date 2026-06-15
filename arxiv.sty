@@ -35,6 +35,20 @@
 % --- Captions ---------------------------------------------------------------
 \RequirePackage[font=small,labelfont={bf,sf},labelsep=period]{caption}
 
+% --- Floats: keep figures/tables next to their text, avoid float-only pages --
+\RequirePackage{float}             % enables the [H] "place exactly here" specifier
+\setlength{\textfloatsep}{12pt plus 3pt minus 3pt}
+\setlength{\intextsep}{12pt plus 3pt minus 3pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+% Discourage LaTeX from deferring floats onto their own pages.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.80}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{8}
+
 % --- Running header / footer ------------------------------------------------
 \RequirePackage{fancyhdr}
 \newcommand{\@runningtitle}{}

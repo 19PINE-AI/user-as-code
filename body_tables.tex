@@ -1,6 +1,6 @@
-\begin{table}[t]
+\begin{table}[!ht]
 \centering
-\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC~v5 vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable. \emph{Mem0's 29.3\% is below its published number; see Section~\ref{sec:mem0-diagnostic} for the three-factor decomposition (backbone, background pass, retrieval stack).}}
+\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable. \emph{Mem0's 29.3\% is below its published number; see Section~\ref{sec:mem0-diagnostic} for the three-factor decomposition (backbone, background pass, retrieval stack).}}
 \label{tab:locomo}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -8,7 +8,7 @@
 \textbf{System} & \textbf{LLM-as-Judge} & \textbf{Wilson 95\% CI} & \textbf{N} & \textbf{$p$ vs.\ UaC} \\
 \midrule
 Full Context (upper bound) & 79.8\% & [76.4, 82.8] & 600 & 0.65 \\
-\textbf{UaC v5 (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
+\textbf{UaC (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
 MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & 600 & 0.003 \\
 Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & 600 & $1.5\!\times\!10^{-5}$ \\
 EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & 600 & $<\!10^{-20}$ \\
@@ -16,14 +16,14 @@ A-MEM & 51.8\% & [47.8, 55.8] & 600 & $<\!10^{-30}$ \\
 Mem0 & 29.3\% & [25.8, 33.1] & 600 & $<\!10^{-60}$ \\
 \midrule
 \multicolumn{5}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
-UaC v5 (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
+UaC (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!ht]
 \centering
-\caption{LongMemEval results on the \emph{full} 500-question benchmark. All systems use Gemini~3 Flash for answer generation and the same generous-scoring LLM-as-Judge. McNemar's exact test compares UaC v5 against each row on the per-question correctness vector. \emph{The same Mem0 diagnostic applies as in Table~\ref{tab:locomo} (Section~\ref{sec:mem0-diagnostic}).}}
+\caption{LongMemEval results on the \emph{full} 500-question benchmark. All systems use Gemini~3 Flash for answer generation and the same generous-scoring LLM-as-Judge. McNemar's exact test compares UaC against each row on the per-question correctness vector. \emph{The same Mem0 diagnostic applies as in Table~\ref{tab:locomo} (Section~\ref{sec:mem0-diagnostic}).}}
 \label{tab:longmemeval}
 \small
 \begin{tabular}{@{}lcccccc|cc@{}}
@@ -32,7 +32,7 @@ UaC v5 (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
 \midrule
 Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4\% [82.0, 88.2] & 0.19 \\
 MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8\% [81.4, 87.7] & 0.33 \\
-\textbf{UaC v5 (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0\%} [79.5, 86.0] & --- \\
+\textbf{UaC (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0\%} [79.5, 86.0] & --- \\
 EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4\% [72.5, 79.9] & 0.002 \\
 Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0\% [68.9, 76.7] & $<\!10^{-5}$ \\
 A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6\% [45.2, 54.0] & $<\!10^{-30}$ \\
@@ -44,16 +44,16 @@ Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8\% [20.3, 27.7] & $<\!10^{-
 \end{flushleft}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!ht]
 \centering
-\caption{Analytical inference benchmark: 100 cases across 10 record types (10 per type) with $N$ records per case ($N \in \{20, 50, 100, 200, 500\}$). Exact-match scoring against deterministic ground truth. \emph{FC+REPL} is Full Context with a Python REPL tool; \emph{UaC v5} loads structured records into a typed-Python REPL.}
+\caption{Analytical inference benchmark: 100 cases across 10 record types (10 per type) with $N$ records per case ($N \in \{20, 50, 100, 200, 500\}$). Exact-match scoring against deterministic ground truth. \emph{FC+REPL} is Full Context with a Python REPL tool; \emph{UaC} loads structured records into a typed-Python REPL.}
 \label{tab:analytical}
 \begin{tabular}{@{}lccccccc@{}}
 \toprule
 \textbf{System} & \textbf{Overall} & $N{=}20$ & $N{=}50$ & $N{=}100$ & $N{=}200$ & $N{=}500$ \\
 \midrule
 Full Context + Python REPL & 100.0\% & 100\% & 100\% & 100\% & 100\% & 100\% \\
-UaC v5 (structured + REPL) & 99.0\% & 100\% & 100\% & 100\% & 100\% & 95\% \\
+UaC (structured + REPL) & 99.0\% & 100\% & 100\% & 100\% & 100\% & 95\% \\
 Full Context (no tool) & 94.0\% & 100\% & 90\% & 100\% & 90\% & 90\% \\
 MemMachine & 43.0\% & 100\% & 55\% & 20\% & 15\% & 25\% \\
 Mem0 & 6.0\% & 5\% & 10\% & 0\% & 0\% & 15\% \\

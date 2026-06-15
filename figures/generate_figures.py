@@ -37,21 +37,19 @@ LIGHTRED = '#FEE2E2'
 # Figure 1: Architecture diagram
 # =====================================================================
 def fig_architecture():
-    fig, ax = plt.subplots(1, 1, figsize=(7, 4.5))
+    # Tight canvas around the actual content (no in-figure title; it lives in
+    # the caption) so there is no empty top/bottom margin.
+    fig, ax = plt.subplots(1, 1, figsize=(9.5, 4.9))
     ax.set_xlim(0, 10)
-    ax.set_ylim(0, 7)
+    ax.set_ylim(1.3, 6.55)
     ax.axis('off')
 
-    # Title
-    ax.text(5, 6.7, 'User as Code: Two-Phase Architecture',
-            ha='center', va='center', fontsize=13, fontweight='bold')
-
     # Phase 1 box
-    phase1 = mpatches.FancyBboxPatch((0.3, 3.8), 4.2, 2.5,
+    phase1 = mpatches.FancyBboxPatch((0.3, 3.75), 4.2, 2.65,
         boxstyle="round,pad=0.15", facecolor=LIGHTBLUE, edgecolor=BLUE, linewidth=1.5)
     ax.add_patch(phase1)
-    ax.text(2.4, 6.05, 'Phase 1: Memorizing', ha='center', fontweight='bold', fontsize=10, color=BLUE)
-    ax.text(2.4, 5.6, '(per session, append-only)', ha='center', fontsize=8, color=DARKGRAY)
+    ax.text(2.4, 6.18, 'Phase 1: Memorizing', ha='center', fontweight='bold', fontsize=10, color=BLUE)
+    ax.text(2.4, 5.78, '(per session, append-only)', ha='center', fontsize=8, color=DARKGRAY)
 
     # Session boxes
     for i, label in enumerate(['Session 1', 'Session 2', 'Session 3', '...']):
@@ -73,11 +71,11 @@ def fig_architecture():
     ax.text(2.4, 4.08, 'Append-only Fact List (~1600 facts)', ha='center', fontsize=7.5, fontweight='bold')
 
     # Phase 2 box
-    phase2 = mpatches.FancyBboxPatch((5.5, 3.8), 4.2, 2.5,
+    phase2 = mpatches.FancyBboxPatch((5.5, 3.75), 4.2, 2.65,
         boxstyle="round,pad=0.15", facecolor=LIGHTGREEN, edgecolor=GREEN, linewidth=1.5)
     ax.add_patch(phase2)
-    ax.text(7.6, 6.05, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=10, color='#15803D')
-    ax.text(7.6, 5.6, '(periodic, from all facts)', ha='center', fontsize=8, color=DARKGRAY)
+    ax.text(7.6, 6.18, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=10, color='#15803D')
+    ax.text(7.6, 5.78, '(periodic, from all facts)', ha='center', fontsize=8, color=DARKGRAY)
 
     # Code representation
     code_box = mpatches.FancyBboxPatch((5.9, 4.55), 3.4, 1.0,
@@ -96,12 +94,14 @@ def fig_architecture():
         arrowprops=dict(arrowstyle='->', color='#15803D', lw=1.5, connectionstyle='arc3,rad=-0.2'))
     ax.text(5.1, 4.55, 'Structure\n(thinking LLM)', ha='center', fontsize=7, color='#15803D')
 
-    # Constraint box
-    const_box = mpatches.FancyBboxPatch((5.9, 3.88), 3.4, 0.45,
+    # Constraint box (label wrapped to two lines so it stays inside the box)
+    const_box = mpatches.FancyBboxPatch((5.9, 3.84), 3.4, 0.6,
         boxstyle="round,pad=0.05", facecolor=LIGHTORANGE, edgecolor=ORANGE, linewidth=0.8)
     ax.add_patch(const_box)
-    ax.text(7.6, 4.10, 'Constraint Execution  \u2192  ACTIVE_ALERTS',
-            ha='center', fontsize=7.5, fontweight='bold', color='#92400E')
+    ax.text(7.6, 4.14, 'Constraint Execution',
+            ha='center', va='center', fontsize=7.5, fontweight='bold', color='#92400E')
+    ax.text(7.6, 3.92, '\u2192  ACTIVE_ALERTS',
+            ha='center', va='center', fontsize=7.5, fontweight='bold', color='#92400E')
 
     # Tier 3 Archive
     archive_box = mpatches.FancyBboxPatch((0.3, 2.5), 4.2, 0.9,

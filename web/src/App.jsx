@@ -75,7 +75,7 @@ function Nav() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            href="https://github.com/bojieli/UserAsCode"
+            href="https://github.com/19PINE-AI/user-as-code"
             target="_blank"
             rel="noreferrer"
             className="btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"

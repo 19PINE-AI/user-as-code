@@ -542,7 +542,7 @@ function AnalyticalDetail({ c, systems, sys_order }) {
 /* ------------------------------------------------------------------ */
 /* Active Service explorer                                             */
 /* ------------------------------------------------------------------ */
-const ACTIVE_SYS = { uac_v5: { name: 'UaC v5 + pipeline', ours: true }, mem0: { name: 'Mem0 (live)' }, a_mem: { name: 'A-MEM (live)' } }
+const ACTIVE_SYS = { uac_v5: { name: 'UaC + pipeline', ours: true }, mem0: { name: 'Mem0 (live)' }, a_mem: { name: 'A-MEM (live)' } }
 
 function ActiveExplorer({ data }) {
   const { cases } = data

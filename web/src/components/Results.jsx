@@ -226,7 +226,7 @@ function ActiveService({ summary }) {
 
 /* Ablation combined chart */
 function Ablation({ summary }) {
-  const data = summary.ablation.map((r) => ({ name: r.version.split(' ')[0], locomo: r.locomo, active: r.active }))
+  const data = summary.ablation.map((r) => ({ name: r.short || r.version, locomo: r.locomo, active: r.active }))
   return (
     <ChartCard title="Architecture ablation" sub="Append-only extraction is the single biggest recall gain (+19pp); two-phase separation solves the overwrite problem; the pipeline drives active service.">
       <ResponsiveContainer width="100%" height={300}>
