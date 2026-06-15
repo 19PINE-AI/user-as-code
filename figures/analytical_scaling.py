@@ -48,7 +48,7 @@ def per_n(name):
 def main():
     systems = [
         ("fc_repl", "Full Context + REPL", BLUE, "o", "-"),
-        ("uac_v5", "UaC (ours)", GREEN, "s", "-"),
+        ("uac_v5", "UaC", GREEN, "s", "-"),
         ("full_context", "Full Context (no tool)", GRAY, "^", "--"),
         ("memmachine", "MemMachine", ORANGE, "d", ":"),
         ("mem0", "Mem0", RED, "v", ":"),
