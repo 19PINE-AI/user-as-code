@@ -1,0 +1,13 @@
+User as Code: Executable Memory for Personalized Agents
+Copyright 2026 Bojie Li (Pine AI)
+
+This product includes software developed for the research paper
+"User as Code: Executable Memory for Personalized Agents."
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file.
+
+The experiments evaluate against third-party benchmark datasets (LOCOMO and
+LongMemEval) and third-party memory libraries (Mem0, A-MEM, MemMachine,
+EverMemOS, Hindsight). Those datasets and libraries are NOT included in this
+repository and are governed by their own licenses; see benchmarks/README.md
+for how to obtain the datasets.
