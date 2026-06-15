@@ -430,9 +430,9 @@ function MemoryPanel({ mem, kind }) {
                   </span>
                 </div>
                 {isAnalytical ? (
-                  <pre className="scroll-thin max-h-72 overflow-auto font-mono text-[11px] leading-relaxed text-slate-400">{JSON.stringify(mem.records_preview, null, 1)}</pre>
+                  <pre className="scroll-thin max-h-[40rem] overflow-auto font-mono text-[11px] leading-relaxed text-slate-400">{JSON.stringify(mem.records_preview, null, 1)}</pre>
                 ) : (
-                  <ul className="scroll-thin max-h-72 space-y-1 overflow-auto pr-1">
+                  <ul className="scroll-thin max-h-[40rem] space-y-1 overflow-auto pr-1">
                     {facts.map((f, i) => (
                       <li key={i} className="font-mono text-[11px] leading-snug text-slate-400">{f}</li>
                     ))}
