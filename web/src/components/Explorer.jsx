@@ -448,7 +448,7 @@ function MemoryPanel({ mem, kind }) {
                   Phase 2 · Structure
                   <span className="font-mono text-slate-500">state.py</span>
                 </div>
-                <div className="scroll-thin max-h-72 overflow-y-auto">
+                <div className="scroll-thin max-h-[40rem] overflow-y-auto">
                   <CodeBlock code={mem.state} />
                 </div>
               </div>
