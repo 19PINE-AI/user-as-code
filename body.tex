@@ -772,7 +772,7 @@ The clean linear regime (no truncation) is $n_{\text{sess}} \leq 50$: $0.78$~m\$
 \section{Real Cases: Conversation to Code to Constraint}
 \label{app:cases}
 
-This appendix walks through two end-to-end cases the main text only summarized: (i) a verbatim multi-session LOCOMO conversation distilled into a typed user state, and (ii) the conflicting wire-transfer scenario from our prototype, where two well-meaning family members give the agent contradictory destinations for the same transfer.
+This appendix walks through three end-to-end cases the main text only summarized: (i) a verbatim multi-session LOCOMO conversation distilled into a typed user state; (ii) the conflicting wire-transfer scenario from our prototype, where two well-meaning family members give the agent contradictory destinations for the same transfer; and (iii) an analytical aggregation query answered by executing code over the typed state, with the UaC and retrieval-baseline traces taken verbatim from our run.
 
 \subsection{Case 1: LOCOMO \texttt{conv-30}, Jon and Gina}
 
@@ -869,13 +869,14 @@ jon_studio = BusinessVenture(
 #   [FACTS]    "[2023-01-19] Jon lost his job as a banker..."
 #   [ARCHIVE]  Session 1, Jon turn 1: "Lost my job as a banker yesterday"
 #
-# Answer: "January 19, 2023"  -- judged CORRECT.
-# Note: Mem0 on the same question returns "yesterday" because its
-#       extracted memory preserves the relative-date phrasing without
-#       resolving it against the session timestamp.
+# UaC answer:  "January 19, 2023"          -- judged CORRECT.
+# Mem0 answer: "No information available"   -- judged WRONG.
+# (Both predictions are verbatim from our LOCOMO grading run.)
+# Without date resolution at extraction time, the relative-date
+# fact never surfaces as the answer.
 \end{lstlisting}
 
-The key observation from Listing~\ref{lst:app-locomo-query} is the failure mode that motivates Phase~1's date-resolution step: ``yesterday'' is a perfectly recallable string, but it is the \emph{wrong} answer. Resolving relative dates at extraction time, against the session timestamp, is one of the simplest interventions in the pipeline and accounts for a large share of the gap between UaC and Mem0 on LOCOMO's temporal-reasoning subset.
+The key observation from Listing~\ref{lst:app-locomo-query} is the failure mode that motivates Phase~1's date-resolution step. The underlying utterance---``lost my job \dots yesterday''---is a perfectly recallable string, but answering the question requires converting it to an absolute date against the session timestamp. UaC does this at extraction time, so the date is recoverable (\texttt{January 19, 2023}); Mem0, which stores the unresolved phrasing, fails to surface it at all (\texttt{No information available}). This date-resolution step is one of the simplest interventions in the pipeline and accounts for a large share of the gap between UaC and Mem0 on LOCOMO's temporal-reasoning subset.
 
 \subsection{Case 2: Conflicting Wire Transfers}
 
@@ -941,63 +942,50 @@ Thompson (husband). Verify with the account holder before sending.
 
 The analytical-inference benchmark (Section~\ref{sec:analytical}) measures the gap between code-executable and retrieval-only representations on aggregate questions. This subsection traces one such question end-to-end against UaC and a retrieval baseline so the structural reason for the gap is concrete.
 
-Listing~\ref{lst:app-analytical-state} shows the typed state Phase~2 produces for a synthetic user with 200 dining records over two years. Listing~\ref{lst:app-analytical-uac} shows how UaC answers the question \emph{``what was my average dinner spend in 2024 by cuisine, top 3?''}~---the LLM emits one pandas-style aggregation against the typed records, the Python REPL executes it deterministically, and the answer is correct by construction. Listing~\ref{lst:app-analytical-mm} shows how a retrieval-based system (MemMachine-style sentence-level retrieval with $\pm 3$ contextual expansion) fails on the same question: top-$k$ retrieval surfaces a sample of the relevant records, the LLM averages over the sample and reports the wrong number with the right shape.
+Listing~\ref{lst:app-analytical-state} shows the typed state for an analytical-benchmark user with 50 dining records. Listing~\ref{lst:app-analytical-uac} shows, \emph{verbatim from our run}, how UaC answers \emph{``what was the average cost in USD of my meals in 2024?''}: the coding agent writes a short Python aggregation against the typed records and the REPL executes it, giving the exact answer (48.2). Listing~\ref{lst:app-analytical-mm} shows the retrieval baselines on the same question: MemMachine retrieves 46 of the 50 records and still reports the wrong average, while Mem0 retrieves a single record and declines to answer.
 
-\begin{lstlisting}[caption={Excerpt from the synthetic dining state ($N{=}200$ records, abbreviated to 4 for space). The full state is a list of \texttt{Meal} dataclass instances generated by Phase~2 from atomic fact extractions.},label={lst:app-analytical-state}]
+\begin{lstlisting}[caption={The analytical dining state ($N{=}50$). Each record is a typed \texttt{MealRecord} dataclass instance; the instance below is the verbatim \texttt{repr} our agent printed when it inspected \texttt{data[0]} during the run.},label={lst:app-analytical-state}]
 @dataclass
-class Meal:
+class MealRecord:
+    id: int
     date: date
-    meal_type: str        # "breakfast", "lunch", "dinner"
-    cuisine: str          # "Italian", "Japanese", "Mexican", ...
-    venue: str
-    party_size: int
-    total_usd: float
+    meal_type: str        # "breakfast", "lunch", "dinner", "snack"
+    cuisine: str          # "italian", "japanese", "mexican", ...
+    restaurant: str
+    dined_in: bool
+    cost_usd: float
+    calories: int
 
-meals = [
-    Meal(date(2024, 1, 4),  "dinner", "Japanese", "Nobu",       2,  184.50),
-    Meal(date(2024, 1, 6),  "lunch",  "Mexican",  "El Farolito",1,   14.25),
-    Meal(date(2024, 1, 12), "dinner", "Italian",  "Frances",    4,  312.00),
-    Meal(date(2024, 1, 18), "dinner", "Japanese", "Kabuto",     2,   96.40),
-    # ... 196 more records spanning 2024-01-01 to 2025-12-31 ...
+# data[0], printed verbatim during the agent's inspection call:
+MealRecord(id=45, date=datetime.date(2024, 1, 4), meal_type='snack',
+           cuisine='mediterranean', restaurant='Curry House',
+           dined_in=True, cost_usd=73.16, calories=774)
+\end{lstlisting}
+\vspace{-0.5em}
+\begin{lstlisting}[caption={UaC answer trace, verbatim from our run. The agent's first attempt filtered on a non-existent \texttt{type} field and printed nothing; it inspected a record (Listing~\ref{lst:app-analytical-state}), dropped the bad filter, and re-ran. The corrected code below is what produced the answer---a concrete instance of the generate--verify--review loop.},label={lst:app-analytical-uac}]
+# Question: "What was the average cost in USD of my meals
+#            in 2024? Round to 2 decimals."     (gold: 48.2)
+# UaC -- the coding agent wrote and executed this against
+#        the typed records:
+meal_costs_2024 = [
+    record.cost_usd
+    for record in data
+    if record.date.year == 2024
 ]
+average_cost = sum(meal_costs_2024) / len(meal_costs_2024)
+print(round(average_cost, 2))
+# stdout: 48.2     -- exact-match CORRECT.
 \end{lstlisting}
 \vspace{-0.5em}
-\begin{lstlisting}[caption={UaC answer trace. The LLM writes one line of Python against the typed state; the Python REPL executes it. Total LLM tokens: $\sim$200 in, 60 out. Result is deterministic given the state.},label={lst:app-analytical-uac}]
-# Question: "What was my average dinner spend in 2024 by cuisine, top 3?"
-# UaC -- LLM emits this one expression against the typed state:
->>> from statistics import mean
->>> from collections import defaultdict
->>> by_cuisine = defaultdict(list)
->>> for m in meals:
-...     if m.meal_type == "dinner" and m.date.year == 2024:
-...         by_cuisine[m.cuisine].append(m.total_usd)
->>> sorted(((c, round(mean(v), 2), len(v)) for c, v in by_cuisine.items()),
-...        key=lambda x: -x[1])[:3]
-[('Italian',  187.45, 31),
- ('Japanese', 152.30, 28),
- ('French',   141.80, 14)]
-
-# Answer surfaced to user: "Italian $187.45 (31 meals), Japanese $152.30
-# (28 meals), French $141.80 (14 meals)."  -- exact-match CORRECT.
-\end{lstlisting}
-\vspace{-0.5em}
-\begin{lstlisting}[caption={MemMachine answer trace on the same question. Top-30 dense retrieval surfaces only a sample of 2024 dinner records; the LLM averages over what it sees and reports a confident but wrong number.},label={lst:app-analytical-mm}]
-# Same question, MemMachine pipeline:
-#   nucleus retrieval (k=30) on "average dinner spend 2024 by cuisine"
-#   returns 30 sentences out of ~120 relevant records (~25% coverage).
-#   LLM reasons over those 30 sentences:
-# Answer: "Italian ~$210, Japanese ~$145, Mexican ~$48."  -- WRONG.
-#   * Italian over-estimated: the 30 retrieved records over-sampled high-end
-#     Italian (Nobu, Frances) and missed cheaper trattorias.
-#   * Mexican is in the top-3 only because lunches got included; dinner-only
-#     filter cannot be enforced on a free-text retrieval result.
-#   * Counts not reported because top-30 does not equal the true population.
-#
-# Top-k retrieval is structurally lossy for aggregation: the answer
-# requires *all* relevant records, not the *most relevant* ones.
+\begin{lstlisting}[caption={Retrieval baselines on the same question, predictions verbatim from our run. Even retrieving 46 of the 50 records, MemMachine misses the average; the four dropped records shift the mean. Top-$k$ retrieval cannot guarantee the full population, and an average needs every record.},label={lst:app-analytical-mm}]
+# Same question, retrieval-based systems:
+# MemMachine: dense retrieval returns 46 of 50 records.
+#   Answer: "46.85"   -- WRONG (gold 48.2).
+# Mem0: retrieves 1 record.
+#   Answer: "Not enough information."   -- WRONG.
 \end{lstlisting}
 
-The key generalization: \emph{retrieval ranks; aggregation enumerates}. Any question whose answer depends on every relevant record (counts, sums, group-bys, time-window filters, top-$k$ within a population) is structurally outside what top-$k$ retrieval can solve. UaC's typed state lifts the question from natural language to one line of Python, where the interpreter handles enumeration for free. The 99\% vs.\ 43\% gap on the analytical benchmark (Table~\ref{tab:analytical}) is this same trace, repeated across 100 questions.
+The key generalization: \emph{retrieval ranks; aggregation enumerates}. Any question whose answer depends on every relevant record (counts, sums, group-bys, time-window filters, top-$k$ within a population) is structurally outside what top-$k$ retrieval can solve. UaC's typed state lifts the question from natural language to a few lines of Python, where the interpreter handles enumeration for free. The gap widens with scale: on a 500-record count question from our run (\emph{``how many italian-cuisine meals did I have?''}, gold 56), UaC's loop returns 56, while MemMachine---even retrieving 91 records---reports 18 and Mem0 reports 0. The 99\% vs.\ 43\% gap on the analytical benchmark (Table~\ref{tab:analytical}) is this same trace, repeated across 100 questions.
 
 \subsection{Why these cases matter beyond the benchmark numbers}
 

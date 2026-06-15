@@ -103,99 +103,86 @@ jon_studio = BusinessVenture(
                   "Marley flooring", "good bounce for dancers"],
 )`
 
-function Transform({ label, detail }) {
+function StageHead({ n, title, sub, color, badge }) {
   return (
-    <div className="flex items-center gap-3 py-1 pl-1">
-      <svg className="h-5 w-5 shrink-0 rotate-90 text-slate-600" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l6 5-6 5V5z" /></svg>
-      <div>
-        <span className="font-semibold text-slate-200">{label}</span>
-        <span className="text-slate-500"> — {detail}</span>
+    <div className="mb-3">
+      <div className="flex items-center gap-2.5">
+        <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-md font-mono text-xs font-bold', badge)}>{n}</span>
+        <h4 className={cx('text-lg font-bold tracking-tight sm:text-xl', color)}>{title}</h4>
       </div>
+      {sub && <p className="mt-2 text-sm leading-relaxed text-slate-400 sm:pl-[2.6rem]">{sub}</p>}
+    </div>
+  )
+}
+
+function FlowArrow() {
+  return (
+    <div className="flex justify-center py-2.5">
+      <svg className="h-6 w-6 rotate-90 text-slate-600" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l6 5-6 5V5z" /></svg>
     </div>
   )
 }
 
 function RunningExample() {
   return (
-    <div className="space-y-2">
-      {/* Stage 0 — raw input */}
+    <div>
       <motion.div {...reveal(0)}>
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-          <span className="grid h-5 w-5 place-items-center rounded bg-white/5 font-mono text-[10px]">0</span>
-          Raw input · three sessions over twelve days
-        </div>
+        <StageHead n="0" title="Raw conversation" color="text-slate-200" badge="bg-white/10 text-slate-200"
+          sub="Three sessions of LOCOMO conv-30, twelve days apart — the unstructured input the agent receives." />
         <CodeBlock code={RX_CONV} lang="text" caption="LOCOMO conv-30 — verbatim excerpts" />
       </motion.div>
 
-      <Transform label="Phase 1 · Memorize" detail='an LLM extracts every fact as a flat string; "yesterday" → 2023-01-19 against the session timestamp' />
+      <FlowArrow />
 
-      {/* Stage 1 — memorized facts */}
       <motion.div {...reveal(1)}>
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-300">
-          <span className="grid h-5 w-5 place-items-center rounded bg-brand-400/15 font-mono text-[10px]">1</span>
-          Memorized · append-only fact list
-        </div>
+        <StageHead n="1" title="Phase 1 · Memorize" color="text-brand-200" badge="bg-brand-400/20 text-brand-200"
+          sub={<>An LLM extracts every fact as a flat string and <span className="text-slate-200">appends</span> it — never overwriting. Relative dates are resolved against the session timestamp: <span className="text-slate-200">“lost my job yesterday” → 2023-01-19</span>. (Mem0 keeps the literal “yesterday” and answers the date wrong.)</>} />
         <CodeBlock code={RX_FACTS} caption="phase-1 output — facts.py (indexed in ChromaDB)" />
-        <p className="mt-2 text-xs text-slate-500">
-          Note the first fact: the model resolved <span className="text-slate-300">“lost my job yesterday”</span> to{' '}
-          <span className="font-mono text-brand-200">2023-01-19</span>. Mem0 keeps the literal “yesterday” — and answers the date question wrong.
-        </p>
       </motion.div>
 
-      <Transform label="Phase 2 · Structure" detail="an LLM regenerates the entire typed Python from the complete fact list — no incremental edits, so nothing drifts" />
+      <FlowArrow />
 
-      {/* Stage 2 — structured code */}
       <motion.div {...reveal(2)}>
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent-300">
-          <span className="grid h-5 w-5 place-items-center rounded bg-accent-400/15 font-mono text-[10px]">2</span>
-          Structured · typed Python state
-        </div>
+        <StageHead n="2" title="Phase 2 · Structure" color="text-accent-200" badge="bg-accent-400/20 text-accent-200"
+          sub={<>An LLM regenerates the <span className="text-slate-200">entire</span> typed Python from the full fact list — dates become <span className="font-mono text-accent-200">date()</span> objects, repeated entities become typed lists, leftovers go to <span className="font-mono text-accent-200">notes</span>. This <span className="text-slate-200">jon</span> object is what the next pipeline queries.</>} />
         <CodeBlock code={RX_STATE} caption="phase-2 output — state.py (the user, as code)" />
-        <p className="mt-2 text-xs text-slate-500">
-          Dates become <span className="font-mono text-accent-200">date()</span> objects, repeated entities become typed lists, and anything that
-          doesn’t fit a field lands in <span className="font-mono text-accent-200">notes</span>. This <span className="text-slate-300">jon</span> object is what every
-          query in the next pipeline runs against.
-        </p>
       </motion.div>
     </div>
   )
 }
 
-/* ---------------- Query-time trace (real conv-30 QA) ---------------- */
-const RX_QUERY = `# LOCOMO question (temporal):
-#   "When did Jon lose his job as a banker?"
-#
-# All three channels are assembled into the answer prompt:
-[STATE]    jon.job_history[0].end_date == date(2023, 1, 19)
-[FACTS]    "[2023-01-19] Jon lost his job as a banker..."
-[ARCHIVE]  session 1: "Lost my job as a banker yesterday"
-#
-# Answer: "January 19, 2023"   -> judged CORRECT.
-# Mem0 answers "yesterday": it never resolved the relative date.`
-
 /* ---------------- Three capability tiers ---------------- */
+// Recall + analytical are real runs: predictions are verbatim from our
+// LOCOMO grading (public/data/locomo.json) and the analytical code trace is
+// the actual Python our agent executed (public/data/analytical.json).
 const TIERS = [
   {
     id: 'recall',
     name: 'Recall',
-    tag: 'attribute access',
-    desc: 'A fact question is one field access on the typed state — no similarity search, no relative-date ambiguity. (This is the conv-30 state from above.)',
-    code: `# "When did Jon lose his job?"
->>> jon.job_history[0].end_date
-datetime.date(2023, 1, 19)`,
+    tag: 'real LOCOMO answer',
+    desc: 'Because Phase 1 resolved “yesterday” to a real date, the fact is recoverable. On this real conv-30 question UaC answers correctly; Mem0 never surfaces it.',
+    code: `# real LOCOMO conv-30 (temporal):
+#   "When did Jon lose his job as a banker?"
+#   gold: 19 January, 2023
+UaC   -> "January 19, 2023"          [correct]
+Mem0  -> "No information available"  [wrong]`,
+    lang: 'text',
     accent: 'brand',
   },
   {
     id: 'analytical',
     name: 'Analytical inference',
-    tag: 'one-line aggregation',
-    desc: 'Counts, sums, group-bys and time-window filters enumerate every record — trivial in Python, structurally lossy under top-k retrieval (UaC 99% vs MemMachine 43%).',
-    code: `# "Avg 2024 dinner spend by cuisine, top 3"
->>> [(c, round(mean(v), 2), len(v))
-...  for c, v in by_cuisine.items()][:3]
-[('Italian',  187.45, 31),
- ('Japanese', 152.30, 28),
- ('French',   141.80, 14)]`,
+    tag: 'real executed code',
+    desc: 'Counts, sums and group-bys must enumerate every record — top-k retrieval structurally cannot. UaC 99% vs MemMachine 43% on the analytical benchmark.',
+    code: `# analytical bench (500 meals):
+#   "How many italian-cuisine meals did I have?"  gold: 56
+# UaC's agent wrote and ran this Python:
+count = 0
+for record in records_raw:
+    if record.get("cuisine") == "italian":
+        count += 1
+print(count)        # -> 56   [correct]
+# MemMachine: 18 (top-91 misses records) · Mem0: 0`,
     accent: 'accent',
   },
   {
@@ -226,7 +213,7 @@ function Tiers() {
             <div className="mt-1 font-mono text-[11px] text-slate-500">{t.tag}</div>
             <p className="mt-3 text-sm leading-relaxed text-slate-400">{t.desc}</p>
             <div className="mt-4">
-              <CodeBlock code={t.code} />
+              <CodeBlock code={t.code} lang={t.lang || 'python'} />
             </div>
           </motion.div>
         )
@@ -547,12 +534,6 @@ function SubHead({ step, title, children }) {
   )
 }
 
-const PHASE_CARDS = [
-  { t: 'Phase 1 · Memorize', d: 'An LLM extracts every fact as a flat string from each session — appended, never overwritten. Relative dates ("yesterday") are resolved to absolute against the session timestamp. ~50 facts/session.', tag: 'per session · append-only' },
-  { t: 'Phase 2 · Structure', d: 'An LLM regenerates the entire typed Python from the accumulated facts: date() for dates, typed lists for collections, notes: list[str] as a safety net. Regenerated whole, so nothing drifts.', tag: 'periodic · from full corpus' },
-  { t: 'Archive', d: 'The raw conversation is also chunked and indexed in ChromaDB — a retrieval fallback for direct-quote questions that hinge on exact phrasing.', tag: 'raw · fallback' },
-]
-
 export default function Mechanism() {
   return (
     <section id="mechanism" className="border-t border-white/5 py-20 sm:py-28">
@@ -570,20 +551,10 @@ export default function Mechanism() {
 
           <div className="space-y-5 pt-2">
             <SubHead title="A real run: LOCOMO conv-30 (Jon &amp; Gina)">
-              Watch one conversation flow through both phases. Everything below is verbatim from our pipeline:
-              three sessions over twelve days become an append-only fact list, then typed Python.
+              Watch one conversation flow through both phases (from the paper’s worked appendix). The three
+              sessions are verbatim LOCOMO; the fact list and typed state are what our two phases produce from them.
             </SubHead>
             <RunningExample />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {PHASE_CARDS.map((c, i) => (
-              <motion.div key={c.t} {...reveal(i)} className="card p-5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500">{c.tag}</div>
-                <h4 className="mt-1 font-semibold text-white">{c.t}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{c.d}</p>
-              </motion.div>
-            ))}
           </div>
         </div>
 
@@ -595,11 +566,12 @@ export default function Mechanism() {
             Python over the same typed state the first pipeline produced.
           </SectionHead>
 
-          {/* Retrieval channels + real trace */}
+          {/* Retrieval channels */}
           <div className="space-y-5">
             <SubHead title="At query time: three channels compose">
               Rather than pick one retrieval strategy, UaC concatenates three under fixed headers and lets the
-              answer LLM prefer the structured channel on conflicts. Each covers a different failure mode of the others.
+              answer LLM prefer the structured channel on conflicts. Each covers a different failure mode of the
+              others; the parenthesised numbers are the measured leave-one-out impact on LOCOMO recall.
             </SubHead>
             <div className="grid gap-4 md:grid-cols-3">
               {CHANNELS.map((c, i) => (
@@ -611,16 +583,14 @@ export default function Mechanism() {
                 </motion.div>
               ))}
             </div>
-            <motion.div {...reveal(1)}>
-              <CodeBlock code={RX_QUERY} lang="text" caption="the conv-30 question, answered from all three channels" />
-            </motion.div>
           </div>
 
-          {/* Capability tiers, grounded in the running example */}
+          {/* Capability tiers, grounded in real benchmark runs */}
           <div className="space-y-5">
             <SubHead title="Three capabilities, one medium">
-              Once the user is code, recall, aggregation, and proactive alerting are three uses of the same
-              typed state — each one line of Python. The first two run against the objects you just saw built.
+              Once the user is code, recall, aggregation, and proactive alerting are three uses of the same typed
+              state. Each card below is a real question our system answered — verbatim predictions from our LOCOMO
+              grading and the actual Python our agent executed on the analytical benchmark.
             </SubHead>
             <Tiers />
           </div>
