@@ -43,36 +43,29 @@ function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+// Single-pass tokenizer over HTML-escaped source. Each token is emitted
+// exactly once, so inserted markup (e.g. class="tok-str") is never re-scanned
+// — previously the identifier pass matched `class`/`str` inside that markup
+// and corrupted the tags.
+// Note: escapeHtml only escapes & < > (not quotes), so string delimiters in the
+// escaped source are still literal " and '.
+const TOKEN_RE =
+  /(#[^\n]*)|((?:f|r|rf|fr)?("|')[\s\S]*?\3)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g
+
 export function highlightPython(code) {
   if (!code) return ''
-  return code
-    .split('\n')
-    .map((line) => {
-      const ci = line.indexOf('#')
-      let codePart = line
-      let comment = ''
-      if (ci >= 0) {
-        // naive: treat # as comment unless inside a string — fine for our snippets
-        codePart = line.slice(0, ci)
-        comment = line.slice(ci)
-      }
-      let html = escapeHtml(codePart)
-      // strings
-      html = html.replace(/(&quot;|&#39;|'|")([^'"]*?)\1/g, (m) => `<span class="tok-str">${m}</span>`)
-      html = html.replace(/(f&quot;|f")([^"]*)(&quot;|")/g, (m) => `<span class="tok-str">${m}</span>`)
-      // numbers
-      html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>')
-      // identifiers -> keywords / builtins
-      html = html.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, (m) => {
-        if (KW.has(m)) return `<span class="tok-kw">${m}</span>`
-        if (BUILTIN.has(m)) return `<span class="tok-fn">${m}</span>`
-        if (/^[A-Z]/.test(m)) return `<span class="tok-cls">${m}</span>`
-        return m
-      })
-      if (comment) html += `<span class="tok-com">${escapeHtml(comment)}</span>`
-      return html
-    })
-    .join('\n')
+  return escapeHtml(code).replace(TOKEN_RE, (m, comment, str, _q, num, ident) => {
+    if (comment) return `<span class="tok-com">${comment}</span>`
+    if (str) return `<span class="tok-str">${str}</span>`
+    if (num) return `<span class="tok-num">${num}</span>`
+    if (ident) {
+      if (KW.has(ident)) return `<span class="tok-kw">${ident}</span>`
+      if (BUILTIN.has(ident)) return `<span class="tok-fn">${ident}</span>`
+      if (/^[A-Z]/.test(ident)) return `<span class="tok-cls">${ident}</span>`
+      return ident
+    }
+    return m
+  })
 }
 
 export function CodeBlock({ code, lang = 'python', className = '', caption }) {
