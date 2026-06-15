@@ -137,6 +137,8 @@ Memory-R1~\citep{yan2025memoryr1} trains memory policies with GRPO (+48\% F1). A
 \label{fig:architecture}
 \end{figure}
 
+\textbf{Two pipelines.} The architecture has two halves, and the rest of this section is organized around them. \emph{Extraction} (Section~\ref{sec:extraction}) converts raw multi-session conversation into code, in two phases---Memorize, then Structure. \emph{Retrieval and use} (Section~\ref{sec:retrieval-use}) then answers questions and drives proactive service over that code. We first show what the resulting code looks like (Section~\ref{sec:code-example}), then detail each pipeline in turn; cross-cutting design principles follow in Section~\ref{sec:principles}.
+
 \subsection{What ``User as Code'' Looks Like}
 \label{sec:code-example}
 
@@ -219,9 +221,10 @@ ACTIVE_ALERTS = [
 ]
 \end{lstlisting}
 
-\subsection{Two-Phase Architecture}
+\subsection{Extraction: Memorize, then Structure}
+\label{sec:extraction}
 
-Our key architectural insight, validated by ablation (Section~\ref{sec:ablation}), is that memorizing and structuring must be separate concerns:
+The first pipeline converts raw conversation into code. Our key architectural insight, validated by ablation (Section~\ref{sec:ablation}), is that the two jobs it does---memorizing and structuring---must be separate concerns:
 
 \textbf{Phase 1 --- Memorizing (per session, append-only).} An LLM extracts every individual fact as a flat string from each session (Gemini~3 Flash, thinking budget 8192). Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved to absolute dates against the session timestamp. This produces $\sim$50 facts/session ($\sim$950 for a 19-session LOCOMO conversation). Facts are indexed in ChromaDB.
 
@@ -231,9 +234,40 @@ Our key architectural insight, validated by ablation (Section~\ref{sec:ablation}
 
 \textbf{Phase~2 cost scaling.} Wall time stays at 30--40 seconds across $\{19, 50, 100, 200\}$-session corpora, and cost flattens at $\sim$\$0.07 once our 500K-character input cap engages around $n{=}100$ sessions (Appendix~\ref{sec:phase2-scalability})---a known limitation that motivates hierarchical structuring at production scale.
 
-\subsection{Design Principles}
+\subsection{Retrieval and Use}
+\label{sec:retrieval-use}
 
-Two principles are evaluated directly in this paper:
+The second pipeline operates over the code the first one produced. It has two modes: \emph{retrieval}, which answers user questions, and the \emph{generate--verify--review} loop, which produces the proactive alerts of Active Service. Both treat the typed state as the primary source of truth, falling back on the fact and archive indices for coverage.
+
+\subsubsection{Multi-Strategy Retrieval}
+\label{sec:retrieval}
+
+At query time, retrieval composes three channels rather than picking one. Each channel addresses a different failure mode of the others: the structured-code channel can return a typed object but only for facts the structuring step has captured; the fact-vector channel covers the long tail of facts that did not make it into the typed schema; and the raw-archive channel preserves the exact conversational phrasing for queries that hinge on wording.
+
+\textbf{(1)~Structured code state.} The full \texttt{state.py} of the manifest-routed domain (or all domains, in the non-modular setting) is included verbatim in the prompt, truncated at 6{,}000 characters. The agent reads typed dataclass instances and the pre-computed \texttt{ACTIVE\_ALERTS} list with no parse step.
+
+\textbf{(2)~Fact-vector retrieval.} A ChromaDB collection over the append-only fact list (one fact per record, $\sim$50 facts/session) is queried by cosine similarity against the question; the top 20 facts are appended. This recovers facts the structuring step compressed away or normalized to a different surface form.
+
+\textbf{(3)~Archive retrieval.} A second ChromaDB collection holds the raw conversation chunked at session granularity; the top 10 chunks by cosine similarity are appended. Used as a last-resort fallback for direct-quote questions.
+
+The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer the structured channel on conflicts. The leave-one-out channel ablation in Section~\ref{sec:channel-ablation} shows the fact-vector and archive channels are individually significant on LOCOMO recall while the structured channel is roughly neutral for recall---it instead carries the analytical and constraint workloads.
+
+\subsubsection{The Generate--Verify--Review Loop}
+\label{sec:gvr}
+
+The same code is also the substrate for proactive service. The core loop is:
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Generate:} The coding agent writes Python constraints against the code-represented state.
+\item \textbf{Verify:} Execute in a sandbox---results are deterministic.
+\item \textbf{Review:} The agent reviews results, decides to refine, persist, or incorporate.
+\end{enumerate}
+
+When an ad-hoc check proves useful, the agent promotes it to a persistent constraint. Alerts surface in the manifest's \texttt{ACTIVE\_ALERTS}, visible at the start of every future conversation. Constraints emerge autonomously from the LLM's reasoning.
+
+\subsection{Design Principles}
+\label{sec:principles}
+
+Beyond the two pipelines, two cross-cutting principles are evaluated directly in this paper:
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Separation of Structure and Data.} Schema (dataclasses) separated from state (instances). Validated by the ablation in Section~\ref{sec:ablation}.
@@ -247,30 +281,6 @@ Three further principles guide production deployment but are not isolated by the
 \item \textbf{Progressive Disclosure.} Compact manifest ($\sim$200--300 tokens, always loaded) with on-demand domain loading. Keeps the prompt budget bounded as the user state grows.
 \item \textbf{Agent-Native File System.} User project is a directory in the agent's workspace---no custom memory API needed.
 \end{enumerate}
-
-\subsection{The Generate-Verify-Review Loop}
-
-The core mechanism for Active Service:
-\begin{enumerate}[leftmargin=*]
-\item \textbf{Generate:} The coding agent writes Python constraints against the code-represented state.
-\item \textbf{Verify:} Execute in a sandbox---results are deterministic.
-\item \textbf{Review:} The agent reviews results, decides to refine, persist, or incorporate.
-\end{enumerate}
-
-When an ad-hoc check proves useful, the agent promotes it to a persistent constraint. Alerts surface in the manifest's \texttt{ACTIVE\_ALERTS}, visible at the start of every future conversation. Constraints emerge autonomously from the LLM's reasoning.
-
-\subsection{Multi-Strategy Retrieval}
-\label{sec:retrieval}
-
-At query time, retrieval composes three channels rather than picking one. Each channel addresses a different failure mode of the others: the structured-code channel can return a typed object but only for facts the structuring step has captured; the fact-vector channel covers the long tail of facts that did not make it into the typed schema; and the raw-archive channel preserves the exact conversational phrasing for queries that hinge on wording.
-
-\textbf{(1)~Structured code state.} The full \texttt{state.py} of the manifest-routed domain (or all domains, in the non-modular setting) is included verbatim in the prompt, truncated at 6{,}000 characters. The agent reads typed dataclass instances and the pre-computed \texttt{ACTIVE\_ALERTS} list with no parse step.
-
-\textbf{(2)~Fact-vector retrieval.} A ChromaDB collection over the append-only fact list (one fact per record, $\sim$50 facts/session) is queried by cosine similarity against the question; the top 20 facts are appended. This recovers facts the structuring step compressed away or normalized to a different surface form.
-
-\textbf{(3)~Archive retrieval.} A second ChromaDB collection holds the raw conversation chunked at session granularity; the top 10 chunks by cosine similarity are appended. Used as a last-resort fallback for direct-quote questions.
-
-The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer the structured channel on conflicts. The leave-one-out channel ablation in Section~\ref{sec:channel-ablation} shows the fact-vector and archive channels are individually significant on LOCOMO recall while the structured channel is roughly neutral for recall---it instead carries the analytical and constraint workloads.
 
 
 \section{Experiments and Evaluation}

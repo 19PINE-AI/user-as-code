@@ -24,10 +24,10 @@ function reveal(i = 0) {
 /* ---------------- Two-phase pipeline diagram ---------------- */
 function PipelineDiagram() {
   const nodes = [
-    { k: 'conv', label: 'Conversations', sub: 'multi-session dialogue', color: 'from-slate-600/30 to-slate-700/30', ring: 'border-slate-500/40' },
-    { k: 'p1', label: 'Phase 1 · Memorize', sub: 'append-only fact extraction\n~50 facts / session', color: 'from-brand-500/20 to-brand-600/10', ring: 'border-brand-400/40' },
-    { k: 'p2', label: 'Phase 2 · Structure', sub: 'periodic LLM → typed Python\nregenerated from full corpus', color: 'from-accent-500/20 to-accent-600/10', ring: 'border-accent-400/40' },
-    { k: 'out', label: 'User-as-Code', sub: 'dataclasses · constraints · manifest', color: 'from-emerald-500/20 to-emerald-600/10', ring: 'border-emerald-400/40' },
+    { k: 'conv', label: 'Conversations', sub: 'multi-session dialogue\n(the raw input)', color: 'from-slate-600/30 to-slate-700/30', ring: 'border-slate-500/40' },
+    { k: 'p1', label: 'Phase 1 · Memorize', sub: 'append-only fact list\ndates resolved to absolute', color: 'from-brand-500/20 to-brand-600/10', ring: 'border-brand-400/40' },
+    { k: 'p2', label: 'Phase 2 · Structure', sub: 'regenerate typed Python\nfrom the full fact corpus', color: 'from-accent-500/20 to-accent-600/10', ring: 'border-accent-400/40' },
+    { k: 'out', label: 'User-as-Code', sub: 'typed state.py\n+ searchable fact index', color: 'from-emerald-500/20 to-emerald-600/10', ring: 'border-emerald-400/40' },
   ]
   return (
     <div className="relative flex flex-col gap-3 md:flex-row md:items-stretch">
@@ -50,36 +50,163 @@ function PipelineDiagram() {
   )
 }
 
+/* ---------------- Running example: LOCOMO conv-30 (Jon & Gina) ----------------
+   Every snippet below is taken verbatim from the paper's worked appendix
+   (Appendix "Real Cases", LOCOMO conv-30): the raw conversation, the Phase-1
+   fact list our extractor produces, and the Phase-2 typed state. */
+const RX_CONV = `SESSION 1  ·  2023-01-20
+Jon:  Lost my job as a banker yesterday, so I'm gonna take
+      a shot at starting my own business.
+Gina: Sorry about your job Jon! Unfortunately I also lost
+      my job at Door Dash this month.
+Jon:  I'm starting a dance studio 'cause I'm passionate
+      about dancing and want to share it with others.
+
+SESSION 2  ·  2023-01-29
+Jon:  On the hunt for the ideal spot for my studio... it's
+      downtown, easy to get to. Plus the natural light!
+Jon:  I'm after Marley flooring, what dance studios use.
+      Grippy but still lets you move.
+
+SESSION 3  ·  2023-02-01
+Gina: Emailed wholesalers and one said yes today! Now I
+      can expand my clothing store.`
+
+const RX_FACTS = `facts = [   # append-only — never overwritten, never deleted
+  "[2023-01-19] Jon lost his job as a banker (one day before session 1)",
+  "[2023-01-20] Jon plans to start his own business: a dance studio",
+  "[2023-01-20] Jon's passion is dancing; contemporary is his favorite",
+  "[2023-01-20] Gina lost her job at Door Dash in January 2023",
+  "[2023-01-29] Jon is scouting downtown locations for the studio",
+  "[2023-01-29] Jon wants Marley flooring (standard for dance studios)",
+  "[2023-02-01] Gina secured a wholesaler to expand her clothing store",
+  # ... ~140 more facts across the full conversation ...
+]`
+
+const RX_STATE = `@dataclass
+class Person:
+    name: str
+    job_history: list["Job"] = field(default_factory=list)
+    interests: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+
+jon = Person(
+    name="Jon",
+    job_history=[Job(title="banker", employer="(unspecified)",
+                     end_date=date(2023, 1, 19), reason_ended="laid off")],
+    interests=["dancing", "contemporary dance"],
+)
+jon_studio = BusinessVenture(
+    name="(unnamed dance studio)", type="dance studio",
+    status="scouting", started=date(2023, 1, 20),
+    requirements=["downtown location", "natural light",
+                  "Marley flooring", "good bounce for dancers"],
+)`
+
+function Transform({ label, detail }) {
+  return (
+    <div className="flex items-center gap-3 py-1 pl-1">
+      <svg className="h-5 w-5 shrink-0 rotate-90 text-slate-600" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l6 5-6 5V5z" /></svg>
+      <div>
+        <span className="font-semibold text-slate-200">{label}</span>
+        <span className="text-slate-500"> — {detail}</span>
+      </div>
+    </div>
+  )
+}
+
+function RunningExample() {
+  return (
+    <div className="space-y-2">
+      {/* Stage 0 — raw input */}
+      <motion.div {...reveal(0)}>
+        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <span className="grid h-5 w-5 place-items-center rounded bg-white/5 font-mono text-[10px]">0</span>
+          Raw input · three sessions over twelve days
+        </div>
+        <CodeBlock code={RX_CONV} lang="text" caption="LOCOMO conv-30 — verbatim excerpts" />
+      </motion.div>
+
+      <Transform label="Phase 1 · Memorize" detail='an LLM extracts every fact as a flat string; "yesterday" → 2023-01-19 against the session timestamp' />
+
+      {/* Stage 1 — memorized facts */}
+      <motion.div {...reveal(1)}>
+        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-300">
+          <span className="grid h-5 w-5 place-items-center rounded bg-brand-400/15 font-mono text-[10px]">1</span>
+          Memorized · append-only fact list
+        </div>
+        <CodeBlock code={RX_FACTS} caption="phase-1 output — facts.py (indexed in ChromaDB)" />
+        <p className="mt-2 text-xs text-slate-500">
+          Note the first fact: the model resolved <span className="text-slate-300">“lost my job yesterday”</span> to{' '}
+          <span className="font-mono text-brand-200">2023-01-19</span>. Mem0 keeps the literal “yesterday” — and answers the date question wrong.
+        </p>
+      </motion.div>
+
+      <Transform label="Phase 2 · Structure" detail="an LLM regenerates the entire typed Python from the complete fact list — no incremental edits, so nothing drifts" />
+
+      {/* Stage 2 — structured code */}
+      <motion.div {...reveal(2)}>
+        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent-300">
+          <span className="grid h-5 w-5 place-items-center rounded bg-accent-400/15 font-mono text-[10px]">2</span>
+          Structured · typed Python state
+        </div>
+        <CodeBlock code={RX_STATE} caption="phase-2 output — state.py (the user, as code)" />
+        <p className="mt-2 text-xs text-slate-500">
+          Dates become <span className="font-mono text-accent-200">date()</span> objects, repeated entities become typed lists, and anything that
+          doesn’t fit a field lands in <span className="font-mono text-accent-200">notes</span>. This <span className="text-slate-300">jon</span> object is what every
+          query in the next pipeline runs against.
+        </p>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ---------------- Query-time trace (real conv-30 QA) ---------------- */
+const RX_QUERY = `# LOCOMO question (temporal):
+#   "When did Jon lose his job as a banker?"
+#
+# All three channels are assembled into the answer prompt:
+[STATE]    jon.job_history[0].end_date == date(2023, 1, 19)
+[FACTS]    "[2023-01-19] Jon lost his job as a banker..."
+[ARCHIVE]  session 1: "Lost my job as a banker yesterday"
+#
+# Answer: "January 19, 2023"   -> judged CORRECT.
+# Mem0 answers "yesterday": it never resolved the relative date.`
+
 /* ---------------- Three capability tiers ---------------- */
 const TIERS = [
   {
     id: 'recall',
     name: 'Recall',
     tag: 'attribute access',
-    desc: 'What every memory system gives you — but here it is a typed field, not a similarity hit.',
-    code: `>>> passport.number
-'AB1234567'`,
+    desc: 'A fact question is one field access on the typed state — no similarity search, no relative-date ambiguity. (This is the conv-30 state from above.)',
+    code: `# "When did Jon lose his job?"
+>>> jon.job_history[0].end_date
+datetime.date(2023, 1, 19)`,
     accent: 'brand',
   },
   {
     id: 'analytical',
     name: 'Analytical inference',
     tag: 'one-line aggregation',
-    desc: 'Counts, group-bys, time-window filters — trivial in Python, structurally lossy under top-k retrieval.',
-    code: `>>> sum(1 for t in trips
-...     if t.is_international
-...     and t.departure_date.year == 2025)
-2`,
+    desc: 'Counts, sums, group-bys and time-window filters enumerate every record — trivial in Python, structurally lossy under top-k retrieval (UaC 99% vs MemMachine 43%).',
+    code: `# "Avg 2024 dinner spend by cuisine, top 3"
+>>> [(c, round(mean(v), 2), len(v))
+...  for c, v in by_cuisine.items()][:3]
+[('Italian',  187.45, 31),
+ ('Japanese', 152.30, 28),
+ ('French',   141.80, 14)]`,
     accent: 'accent',
   },
   {
     id: 'active',
     name: 'Active service',
     tag: 'boolean check, fired on update',
-    desc: 'A constraint the interpreter runs deterministically at every state change — the basis of proactive alerts.',
-    code: `>>> (passport.expiry_date
-...   - trips[0].departure_date).days >= 180
-False   # 34 days — renew before Tokyo`,
+    desc: 'A constraint the interpreter runs deterministically at every state change — the basis of proactive alerts the user never asked for.',
+    code: `# fired whenever travel state changes
+>>> (passport.expiry_date
+...  - trips[0].departure_date).days >= 180
+False   # 34 days — alert before Tokyo`,
     accent: 'ok',
   },
 ]
@@ -407,59 +534,50 @@ function WorkedExample() {
   )
 }
 
-/* ---------------- The contrast: bag-of-facts vs code ---------------- */
-function Contrast() {
-  const rows = [
-    ['Conflicting reports', 'Coexist unresolved', 'Version history + typed override'],
-    ['Aggregate over records', 'Top-k misses the population', 'One-line comprehension over all records'],
-    ['Logical constraints', 'Cannot be expressed', 'Boolean check the interpreter runs'],
-    ['Cross-session links', 'Need both turns in one window', 'Shared key joins them in the schema'],
-  ]
+/* ---------------- Left-aligned sub-section heading ---------------- */
+function SubHead({ step, title, children }) {
   return (
-    <div className="card overflow-hidden">
-      <div className="grid grid-cols-3 gap-px bg-white/5 text-sm">
-        <div className="bg-ink-850 px-4 py-3 font-semibold text-slate-300">Task</div>
-        <div className="bg-ink-850 px-4 py-3 font-semibold text-bad">Bag-of-facts / retrieval</div>
-        <div className="bg-ink-850 px-4 py-3 font-semibold text-ok">User as Code</div>
-        {rows.map((r, i) => (
-          <React.Fragment key={i}>
-            <div className="bg-ink-900/60 px-4 py-3 font-medium text-slate-200">{r[0]}</div>
-            <div className="bg-ink-900/40 px-4 py-3 text-slate-400">{r[1]}</div>
-            <div className="bg-ink-900/40 px-4 py-3 text-slate-300">{r[2]}</div>
-          </React.Fragment>
-        ))}
+    <div className="max-w-3xl">
+      <div className="flex items-center gap-2">
+        {step && <span className="font-mono text-xs font-semibold text-slate-500">{step}</span>}
+        <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">{title}</h3>
       </div>
+      {children && <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-400">{children}</p>}
     </div>
   )
 }
 
+const PHASE_CARDS = [
+  { t: 'Phase 1 · Memorize', d: 'An LLM extracts every fact as a flat string from each session — appended, never overwritten. Relative dates ("yesterday") are resolved to absolute against the session timestamp. ~50 facts/session.', tag: 'per session · append-only' },
+  { t: 'Phase 2 · Structure', d: 'An LLM regenerates the entire typed Python from the accumulated facts: date() for dates, typed lists for collections, notes: list[str] as a safety net. Regenerated whole, so nothing drifts.', tag: 'periodic · from full corpus' },
+  { t: 'Archive', d: 'The raw conversation is also chunked and indexed in ChromaDB — a retrieval fallback for direct-quote questions that hinge on exact phrasing.', tag: 'raw · fallback' },
+]
+
 export default function Mechanism() {
   return (
     <section id="mechanism" className="border-t border-white/5 py-20 sm:py-28">
-      <div className="container-page space-y-20">
-        <div className="space-y-8">
-          <SectionHead eyebrow="The mechanism" title="What “User as Code” actually means">
-            Free-text and fact-store formats separate <em>representation</em> from <em>verification</em>.
-            Any representation a Python interpreter can read directly collapses the two:{' '}
-            <code className="rounded bg-ink-800 px-1.5 py-0.5 font-mono text-[13px] text-brand-200">passport.expiry_date</code>{' '}
-            can be stored <em>and</em> compared in one medium.
-          </SectionHead>
-          <motion.div {...reveal(1)}><Contrast /></motion.div>
-        </div>
+      <div className="container-page space-y-24">
 
-        <div className="space-y-8">
-          <SectionHead eyebrow="Architecture" title="A two-phase pipeline">
-            The decisive insight, isolated by ablation: <span className="text-slate-200">memorizing and structuring
-            must be separate concerns.</span> Append-only extraction preserves coverage (+19pp on LOCOMO);
-            periodic regeneration from the <em>complete</em> corpus adds typed structure without incremental loss.
+        {/* ============ PIPELINE 1 — EXTRACTION ============ */}
+        <div className="space-y-10">
+          <SectionHead eyebrow="Pipeline 1 · Extraction" title="From conversation to code">
+            UaC is two pipelines. The first turns raw, multi-session dialogue into typed Python in two
+            phases — <span className="text-slate-200">Memorize</span>, then <span className="text-slate-200">Structure</span>.
+            Keeping them separate is the decisive design choice: append-only extraction then whole-corpus
+            regeneration gives <span className="text-slate-200">+19pp recall on LOCOMO</span> over structuring incrementally.
           </SectionHead>
           <motion.div {...reveal(1)}><PipelineDiagram /></motion.div>
+
+          <div className="space-y-5 pt-2">
+            <SubHead title="A real run: LOCOMO conv-30 (Jon &amp; Gina)">
+              Watch one conversation flow through both phases. Everything below is verbatim from our pipeline:
+              three sessions over twelve days become an append-only fact list, then typed Python.
+            </SubHead>
+            <RunningExample />
+          </div>
+
           <div className="grid gap-4 md:grid-cols-3">
-            {[
-              { t: 'Phase 1 · Memorize', d: 'An LLM extracts every fact as a flat string from each session — appended, never overwritten. Relative dates ("yesterday") resolved to absolute against the session timestamp.', tag: 'per session · append-only' },
-              { t: 'Phase 2 · Structure', d: 'An LLM regenerates the entire typed Python from the accumulated facts: date() for dates, typed lists for collections, notes:list[str] as a safety net. No incremental drift.', tag: 'periodic · from full corpus' },
-              { t: 'Archive', d: 'Raw conversation chunks indexed in ChromaDB as a retrieval fallback for direct-quote queries that hinge on exact phrasing.', tag: 'raw · fallback' },
-            ].map((c, i) => (
+            {PHASE_CARDS.map((c, i) => (
               <motion.div key={c.t} {...reveal(i)} className="card p-5">
                 <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500">{c.tag}</div>
                 <h4 className="mt-1 font-semibold text-white">{c.t}</h4>
@@ -469,36 +587,54 @@ export default function Mechanism() {
           </div>
         </div>
 
-        <div className="space-y-8">
-          <SectionHead eyebrow="Three tiers, one medium" title="Recall, aggregation, and proactive alerting">
-            Once memory is code, three capabilities become three uses of the same typed state — each one line of Python.
+        {/* ============ PIPELINE 2 — RETRIEVAL & USE ============ */}
+        <div className="space-y-12 border-t border-white/5 pt-16">
+          <SectionHead eyebrow="Pipeline 2 · Retrieval & Use" title="Querying and using the code">
+            With the user represented as code, the second pipeline answers questions and drives proactive
+            service. At query time three channels compose; and three capabilities all reduce to one line of
+            Python over the same typed state the first pipeline produced.
           </SectionHead>
-          <Tiers />
-        </div>
 
-        <div className="space-y-8">
-          <SectionHead eyebrow="End-to-end" title="Conversation → code → constraint → alert">
-            Real cases from our system — three taken verbatim from the reference implementation (state,
-            constraint, and the alert the runner prints), three from the Active Service benchmark. In each,
-            the constraint depends on facts that arrived in different sessions, by different people, sometimes
-            months apart, and the agent surfaces the alert <em>before the user asks anything</em>.
-          </SectionHead>
-          <motion.div {...reveal(1)}><WorkedExample /></motion.div>
-        </div>
+          {/* Retrieval channels + real trace */}
+          <div className="space-y-5">
+            <SubHead title="At query time: three channels compose">
+              Rather than pick one retrieval strategy, UaC concatenates three under fixed headers and lets the
+              answer LLM prefer the structured channel on conflicts. Each covers a different failure mode of the others.
+            </SubHead>
+            <div className="grid gap-4 md:grid-cols-3">
+              {CHANNELS.map((c, i) => (
+                <motion.div key={c.tag} {...reveal(i)} className="card p-5">
+                  <span className="chip border-brand-400/30 bg-brand-400/10 font-mono text-brand-200">{c.tag}</span>
+                  <h4 className="mt-3 font-semibold text-white">{c.name}</h4>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{c.d}</p>
+                  <div className="mt-3 border-t border-white/5 pt-3 font-mono text-[11px] text-slate-500">{c.note}</div>
+                </motion.div>
+              ))}
+            </div>
+            <motion.div {...reveal(1)}>
+              <CodeBlock code={RX_QUERY} lang="text" caption="the conv-30 question, answered from all three channels" />
+            </motion.div>
+          </div>
 
-        <div className="space-y-8">
-          <SectionHead eyebrow="At query time" title="Multi-strategy retrieval">
-            Three channels compose rather than compete — each covers a different failure mode of the others.
-          </SectionHead>
-          <div className="grid gap-4 md:grid-cols-3">
-            {CHANNELS.map((c, i) => (
-              <motion.div key={c.tag} {...reveal(i)} className="card p-5">
-                <span className="chip border-brand-400/30 bg-brand-400/10 font-mono text-brand-200">{c.tag}</span>
-                <h4 className="mt-3 font-semibold text-white">{c.name}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{c.d}</p>
-                <div className="mt-3 border-t border-white/5 pt-3 font-mono text-[11px] text-slate-500">{c.note}</div>
-              </motion.div>
-            ))}
+          {/* Capability tiers, grounded in the running example */}
+          <div className="space-y-5">
+            <SubHead title="Three capabilities, one medium">
+              Once the user is code, recall, aggregation, and proactive alerting are three uses of the same
+              typed state — each one line of Python. The first two run against the objects you just saw built.
+            </SubHead>
+            <Tiers />
+          </div>
+
+          {/* End-to-end proactive alerts */}
+          <div className="space-y-5">
+            <SubHead title="End-to-end: proactive alerts">
+              The hardest case is active service — the constraint depends on facts that arrived in different
+              sessions, by different people, sometimes months apart, and the agent surfaces the alert
+              <em> before the user asks anything</em>. Real cases from our system: three verbatim from the
+              reference implementation (state, constraint, and the alert the runner prints), three from the
+              Active Service benchmark.
+            </SubHead>
+            <motion.div {...reveal(1)}><WorkedExample /></motion.div>
           </div>
         </div>
       </div>
