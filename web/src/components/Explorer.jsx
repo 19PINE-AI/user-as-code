@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useJson, Spinner, cx, Verdict, CodeBlock, SYS_COLORS } from '../lib/ui.jsx'
 
 const BENCHES = [
-  { id: 'locomo', label: 'LOCOMO', file: 'locomo.json', sub: '600 multi-session QAs' },
-  { id: 'lme', label: 'LongMemEval', file: 'longmemeval.json', sub: '500 long-memory QAs' },
-  { id: 'analytical', label: 'Analytical', file: 'analytical.json', sub: '100 aggregation cases' },
-  { id: 'active', label: 'Active Service', file: 'active.json', sub: '60 proactive scenarios' },
+  { id: 'locomo', label: 'LOCOMO', file: 'locomo.json', mem: 'locomo_memory.json', sub: '600 multi-session QAs' },
+  { id: 'lme', label: 'LongMemEval', file: 'longmemeval.json', mem: 'lme_memory.json', sub: '500 long-memory QAs' },
+  { id: 'analytical', label: 'Analytical', file: 'analytical.json', mem: 'analytical_memory.json', sub: '100 aggregation cases' },
+  { id: 'active', label: 'Active Service', file: 'active.json', mem: 'active_memory.json', sub: '60 proactive scenarios' },
 ]
 
 /* Arrow-key navigation across the filtered case list. */
@@ -224,7 +224,7 @@ function SystemResponse({ sysKey, meta, rec }) {
 /* ------------------------------------------------------------------ */
 /* LOCOMO + LME explorers (QA-style)                                  */
 /* ------------------------------------------------------------------ */
-function QAExplorer({ data, kind }) {
+function QAExplorer({ data, kind, memory }) {
   const { systems, sys_order, cases } = data
   const [q, setQ] = useState('')
   const [filterCat, setFilterCat] = useState('all')
@@ -297,13 +297,14 @@ function QAExplorer({ data, kind }) {
           title={c.question}
         />
       ))}
-      detail={active ? <QADetail c={active} systems={systems} sys_order={sys_order} kind={kind} /> : <EmptyDetail />}
+      detail={active ? <QADetail c={active} systems={systems} sys_order={sys_order} kind={kind} memory={memory} /> : <EmptyDetail />}
     />
   )
 }
 
-function QADetail({ c, systems, sys_order, kind }) {
+function QADetail({ c, systems, sys_order, kind, memory }) {
   const correctCount = sys_order.filter((s) => c.systems[s]?.gemini_correct).length
+  const memKey = kind === 'locomo' ? c.conv_id : c.question_id
   return (
     <DetailShell>
       <div className="flex flex-wrap items-center gap-2">
@@ -374,6 +375,9 @@ function QADetail({ c, systems, sys_order, kind }) {
         </div>
       </section>
 
+      {/* UaC's extracted memory for this conversation */}
+      <MemoryPanel mem={memory?.[memKey]} kind={kind} />
+
       {/* (c)+(d) responses + grading */}
       <section className="mt-5">
         <SectionLabel n="c" text="Responses & grading — every system, dual-judged" />
@@ -397,9 +401,73 @@ function SectionLabel({ n, text }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* UaC memory panel — the regenerated Phase-1 facts + Phase-2 state    */
+/* ------------------------------------------------------------------ */
+function MemoryPanel({ mem, kind }) {
+  const [open, setOpen] = useState(false)
+  if (!mem) return null
+  const facts = mem.facts || []
+  const isAnalytical = kind === 'analytical'
+  return (
+    <section className="mt-5">
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 text-left">
+        <span className="grid h-5 w-5 place-items-center rounded bg-emerald-400/15 font-mono text-[10px] font-bold text-ok">m</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          UaC memory — what the pipeline extracted for this case
+        </span>
+        <svg className={cx('ml-auto h-3.5 w-3.5 text-slate-500 transition', open && 'rotate-90')} viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l6 5-6 5V5z" /></svg>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              {/* Phase 1 — facts (or raw record preview for analytical) */}
+              <div className="rounded-xl border border-brand-400/20 bg-ink-900/40 p-3">
+                <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-brand-300">
+                  Phase 1 · Memorize
+                  <span className="font-mono text-slate-500">
+                    {isAnalytical ? `${mem.n_records} records` : `${mem.n_facts} facts`}
+                  </span>
+                </div>
+                {isAnalytical ? (
+                  <pre className="scroll-thin max-h-72 overflow-auto font-mono text-[11px] leading-relaxed text-slate-400">{JSON.stringify(mem.records_preview, null, 1)}</pre>
+                ) : (
+                  <ul className="scroll-thin max-h-72 space-y-1 overflow-auto pr-1">
+                    {facts.map((f, i) => (
+                      <li key={i} className="font-mono text-[11px] leading-snug text-slate-400">{f}</li>
+                    ))}
+                    {mem.n_facts > facts.length && (
+                      <li className="pt-1 font-mono text-[11px] text-slate-600">… {mem.n_facts - facts.length} more facts (append-only)</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+              {/* Phase 2 — typed state */}
+              <div className="min-w-0">
+                <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-accent-300">
+                  Phase 2 · Structure
+                  <span className="font-mono text-slate-500">state.py</span>
+                </div>
+                <div className="scroll-thin max-h-72 overflow-y-auto">
+                  <CodeBlock code={mem.state} />
+                </div>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+              Regenerated by re-running the actual v5 pipeline on this case (Gemini 3 Flash, temperature 1.0) —
+              representative of, not necessarily byte-identical to, the graded run.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Analytical explorer                                                */
 /* ------------------------------------------------------------------ */
-function AnalyticalExplorer({ data }) {
+function AnalyticalExplorer({ data, memory }) {
   const { systems, sys_order, cases } = data
   const [q, setQ] = useState('')
   const [type, setType] = useState('all')
@@ -455,12 +523,12 @@ function AnalyticalExplorer({ data }) {
           title={c.question}
         />
       ))}
-      detail={active ? <AnalyticalDetail c={active} systems={systems} sys_order={sys_order} /> : <EmptyDetail />}
+      detail={active ? <AnalyticalDetail c={active} systems={systems} sys_order={sys_order} memory={memory} /> : <EmptyDetail />}
     />
   )
 }
 
-function AnalyticalDetail({ c, systems, sys_order }) {
+function AnalyticalDetail({ c, systems, sys_order, memory }) {
   const uac = c.systems.uac_v5
   return (
     <DetailShell>
@@ -483,6 +551,9 @@ function AnalyticalDetail({ c, systems, sys_order }) {
           <p className="mt-1 whitespace-pre-wrap font-mono text-sm text-emerald-100">{c.gold}</p>
         </div>
       </section>
+
+      {/* UaC's structured memory (records -> typed state) */}
+      <MemoryPanel mem={memory?.[c.id]} kind="analytical" />
 
       {/* UaC execution trace */}
       {uac?.log?.length > 0 && (
@@ -552,7 +623,7 @@ function AnalyticalDetail({ c, systems, sys_order }) {
 /* ------------------------------------------------------------------ */
 const ACTIVE_SYS = { uac_v5: { name: 'UaC + pipeline', ours: true }, mem0: { name: 'Mem0 (live)' }, a_mem: { name: 'A-MEM (live)' } }
 
-function ActiveExplorer({ data }) {
+function ActiveExplorer({ data, memory }) {
   const { cases } = data
   const [q, setQ] = useState('')
   const [diff, setDiff] = useState('all')
@@ -604,12 +675,12 @@ function ActiveExplorer({ data }) {
           title={c.description}
         />
       ))}
-      detail={active ? <ActiveDetail c={active} /> : <EmptyDetail />}
+      detail={active ? <ActiveDetail c={active} memory={memory} /> : <EmptyDetail />}
     />
   )
 }
 
-function ActiveDetail({ c }) {
+function ActiveDetail({ c, memory }) {
   return (
     <DetailShell>
       <div className="flex flex-wrap items-center gap-2">
@@ -658,6 +729,9 @@ function ActiveDetail({ c }) {
         )}
       </section>
 
+      {/* UaC's extracted memory for this scenario */}
+      <MemoryPanel mem={memory?.[c.id]} kind="active" />
+
       {/* System runs */}
       <section className="mt-5">
         <SectionLabel n="c" text="Responses & grading — did each system alert proactively?" />
@@ -697,11 +771,12 @@ function ActiveDetail({ c }) {
 /* ------------------------------------------------------------------ */
 function BenchPane({ bench }) {
   const { data, error } = useJson(bench.file)
+  const { data: memory } = useJson(bench.mem) // lazy; optional — null until loaded / if absent
   if (error) return <p className="py-16 text-center text-bad">Failed to load {bench.file}.</p>
   if (!data) return <Spinner label={`Loading ${bench.label} cases…`} />
-  if (bench.id === 'locomo' || bench.id === 'lme') return <QAExplorer data={data} kind={bench.id} />
-  if (bench.id === 'analytical') return <AnalyticalExplorer data={data} />
-  return <ActiveExplorer data={data} />
+  if (bench.id === 'locomo' || bench.id === 'lme') return <QAExplorer data={data} kind={bench.id} memory={memory} />
+  if (bench.id === 'analytical') return <AnalyticalExplorer data={data} memory={memory} />
+  return <ActiveExplorer data={data} memory={memory} />
 }
 
 export default function Explorer() {
@@ -715,8 +790,9 @@ export default function Explorer() {
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Test-case explorer</h2>
           <p className="mt-4 text-pretty text-slate-400">
             Every graded case from all four benchmarks — the real data behind the paper. Pick any case to see its{' '}
-            <span className="text-slate-200">context</span>, every system's <span className="text-slate-200">response</span>,
-            and the <span className="text-slate-200">grading</span> (dual-judged where applicable).
+            <span className="text-slate-200">context</span>, the <span className="text-slate-200">UaC memory</span> the
+            pipeline extracted for it (Phase-1 facts + Phase-2 typed state), every system's{' '}
+            <span className="text-slate-200">response</span>, and the <span className="text-slate-200">grading</span>.
           </p>
         </div>
 
