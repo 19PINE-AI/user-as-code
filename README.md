@@ -2,7 +2,7 @@
 
 Research artifact for the paper **_User as Code: Executable Memory for Personalized Agents_** (Bojie Li, Pine AI).
 
-- 📄 **Paper:** build locally with `make` (see [Building the paper](#building-the-paper)); sources in this repo
+- 📄 **Paper:** [arXiv:2606.16707](https://arxiv.org/abs/2606.16707) (LaTeX sources in this repo; build with `make`)
 - 🌐 **Interactive companion site:** <https://01.me/research/user-as-code> — explore every graded test case across all four benchmarks
 - ⚖️ **License:** [Apache-2.0](LICENSE)
 
@@ -111,15 +111,20 @@ robustness checks.
   [`.gitignore`](.gitignore) for the exact list and the per-directory READMEs for how each is
   regenerated.
 
-## Citation
+## Cite this work
+
+If you use this work, please cite the paper ([arXiv:2606.16707](https://arxiv.org/abs/2606.16707)):
 
 ```bibtex
-@misc{li2026userascode,
-  title  = {User as Code: Executable Memory for Personalized Agents},
-  author = {Li, Bojie},
-  year   = {2026},
-  note   = {Pine AI},
-  url    = {https://01.me/research/user-as-code}
+@article{li2026userascode,
+  title         = {User as Code: Executable Memory for Personalized Agents},
+  author        = {Li, Bojie},
+  journal       = {arXiv preprint arXiv:2606.16707},
+  year          = {2026},
+  eprint        = {2606.16707},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2606.16707}
 }
 ```
 

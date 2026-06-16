@@ -90,9 +90,9 @@ export default function Hero() {
             <a href="#mechanism" className="btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10">
               How it works
             </a>
-            <a href={`${import.meta.env.BASE_URL}paper.pdf`} target="_blank" rel="noreferrer" className="btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10">
+            <a href="https://arxiv.org/abs/2606.16707" target="_blank" rel="noreferrer" className="btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10">
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M4 2h7l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zm7 1.5V7h3.5L11 3.5z" /></svg>
-              Read the paper
+              Read the paper (arXiv)
             </a>
           </motion.div>
         </div>
