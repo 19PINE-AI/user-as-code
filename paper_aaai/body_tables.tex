@@ -1,0 +1,62 @@
+\begin{table*}[!ht]
+\centering
+\caption{LOCOMO results on all 600 QAs. CIs are 95\% Wilson intervals; $p$-values are exact McNemar tests against UaC. All systems use Gemini~3 Flash unless noted.}
+\label{tab:locomo}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{System} & \textbf{LLM-as-Judge} & \textbf{Wilson 95\% CI} & \textbf{N} & \textbf{$p$ vs.\ UaC} \\
+\midrule
+Full Context (upper bound) & 79.8\% & [76.4, 82.8] & 600 & 0.65 \\
+\textbf{UaC (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
+MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & 600 & 0.003 \\
+Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & 600 & $1.5\!\times\!10^{-5}$ \\
+EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & 600 & $<\!10^{-20}$ \\
+A-MEM & 51.8\% & [47.8, 55.8] & 600 & $<\!10^{-30}$ \\
+Mem0 & 29.3\% & [25.8, 33.1] & 600 & $<\!10^{-60}$ \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
+UaC (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[!ht]
+\centering
+\caption{LongMemEval results on all 500 questions using Gemini~3 Flash. CIs are 95\% Wilson intervals; $p$-values are exact McNemar tests against UaC.}
+\label{tab:longmemeval}
+\small
+\begin{tabular}{@{}lcccccc|cc@{}}
+\toprule
+\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{Overall (CI)} & \textbf{$p$ vs.\ UaC} \\
+\midrule
+Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4\% [82.0, 88.2] & 0.19 \\
+MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8\% [81.4, 87.7] & 0.33 \\
+\textbf{UaC (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0\%} [79.5, 86.0] & --- \\
+EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4\% [72.5, 79.9] & 0.002 \\
+Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0\% [68.9, 76.7] & $<\!10^{-5}$ \\
+A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6\% [45.2, 54.0] & $<\!10^{-30}$ \\
+Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8\% [20.3, 27.7] & $<\!10^{-70}$ \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\small KU=knowledge-update (n=78), MS=multi-session (n=133), SA=single-asst (n=56), SP=single-pref (n=30), SU=single-user (n=70), TR=temporal-reasoning (n=133). Per-type percentages shown.
+\end{flushleft}
+\end{table*}
+
+\begin{table*}[!ht]
+\centering
+\caption{Exact-match analytical-inference accuracy on 100 cases across 10 record types. FC+REPL executes over raw records; UaC executes over typed state.}
+\label{tab:analytical}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{System} & \textbf{Overall} & $N{=}20$ & $N{=}50$ & $N{=}100$ & $N{=}200$ & $N{=}500$ \\
+\midrule
+Full Context + Python REPL & 100.0\% & 100\% & 100\% & 100\% & 100\% & 100\% \\
+UaC (structured + REPL) & 99.0\% & 100\% & 100\% & 100\% & 100\% & 95\% \\
+Full Context (no tool) & 94.0\% & 100\% & 90\% & 100\% & 90\% & 90\% \\
+MemMachine & 43.0\% & 100\% & 55\% & 20\% & 15\% & 25\% \\
+Mem0 & 6.0\% & 5\% & 10\% & 0\% & 0\% & 15\% \\
+\bottomrule
+\end{tabular}
+\end{table*}
