@@ -52,7 +52,7 @@
     captionpos=b,
     commentstyle=\color{codegreen},
     keywordstyle=\color{codeblue}\bfseries,
-    numberstyle=\tiny\color{codegray},
+    numberstyle=\scriptsize\color{codegray},
     stringstyle=\color{codepurple},
     language=Python,
     showstringspaces=false,
@@ -183,7 +183,7 @@
 \maketitle
 
 \begin{abstract}
-An agent that remembers 100 trips should answer not only where a user traveled, but how often they visited Europe. Textual memories accessed through top-$k$ retrieval can recover individual trips but cannot reliably enumerate all of them, while conventional structured stores require a domain model to be defined and maintained. We introduce \textbf{User as Code} (UaC), a two-phase architecture that appends facts from each session and periodically structures the complete log as typed Python state with LLM-generated schemas and executable constraints. UaC achieves 78.8\% on full LOCOMO, within 1.0 percentage point of Full Context. Its advantage appears when representation matters: on 100 aggregate queries it reaches 99\% accuracy, versus 43\% for MemMachine and 6\% for Mem0. Executable constraints also enable memory-triggered assistance without a user query; UaC detects 100\% of standard and 85\% of hard alerts in a new 60-scenario Active Service benchmark. These results show that self-evolving executable memory preserves conventional recall while enabling analytical and proactive capabilities that top-$k$ retrieval cannot reliably provide.
+An agent that remembers 100 trips should answer not only where a user traveled, but how often they visited Europe. Textual memories accessed through top-$k$ retrieval can recover individual trips but cannot reliably enumerate all of them, while conventional structured stores require a domain model to be defined and maintained. We introduce \textbf{User as Code} (UaC), a two-phase architecture that appends facts from each session and periodically structures the complete log as typed Python state with LLM-generated schemas and executable constraints. UaC achieves 78.8\% on a 600-question LOCOMO subset spanning all 10 conversations, within 1.0 percentage point of Full Context. Its advantage appears when representation matters: on 100 aggregate queries it reaches 99\% accuracy, versus 43\% for MemMachine and 6\% for Mem0. Executable constraints also enable memory-triggered assistance without a user query; UaC detects 100\% of standard and 85\% of hard alerts in a new 60-scenario Active Service benchmark. These results show that self-evolving executable memory preserves conventional recall while enabling analytical and proactive capabilities that top-$k$ retrieval cannot reliably provide.
 \end{abstract}
 
 % Uncomment the following to link to your code, datasets, an extended version or similar.
