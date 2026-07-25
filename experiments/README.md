@@ -10,12 +10,27 @@ can be inspected without re-running anything; the scripts below regenerate them.
    ```bash
    ../benchmarks/fetch_benchmarks.sh
    ```
-2. Set the API keys the runs use (Gemini for the main pipeline/judge; OpenRouter
-   for cross-family judge and the production libraries' write-time models):
+   For the full seven-system LOCOMO run, create an isolated environment with
+   the pinned Mem0 and A-MEM versions:
    ```bash
-   export GEMINI_API_KEY=...      # google-genai
-   export OPENROUTER_API_KEY=...  # cross-family judge, Mem0/A-MEM write path
+   python -m venv .venv-locomo
+   .venv-locomo/bin/pip install -r experiments/requirements-locomo-full.txt
    ```
+2. Set the API key used by the current LOCOMO pipeline and judge. The model and
+   endpoint defaults are shown explicitly; override them only for a separate,
+   clearly named run:
+   ```bash
+   export KRILL_API_KEY=...       # required; normally exported by ~/.zshrc
+   export KRILL_BASE_URL=https://api.krill-ai.net/v1
+   export KRILL_MODEL=gpt-5.6-luna
+   ```
+   For the parallel Gemini run, set
+   `KRILL_MODEL=gemini-3-flash-preview`. The shared client automatically sends
+   the official model-aware Gemini CLI User-Agent required by Krill's Gemini
+   routes; `GEMINI_CLI_VERSION` defaults to the verified local CLI version
+   `0.28.0`.
+   Some legacy experiment scripts still import `google-genai` directly and
+   require `GEMINI_API_KEY`. Cross-family checks require their provider keys.
 3. The ChromaDB index under `chroma_db/` is a regenerable cache (git-ignored);
    the runners rebuild it on first use.
 
@@ -32,6 +47,7 @@ can be inspected without re-running anything; the scripts below regenerate them.
 | Paper artifact | Script | Output in `results/` |
 |----------------|--------|----------------------|
 | LOCOMO 600 (Table 1) | `run_locomo_10conv.py` | `locomo10_*.json` |
+| Full LOCOMO 1,986 (fresh Luna run) | `run_locomo_full.py` | `full_locomo_gpt56_luna/*.json` |
 | LongMemEval 500 (Table 2) | `run_lme_500.py`, `full_longmemeval_comparison.py` | `lme500_*.json` |
 | Analytical inference (Table 3) | `run_analytical_bench.py` | `analytical_*.json` |
 | Analytical cost / amortization | `analytical_cost_summary.py` | `analytical_cost_*` |

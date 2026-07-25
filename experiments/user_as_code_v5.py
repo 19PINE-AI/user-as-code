@@ -21,10 +21,9 @@ import hashlib
 import re
 
 import chromadb
-from google import genai
+from krill_client import KRILL_MODEL, krill_call
 
-MODEL = "gemini-3-flash-preview"
-gclient = genai.Client()
+MODEL = KRILL_MODEL
 
 
 class UserAsCodeV5:
@@ -85,9 +84,8 @@ class UserAsCodeV5:
         """Extract every individual fact as a flat string. Thinking enabled."""
         text = session_text[:12000] if len(session_text) > 12000 else session_text
         try:
-            response = gclient.models.generate_content(
-                model=MODEL,
-                contents=f"""Extract EVERY individual fact from this conversation as a numbered list.
+            response_text = krill_call(
+                f"""Extract EVERY individual fact from this conversation as a numbered list.
 
 Include absolutely everything:
 - Names of people, places, organizations
@@ -112,13 +110,12 @@ Session {session_id} ({date}):
 {text}
 
 List ALL facts:""",
-                config=genai.types.GenerateContentConfig(
-                    thinking_config=genai.types.ThinkingConfig(thinking_budget=8192),
-                    temperature=1.0,
-                ),
+                model=MODEL,
+                thinking_budget=8192,
+                temperature=1.0,
             )
             facts = []
-            for line in response.text.strip().split("\n"):
+            for line in response_text.split("\n"):
                 line = re.sub(r'^\d+[\.\)]\s*', '', line.strip()).strip()
                 if line and len(line) > 5 and not line.startswith('#'):
                     facts.append(f"[{session_id}, {date}] {line}")
@@ -175,9 +172,8 @@ List ALL facts:""",
             all_facts = all_facts[:30000] + "\n... (truncated)"
 
         try:
-            response = gclient.models.generate_content(
-                model=MODEL,
-                contents=f"""Organize ALL these facts into structured Python code using dataclasses.
+            response_text = krill_call(
+                f"""Organize ALL these facts into structured Python code using dataclasses.
 
 FACTS ({len(self.fact_list)} total):
 {all_facts}
@@ -192,12 +188,11 @@ RULES:
 - Organize collections: people = [...], events = [...], etc.
 
 Output ONLY Python code:""",
-                config=genai.types.GenerateContentConfig(
-                    thinking_config=genai.types.ThinkingConfig(thinking_budget=16384),
-                    temperature=1.0,
-                ),
+                model=MODEL,
+                thinking_budget=16384,
+                temperature=1.0,
             )
-            code = response.text.strip()
+            code = response_text
             if "```python" in code:
                 code = code.split("```python")[1].split("```")[0]
             elif "```" in code:
@@ -266,21 +261,19 @@ Output ONLY Python code:""",
         context = self.retrieve(question)
 
         try:
-            response = gclient.models.generate_content(
-                model=MODEL,
-                contents=f"{question}\n\nThink step by step using the stored information, then give ONLY a concise final answer on the last line.",
-                config=genai.types.GenerateContentConfig(
-                    system_instruction=f"""You have access to a user's stored information: structured Python code, extracted facts, and conversation excerpts.
+            response_text = krill_call(
+                f"{question}\n\nThink step by step using the stored information, then give ONLY a concise final answer on the last line.",
+                system_instruction=f"""You have access to a user's stored information: structured Python code, extracted facts, and conversation excerpts.
 Use ALL available information to answer. Think carefully about dates, relationships, and details.
 If the answer requires computation, compute it from the data.
 If truly not available, say "No information available".
 
 {context}""",
-                    thinking_config=genai.types.ThinkingConfig(thinking_budget=2048),
-                    temperature=1.0,
-                ),
+                model=MODEL,
+                thinking_budget=2048,
+                temperature=1.0,
             )
-            text = response.text.strip()
+            text = response_text
             lines = [l.strip() for l in text.split('\n') if l.strip()]
             return lines[-1] if len(lines) > 1 else text
         except Exception as e:

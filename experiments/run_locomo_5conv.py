@@ -10,6 +10,7 @@ skips already-completed (system, conv_id, qa_idx) tuples.
 from __future__ import annotations
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -20,6 +21,11 @@ from collections import defaultdict
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from runner_utils import (  # noqa: E402
     _log, answer_question, judge_answer, token_f1, GEMINI_MODEL,
+)
+from krill_client import (  # noqa: E402
+    KRILL_BASE_URL,
+    KRILL_MODEL,
+    request_headers_for_model,
 )
 
 DATA_PATH = pathlib.Path(__file__).resolve().parent.parent / "benchmarks/locomo/data/locomo10.json"
@@ -114,22 +120,81 @@ class Mem0Wrapper:
         self.cls = Memory
         self.m = None
         self.uid = None
+        self.store_dir = pathlib.Path("/tmp") / f"locomo_mem0_{os.getpid()}"
+        self.store_dir.mkdir(parents=True, exist_ok=True)
+
+        # Mem0 otherwise gives OPENROUTER_API_KEY precedence over its explicit
+        # OpenAI-compatible configuration. This runner uses Krill/Luna for the
+        # common backbone, so disable that inherited override in this process.
+        os.environ.pop("OPENROUTER_API_KEY", None)
 
     def ingest(self, sessions, conv_id):
         self._clean_locks()
-        self.m = self.cls()
+        api_key = os.environ.get("KRILL_API_KEY")
+        if not api_key:
+            raise RuntimeError("KRILL_API_KEY is not set")
+        collection = f"mem0_{conv_id}_{int(time.time())}"
+        self.m = self.cls.from_config({
+            "vector_store": {
+                "provider": "chroma",
+                "config": {
+                    "collection_name": collection,
+                    "path": str(self.store_dir),
+                },
+            },
+            "embedder": {
+                "provider": "huggingface",
+                "config": {"model": "all-MiniLM-L6-v2"},
+            },
+            "llm": {
+                "provider": "openai",
+                "config": {
+                    "model": KRILL_MODEL,
+                    "api_key": api_key,
+                    "openai_base_url": KRILL_BASE_URL,
+                },
+            },
+            "history_db_path": str(self.store_dir / "history.db"),
+        })
+
+        # Krill's OpenAI-compatible JSON mode requires the word "JSON" in a
+        # user message (Mem0 1.0.5 mentions it only in the system prompt on
+        # fact extraction). Make the existing output contract explicit without
+        # changing Mem0's schema or memory logic.
+        original_generate = self.m.llm.generate_response
+
+        def generate_response(messages, response_format=None, **kwargs):
+            if response_format and response_format.get("type") == "json_object":
+                messages = [dict(message) for message in messages]
+                messages[-1]["content"] = (
+                    str(messages[-1].get("content", ""))
+                    + "\n\nReturn only a valid JSON object."
+                )
+            return original_generate(
+                messages=messages,
+                response_format=response_format,
+                **kwargs,
+            )
+
+        self.m.llm.generate_response = generate_response
+        model_headers = request_headers_for_model(KRILL_MODEL)
+        if model_headers:
+            from openai import OpenAI
+
+            self.m.llm.client = OpenAI(
+                base_url=KRILL_BASE_URL,
+                api_key=api_key,
+                default_headers=model_headers,
+            )
         self.uid = f"locomo5_{conv_id}_{int(time.time())}"
         for s in sessions:
             session_text = f"[{s['date']}] " + " ".join(
                 f"{t['speaker']}: {t['text']}" for t in s["turns"]
             )
-            try:
-                self.m.add(
-                    [{"role": "user", "content": session_text}],
-                    user_id=self.uid,
-                )
-            except Exception as e:
-                _log(f"    Mem0: error ingesting {s['session_id']}: {e}")
+            self.m.add(
+                [{"role": "user", "content": session_text}],
+                user_id=self.uid,
+            )
             _log(f"    Mem0: ingested {s['session_id']}")
 
     def answer(self, question):
@@ -167,11 +232,27 @@ class AMemWrapper:
         self.memory = None
 
     def ingest(self, sessions, conv_id):
+        api_key = os.environ.get("KRILL_API_KEY")
+        if not api_key:
+            raise RuntimeError("KRILL_API_KEY is not set")
+        # A-MEM's OpenAIController honors OPENAI_BASE_URL through the OpenAI
+        # SDK, while api_key is passed explicitly below.
+        os.environ["OPENAI_BASE_URL"] = KRILL_BASE_URL
         self.memory = self.cls(
             model_name="all-MiniLM-L6-v2",
             llm_backend="openai",
-            llm_model="gpt-4o-mini",
+            llm_model=KRILL_MODEL,
+            api_key=api_key,
         )
+        model_headers = request_headers_for_model(KRILL_MODEL)
+        if model_headers:
+            from openai import OpenAI
+
+            self.memory.llm_controller.llm.client = OpenAI(
+                base_url=KRILL_BASE_URL,
+                api_key=api_key,
+                default_headers=model_headers,
+            )
         for s in sessions:
             session_text = f"[{s['date']}] " + " ".join(
                 f"{t['speaker']}: {t['text']}" for t in s["turns"]

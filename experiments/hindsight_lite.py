@@ -34,11 +34,10 @@ import chromadb
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 
-from google import genai
+from krill_client import KRILL_MODEL, krill_call
 
 
-GEMINI_MODEL = "gemini-3-flash-preview"
-_gclient = genai.Client()
+GEMINI_MODEL = KRILL_MODEL
 
 
 # ---------------------------------------------------------------------------
@@ -81,24 +80,14 @@ def _tokenize(s: str) -> list[str]:
 
 def _gemini_call(prompt: str, system_instruction: Optional[str] = None,
                  thinking_budget: int = 1024, max_retries: int = 4) -> str:
-    cfg = genai.types.GenerateContentConfig(
-        thinking_config=genai.types.ThinkingConfig(thinking_budget=thinking_budget),
+    return krill_call(
+        prompt,
+        system_instruction=system_instruction,
+        model=GEMINI_MODEL,
+        thinking_budget=thinking_budget,
         temperature=1.0,
+        max_retries=max_retries,
     )
-    if system_instruction:
-        cfg.system_instruction = system_instruction
-    last_err = None
-    for attempt in range(max_retries):
-        try:
-            r = _gclient.models.generate_content(
-                model=GEMINI_MODEL, contents=prompt, config=cfg)
-            return (r.text or "").strip()
-        except Exception as e:
-            last_err = e
-            err = str(e)
-            wait = 15 * (attempt + 1) if "429" in err or "RESOURCE" in err else 8
-            time.sleep(wait)
-    raise RuntimeError(f"gemini failed: {last_err}")
 
 
 def _parse_dates(text: str, default: str) -> tuple[str, str]:

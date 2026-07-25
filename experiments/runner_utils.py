@@ -1,21 +1,20 @@
 """Shared utilities for LOCOMO/LME runners.
 
-Wraps Gemini and OpenAI calls with retry logic, plus token-F1 metric and
-LLM-as-Judge scoring used across all systems.
+Wraps the common Krill-hosted backbone, plus token-F1 and LLM-as-Judge scoring
+used across all systems.
 """
 from __future__ import annotations
 
-import os
-import random
 import re
 import time
 from collections import Counter
 from typing import Optional
 
-from google import genai
+from krill_client import KRILL_MODEL, krill_call
 
-GEMINI_MODEL = "gemini-3-flash-preview"
-_gclient = genai.Client()
+# Backward-compatible name imported by existing runners. New result artifacts
+# record the actual configured model (gpt-5.6-luna by default).
+GEMINI_MODEL = KRILL_MODEL
 
 
 def _log(msg: str):
@@ -25,31 +24,14 @@ def _log(msg: str):
 def gemini_call(contents: str, system_instruction: Optional[str] = None,
                 thinking_budget: int = 2048, temperature: float = 1.0,
                 max_retries: int = 6) -> str:
-    """Call Gemini with thinking. Retries on 429/5xx."""
-    cfg = genai.types.GenerateContentConfig(
-        thinking_config=genai.types.ThinkingConfig(thinking_budget=thinking_budget),
+    """Call the shared model through Krill (legacy function name)."""
+    return krill_call(
+        contents,
+        system_instruction=system_instruction,
+        thinking_budget=thinking_budget,
         temperature=temperature,
+        max_retries=max_retries,
     )
-    if system_instruction:
-        cfg.system_instruction = system_instruction
-    last_err = None
-    for attempt in range(max_retries):
-        try:
-            r = _gclient.models.generate_content(
-                model=GEMINI_MODEL, contents=contents, config=cfg)
-            return (r.text or "").strip()
-        except Exception as e:
-            last_err = e
-            err = str(e)
-            if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                wait = 15 * (attempt + 1) + random.uniform(0, 5)
-            elif "500" in err or "503" in err or "UNAVAILABLE" in err:
-                wait = 10 * (attempt + 1) + random.uniform(0, 5)
-            else:
-                wait = 5 + random.uniform(0, 3)
-            _log(f"  gemini retry {attempt+1}/{max_retries}: {err[:120]} (wait {wait:.0f}s)")
-            time.sleep(wait)
-    raise RuntimeError(f"gemini failed: {last_err}")
 
 
 def extract_concise(text: str) -> str:
@@ -58,7 +40,7 @@ def extract_concise(text: str) -> str:
 
 
 def answer_question(question: str, context: str) -> str:
-    """Generate an answer given context, using thinking-enabled Gemini."""
+    """Generate an answer from context with the shared Krill backbone."""
     system = f"""You have access to stored information about a conversation between people.
 Use the provided context to answer the question.
 Think through carefully, then provide ONLY the final answer as a short phrase on the last line.

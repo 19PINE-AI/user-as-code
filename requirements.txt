@@ -5,8 +5,8 @@
 #   pip install -r requirements.txt
 
 # --- Core: UaC pipeline, retrieval, and evaluation ---
-google-genai>=0.3.0          # Gemini backbone (extraction, structuring, answering, judge)
-openai>=1.0.0                # GPT-5.4 cross-LLM run; OpenRouter-routed calls
+google-genai>=0.3.0          # legacy direct-Gemini experiment scripts
+openai>=1.0.0                # Krill backbone; GPT/OpenRouter-routed calls
 chromadb>=0.5.0              # vector store for the fact and archive channels
 sentence-transformers>=2.2.0 # dense retrieval encoders (baseline reimplementations)
 rank-bm25>=0.2.2             # lexical retrieval (Hindsight reimplementation)

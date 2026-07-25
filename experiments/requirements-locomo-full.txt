@@ -1,0 +1,11 @@
+# Reproducible environment for the seven-system full LOCOMO run.
+-r ../requirements.txt
+
+mem0ai==1.0.5
+agentic-memory @ git+https://github.com/agiresearch/A-mem.git@ceffb860f0712bbae97b184d440df62bc910ca8d
+
+# Avoid the transformers 5.x / legacy PEFT incompatibility present in some
+# global environments while remaining within A-MEM's declared constraints.
+sentence-transformers==3.4.1
+transformers==4.48.3
+peft==0.14.0
