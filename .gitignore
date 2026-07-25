@@ -6,6 +6,7 @@ __pycache__/
 *.blg
 *.out
 *.pdf
+!paper_aaai/figures/*.pdf
 .DS_Store
 lancedb_*/
 
