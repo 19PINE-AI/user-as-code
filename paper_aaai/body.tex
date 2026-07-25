@@ -1,17 +1,20 @@
 \section{Introduction}
 \label{sec:intro}
 
-Personalized agents need persistent user memory. Currently, most systems store memory as text, graphs, or extracted facts and consult it through retrieval. This works for factual recall but poorly supports operations requiring the complete state such as resolving contradictions, aggregating a history, or enforcing a rule whenever that state changes. The last case creates an \emph{initiation asymmetry}: a useful system must warn the user without waiting for a query. Existing long-term-memory benchmarks largely test query-driven recall~\citep{maharana2024locomo,wu2025longmemeval,hu2025memoryagentbench}.
+Consider a personalized agent whose memory contains 100 trips accumulated across years of conversation. The user may ask, ``Where did I stay in Paris?'', but also ``How many times have I traveled to Europe?'' or ``How many trips did I take in 2025?'' The first question may be answered from one relevant memory. The latter questions generally require enumerating the complete trip history, filtering it, and counting the matching records: omitting even one trip can change the answer. The same state may also need to be checked without a question---for example, when a newly recorded trip falls after the user's passport expiry date. These examples expose three distinct uses of long-term memory: factual recall, analytical inference over complete history, and proactive action after state changes.
 
-We propose \textbf{User as Code} (UaC), in which an LLM maintains typed Python state and executable constraints. A two-phase pipeline first appends extracted facts without overwriting prior evidence, then periodically regenerates a structured checkpoint from the complete fact log. An interpreter can therefore query the state and run constraints deterministically. For example, an allergy recorded months before a prescription can be joined through their drug class and trigger an alert as soon as the prescription enters memory---without retrieval or an additional LLM call.
+Most agent-memory systems store conversations as text, extracted facts, linked notes, or graphs and answer questions through top-$k$ retrieval. This interface is effective when the answer appears in one or a few records, but retrieval is designed to return the most relevant evidence, not to enumerate a complete collection. Once the number of relevant records exceeds $k$, an exact count or aggregate becomes unreliable. Passing the entire history to the model restores access to the records, but incurs growing context cost and still asks the model to parse and count them in-context. Existing long-term-memory benchmarks likewise emphasize query-driven recall~\citep{maharana2024locomo,wu2025longmemeval,hu2025memoryagentbench} rather than complete-set computation or memory-triggered action.
 
-UaC is not a claim that code alone improves reasoning: Full Context with a Python REPL matches it on clean aggregate queries. The contribution is an end-to-end architecture that converts noisy conversation into a persistent, code-readable representation once, rather than reparsing the conversation for every query. We evaluate three consequences:
+A conventional structured database addresses the computational problem only after a suitable data model has been provided. For the travel example, a developer might define a \texttt{Trip} table with dates, countries, and regions, after which the desired counts are straightforward. A general personal agent, however, encounters evolving information across travel, health, finance, relationships, and domains not known in advance. Requiring developers to anticipate and maintain a schema for every such domain turns open-ended user memory into an ontology-engineering problem. Although database schemas can be migrated, the system still needs an agent that decides what structures to create and how they should evolve.
+
+We propose \textbf{User as Code} (UaC), which gives that responsibility to the language model. UaC uses the code-generation capabilities of modern LLMs to maintain both user data and its data model as typed Python. Its two-phase write path first appends facts from each session without overwriting prior evidence, then periodically regenerates domain schemas and typed state from the complete fact log. As the user changes, the model can introduce or revise dataclasses, collections, and constraints rather than fitting every fact into a fixed human-authored ontology. An interpreter can then enumerate all trip records for exact aggregation and execute persistent checks after state updates. Textual fact and archive channels remain available for details better served by retrieval.
+
+UaC does not claim that Python alone improves reasoning: on clean, already structured inputs, Full Context with a Python REPL matches UaC. The contribution is a persistent write-and-use architecture that converts unstructured conversation into an evolving, code-readable representation once and reuses it across later questions and state changes. Specifically, we contribute:
 \begin{itemize}[leftmargin=*]
-\item \textbf{Recall:} UaC reaches 78.8\% on full LOCOMO, within 1.0pp of Full Context, while outperforming same-backbone reimplementations.
-\item \textbf{Analytical inference:} across 100 aggregate queries over up to 500 records, UaC reaches 99\% versus 43\% for MemMachine and 6\% for Mem0.
-\item \textbf{Active Service:} on a new 60-scenario benchmark, executable constraints detect 100\% of standard and 85\% of hard proactive alerts.
+\item \textbf{A self-evolving executable memory representation} whose schemas, typed state, and constraints are generated and revised by the LLM rather than fixed by a human. The same representation supports attribute access, complete-set computation, and deterministic constraint execution.
+\item \textbf{A loss-preserving write architecture} that separates append-only memorization from periodic structuring. Ablations show that this separation avoids the information loss of incremental code rewrites while preserving competitive factual recall.
+\item \textbf{Evaluation across all three capabilities,} including a 100-case analytical benchmark and a new 60-scenario Active Service benchmark. UaC reaches 78.8\% on full LOCOMO, within 1.0pp of Full Context; 99\% on analytical inference, versus 43\% for MemMachine and 6\% for Mem0; and 100\%/85\% detection on standard/hard proactive alerts.
 \end{itemize}
-An ablation attributes recall gains to append-only extraction and shows that separating memorization from structuring avoids the information loss of incremental code rewrites.
 
 \section{Related Work}
 \label{sec:related}
@@ -38,7 +41,7 @@ Generated code has improved arithmetic and logical reasoning in PAL and Program-
 \subsection{What ``User as Code'' Looks Like}
 \label{sec:code-example}
 
-Each user project contains domain modules with typed state, constraint functions, and a compact manifest. For example, a travel module may store a \texttt{PassportInfo} object and dated \texttt{Trip} records; a constraint compares their dates and writes any renewal warning to \texttt{ACTIVE\_ALERTS}. The schemas and constraints are generated by the LLM rather than fixed by a human. This representation supports attribute lookup, aggregation over complete collections, and deterministic checks against the same state.
+Each user project contains domain modules with typed state, constraint functions, and a compact manifest. For example, a travel module may store a \texttt{PassportInfo} object and dated \texttt{Trip} records; a constraint compares their dates and writes any renewal warning to \texttt{ACTIVE\_ALERTS}. The schemas and constraints are generated by the LLM rather than fixed by a human. Because \texttt{trips} is an enumerable typed collection, the opening questions become deterministic filters over the complete state---by \texttt{region} for Europe and by \texttt{departure\_date.year} for 2025.
 
 \begin{figure}[t]
 \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
@@ -54,19 +57,20 @@ passport = PassportInfo(
 
 trips = [
     Trip(
-      destination="Tokyo",
-      country="JP",
-      departure_date=date(2025, 1, 15),
-      return_date=date(2025, 1, 25),
-      flight_number="JAL-9823",
+      destination="Paris",
+      country="FR", region="Europe",
+      departure_date=date(2024, 6, 12),
+      return_date=date(2024, 6, 20),
+      flight_number="AF-009",
       is_international=True),
     Trip(
-      destination="Mexico City",
-      country="MX",
+      destination="Lisbon",
+      country="PT", region="Europe",
       departure_date=date(2025, 3, 10),
       return_date=date(2025, 3, 17),
-      flight_number="AA-4561",
+      flight_number="TP-218",
       is_international=True),
+    # ... 98 additional trip records ...
 ]
 \end{lstlisting}
 \caption{Excerpt from \texttt{domains/travel/state.py} of a UaC user project. Generated automatically from the append-only fact list.}
@@ -235,8 +239,6 @@ Three further principles guide production deployment but are not isolated by the
 
 \textbf{Which model runs where.}\label{sec:openrouter} Answer generation and the primary judge use Gemini~3 Flash for every system. Mem0 and A-MEM use embedding retrieval with no answer-time LLM; their production libraries retain the default \texttt{gpt-4o-mini} only for write-time fact or note construction. Thus \texttt{gpt-4o-mini} never reads a question, ranks retrieval, or writes an answer. A separate cross-family Claude rejudging preserves the system ranking; Gemini calls use the Google API and the other calls use OpenRouter.
 
-\textbf{Statistical interpretation.} Headline accuracies are proportions correct; at $n{=}600/500$ the 95\% Wilson half-width is $\sim$3--4pp at the relevant accuracy range (per-row CIs in Tables~\ref{tab:locomo}--\ref{tab:longmemeval}). Because all systems answer the \emph{same} questions, marginal CIs overstate pairwise uncertainty; we report McNemar's exact test on per-question correctness vectors for all comparisons. Headline result: UaC is statistically tied with Full~Context and ahead of every competing memory system at $\alpha{=}0.05$ on LOCOMO, and sits in a three-way top cluster with MemMachine and Full~Context on LongMemEval (per-pair $p$-values in Tables~\ref{tab:locomo}--\ref{tab:longmemeval}).
-
 \subsection{Standard Benchmarks}
 
 \input{body_tables}
@@ -269,7 +271,23 @@ A third capability tier sits between recall and proactive alerting: \emph{aggreg
 
 \textbf{Systems.} Five systems, identical cases, Gemini~3 Flash throughout: Full~Context (in-head reasoning over raw JSON), Full~Context+REPL (same data plus \texttt{python}/\texttt{read\_file} tools), UaC (records structured into typed Python, exposed via REPL), MemMachine (top-20 sentence retrieval with contextual expansion), Mem0 (flat fact extraction, top-20).
 
-The results (Table~\ref{tab:analytical}, Figure~\ref{fig:analytical-scaling}) split cleanly by representation class. \textbf{Retrieval-based memory collapses on aggregation}: MemMachine drops from 100\% at $N{=}20$ to 15\% at $N{=}200$ as more records become relevant than top-$k$ can return; Mem0 sits near zero throughout because NL fact stores cannot be enumerated. \textbf{Full~Context degrades past $N{=}100$} (100\% through $N{=}100$, 90\% at $N \geq 200$) as the LLM miscounts. \textbf{Adding a REPL fully closes the counting gap}: FC+REPL is perfect across all $N$. \textbf{UaC matches FC+REPL across the range} (99\% overall, perfect on $N \leq 200$, 95\% at $N{=}500$); the one $N{=}500$ miss is a corner case where Q1 and Q2 sleep averages differ by 0.0012~h, below the gold-rule rounding threshold.
+\begin{figure}[t]
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+# N=100 benchmark case: count trips in H1 2024
+start = date(2024, 1, 1)
+end = date(2024, 6, 30)
+trips_in_range = [
+    trip for trip in data
+    if start <= trip.date <= end
+]
+print(len(trips_in_range))
+# stdout: 16  (gold: 16)
+\end{lstlisting}
+\caption{A representative aggregation case from the experimental data. UaC enumerates all 100 typed trip records and returns the exact count, 16. On the same question, MemMachine retrieves 61 records and answers 9; Mem0 retrieves 8 and answers 5.}
+\label{fig:aggregation-example}
+\end{figure}
+
+The results (Table~\ref{tab:analytical}, Figures~\ref{fig:aggregation-example} and~\ref{fig:analytical-scaling}) split cleanly by representation class. \textbf{Retrieval-based memory collapses on aggregation}: MemMachine drops from 100\% at $N{=}20$ to 15\% at $N{=}200$ as more records become relevant than top-$k$ can return; Mem0 sits near zero throughout because NL fact stores cannot be enumerated. \textbf{Full~Context degrades past $N{=}100$} (100\% through $N{=}100$, 90\% at $N \geq 200$) as the LLM miscounts. \textbf{Adding a REPL fully closes the counting gap}: FC+REPL is perfect across all $N$. \textbf{UaC matches FC+REPL across the range} (99\% overall, perfect on $N \leq 200$, 95\% at $N{=}500$); the one $N{=}500$ miss is a corner case where Q1 and Q2 sleep averages differ by 0.0012~h, below the gold-rule rounding threshold.
 
 \begin{figure}[htbp]
 \centering

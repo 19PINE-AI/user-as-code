@@ -1,47 +1,50 @@
-\begin{table*}[!ht]
+\begin{table*}[t]
+\begin{minipage}[t]{0.41\textwidth}
 \centering
-\caption{LOCOMO results on all 600 QAs. CIs are 95\% Wilson intervals; $p$-values are exact McNemar tests against UaC. All systems use Gemini~3 Flash unless noted.}
+\caption{LOCOMO accuracy (\%). Main rows use all 600 QAs and Gemini~3 Flash; the GPT-5.4 portability row uses 120 QAs.}
 \label{tab:locomo}
-\small
-\begin{tabular}{@{}lcccc@{}}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrr@{}}
 \toprule
-\textbf{System} & \textbf{LLM-as-Judge} & \textbf{Wilson 95\% CI} & \textbf{N} & \textbf{$p$ vs.\ UaC} \\
+\textbf{System} & \textbf{Accuracy} & \textbf{$n$} \\
 \midrule
-Full Context (upper bound) & 79.8\% & [76.4, 82.8] & 600 & 0.65 \\
-\textbf{UaC (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
-MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & 600 & 0.003 \\
-Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & 600 & $1.5\!\times\!10^{-5}$ \\
-EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & 600 & $<\!10^{-20}$ \\
-A-MEM & 51.8\% & [47.8, 55.8] & 600 & $<\!10^{-30}$ \\
-Mem0 & 29.3\% & [25.8, 33.1] & 600 & $<\!10^{-60}$ \\
+Full Context (upper bound) & 79.8 & 600 \\
+\textbf{UaC (ours, Gemini)} & \textbf{78.8} & 600 \\
+MemMachine & 72.7 & 600 \\
+Hindsight (lite) & 69.7 & 600 \\
+EverMemOS (lite) & 55.5 & 600 \\
+A-MEM & 51.8 & 600 \\
+Mem0 & 29.3 & 600 \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
-UaC (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
+UaC (ours, GPT-5.4) & 80.8 & 120 \\
 \bottomrule
 \end{tabular}
-\end{table*}
-
-\begin{table*}[!ht]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.57\textwidth}
 \centering
-\caption{LongMemEval results on all 500 questions using Gemini~3 Flash. CIs are 95\% Wilson intervals; $p$-values are exact McNemar tests against UaC.}
+\caption{LongMemEval accuracy (\%) by question type on all 500 questions using Gemini~3 Flash.}
 \label{tab:longmemeval}
-\small
-\begin{tabular}{@{}lcccccc|cc@{}}
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{Overall (CI)} & \textbf{$p$ vs.\ UaC} \\
+\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{All} \\
 \midrule
-Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4\% [82.0, 88.2] & 0.19 \\
-MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8\% [81.4, 87.7] & 0.33 \\
-\textbf{UaC (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0\%} [79.5, 86.0] & --- \\
-EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4\% [72.5, 79.9] & 0.002 \\
-Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0\% [68.9, 76.7] & $<\!10^{-5}$ \\
-A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6\% [45.2, 54.0] & $<\!10^{-30}$ \\
-Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8\% [20.3, 27.7] & $<\!10^{-70}$ \\
+Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4 \\
+MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8 \\
+\textbf{UaC (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0} \\
+EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4 \\
+Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0 \\
+A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6 \\
+Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8 \\
 \bottomrule
 \end{tabular}
-\begin{flushleft}
-\small KU=knowledge-update (n=78), MS=multi-session (n=133), SA=single-asst (n=56), SP=single-pref (n=30), SU=single-user (n=70), TR=temporal-reasoning (n=133). Per-type percentages shown.
-\end{flushleft}
+
+\vspace{2pt}
+\raggedright KU = knowledge update ($n=78$), MS = multi-session (133), SA = single-assistant (56), SP = single-preference (30), SU = single-user (70), TR = temporal reasoning (133).\par
+\end{minipage}
 \end{table*}
 
 \begin{table*}[!ht]
