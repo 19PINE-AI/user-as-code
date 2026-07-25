@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "benchmark": "LOCOMO",
+  "selection": {
+    "description": "all 1,986 annotations across all 10 conversations",
+    "categories": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "answer_bearing_questions": 1540,
+    "adversarial_questions": 446,
+    "conv_start": 0,
+    "conv_end": 1,
+    "max_questions_per_conv": 1,
+    "max_sessions_per_conv": 1
+  },
+  "system": "uac_v5",
+  "provider": "krill",
+  "base_url": "https://api.krill-ai.net/v1",
+  "model": "gpt-5.6-luna",
+  "dataset": "locomo/data/locomo10.json",
+  "dataset_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "package_versions": {
+    "openai": "1.97.1",
+    "mem0ai": "1.0.5",
+    "agentic-memory": "0.0.1",
+    "chromadb": "1.5.7",
+    "sentence-transformers": "3.4.1"
+  },
+  "started_at": "2026-07-25T10:02:28.668259+00:00",
+  "details": {
+    "conv-26": [
+      {
+        "status": "ok",
+        "qa_id": "conv-26:0",
+        "qa_idx": 0,
+        "question": "When did Caroline go to the LGBTQ support group?",
+        "prompt_question": "When did Caroline go to the LGBTQ support group?",
+        "gold": "7 May 2023",
+        "adversarial_answer": null,
+        "prediction": "Caroline went to the LGBTQ support group on May 7, 2023.",
+        "scored_prediction": "Caroline went to the LGBTQ support group on May 7, 2023.",
+        "category": 2,
+        "official_score": 0.4615384615384615,
+        "judge_correct": true,
+        "judge_reason": "CORRECT — Both state that Caroline went on 7 May 2023.",
+        "answer_seconds": 3.691,
+        "judge_seconds": 2.183
+      }
+    ]
+  },
+  "aggregate": {
+    "n_expected": 1,
+    "n_completed": 1,
+    "coverage": 1.0,
+    "official_locomo_score": 0.4615384615384615,
+    "answer_bearing": {
+      "n": 1,
+      "official_token_f1": 0.4615384615384615,
+      "judge_accuracy": 1.0
+    },
+    "adversarial": {
+      "n": 0,
+      "refusal_accuracy": null
+    },
+    "per_category": {
+      "2": {
+        "n": 1,
+        "official_score": 0.4615384615384615,
+        "judge_accuracy": 1.0
+      }
+    }
+  },
+  "shared_krill_usage": {
+    "requests": 4,
+    "prompt_tokens": 5071,
+    "completion_tokens": 3682,
+    "total_tokens": 8753
+  },
+  "updated_at": "2026-07-25T10:03:47.475302+00:00"
+}

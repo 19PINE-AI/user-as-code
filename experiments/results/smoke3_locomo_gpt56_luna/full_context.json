@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "benchmark": "LOCOMO",
+  "selection": {
+    "description": "all 1,986 annotations across all 10 conversations",
+    "categories": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "answer_bearing_questions": 1540,
+    "adversarial_questions": 446,
+    "conv_start": 0,
+    "conv_end": 1,
+    "max_questions_per_conv": null,
+    "max_sessions_per_conv": 1,
+    "qa_index": 152
+  },
+  "system": "full_context",
+  "provider": "krill",
+  "base_url": "https://api.krill-ai.net/v1",
+  "model": "gpt-5.6-luna",
+  "dataset": "locomo/data/locomo10.json",
+  "dataset_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "package_versions": {
+    "openai": "1.97.1",
+    "mem0ai": "1.0.5",
+    "agentic-memory": "0.0.1",
+    "chromadb": "1.5.7",
+    "sentence-transformers": "3.4.1"
+  },
+  "started_at": "2026-07-25T10:06:26.964745+00:00",
+  "details": {
+    "conv-26": [
+      {
+        "status": "ok",
+        "qa_id": "conv-26:152",
+        "qa_idx": 152,
+        "question": "What did Caroline realize after her charity race?",
+        "prompt_question": "What did Caroline realize after her charity race? Select the correct answer and reply with the option text: (a) Not mentioned in the conversation (b) self-care is important.",
+        "gold": null,
+        "adversarial_answer": "self-care is important",
+        "prediction": "(a) Not mentioned in the conversation",
+        "scored_prediction": "Not mentioned in the conversation",
+        "category": 5,
+        "official_score": 1.0,
+        "judge_correct": null,
+        "judge_reason": null,
+        "answer_seconds": 4.292,
+        "judge_seconds": null
+      }
+    ]
+  },
+  "aggregate": {
+    "n_expected": 1,
+    "n_completed": 1,
+    "coverage": 1.0,
+    "official_locomo_score": 1.0,
+    "answer_bearing": {
+      "n": 0,
+      "official_token_f1": null,
+      "judge_accuracy": null
+    },
+    "adversarial": {
+      "n": 1,
+      "refusal_accuracy": 1.0
+    },
+    "per_category": {
+      "5": {
+        "n": 1,
+        "official_score": 1.0,
+        "judge_accuracy": null
+      }
+    }
+  },
+  "shared_krill_usage": {
+    "requests": 1,
+    "prompt_tokens": 558,
+    "completion_tokens": 11,
+    "total_tokens": 569
+  },
+  "updated_at": "2026-07-25T10:06:31.258143+00:00"
+}
