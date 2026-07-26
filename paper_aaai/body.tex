@@ -86,11 +86,31 @@ The write path separates a durable append-only fact source from a generated type
 
 \subsubsection{Phase 1: Memorize (per session, append-only)}
 
-An LLM extracts every individual fact as a flat string from each session. Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved against the session timestamp. This produces roughly 50--75 facts/session; our run extracts 1{,}419 facts from the 19-session \texttt{conv-30}.\footnote{Phase~1 is mildly stochastic; an independent audit run reports 1{,}433 facts.} Each fact is indexed in ChromaDB; the raw conversation is also indexed as a fallback for direct-quote queries.
+An LLM extracts every individual fact as a flat string from each session. Facts are appended to a running list---never overwritten, never deleted---and relative dates are resolved against the session timestamp. This produces roughly 50--75 facts/session; our run extracts 1{,}419 facts from the 19-session \texttt{conv-30}.\footnote{Phase~1 is mildly stochastic; an independent audit run reports 1{,}433 facts.} Each fact is prefixed with its session identifier and date, assigned a monotonic identifier, and indexed in a cosine-similarity ChromaDB collection. Before extraction, the raw session is separately stored in speaker-aligned chunks of at most 300 words with approximately 75 words of overlap. Thus an extraction or structuring failure cannot erase the original conversational evidence.
 
 \subsubsection{Phase 2: Structure (periodic, bounded input)}
 
-An LLM generates structured Python from the serialized fact list, organizing the visible facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, and \texttt{notes: list[str]} for hard-to-type facts. The evaluated \texttt{UserAsCodeV5.structure()} implementation truncates that serialization to the first 30{,}000 characters before the Phase~2 call. Consequently, the typed code is a bounded prefix-derived view rather than a structure of the complete LOCOMO fact corpus. The append-only fact index and raw archive retain the broader evidence and remain available at answer time. Hierarchical or incremental structuring is required to remove this ceiling.
+An LLM generates structured Python from the serialized fact list, organizing the visible facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, and \texttt{notes: list[str]} for hard-to-type facts. The evaluated \texttt{UserAsCodeV5.structure()} implementation truncates that serialization to the first 30{,}000 characters before the Phase~2 call. In LOCOMO, all sessions of one conversation are ingested before this call; a later write marks the code view stale until it is regenerated. Regeneration replaces only the view, never the fact list or archive. Consequently, the typed code is a bounded prefix-derived view rather than a structure of the complete LOCOMO fact corpus. The append-only fact index and raw archive retain the broader evidence and remain available at answer time. Hierarchical or incremental structuring is required to remove this ceiling.
+
+\begin{algorithm}[t]
+\caption{Evaluated UaC update and recall path.}
+\label{alg:uac}
+\begin{algorithmic}[1]
+\REQUIRE sessions $S$, timestamps $T$, question $q$
+\STATE $F \gets [\,]$; initialize fact index $I_F$ and archive index $I_A$
+\FOR{each $(s,t) \in (S,T)$}
+  \STATE $I_A.\mathrm{add}(\mathrm{chunk}(s,300,75),t)$
+  \STATE $\Delta F \gets \mathrm{ExtractFacts}(s,t)$
+  \STATE $F \gets F\,\Vert\,\Delta F$; $I_F.\mathrm{add}(\Delta F,t)$
+\ENDFOR
+\STATE $x \gets \mathrm{prefix}_{30000}(\mathrm{serialize}(F))$
+\STATE $V \gets \mathrm{GenerateTypedPython}(x)$
+\STATE $C \gets [\mathrm{prefix}_{6000}(V);\ I_F.\mathrm{top}_{20}(q);\ I_A.\mathrm{top}_{10}(q)]$
+\RETURN $\mathrm{AnswerLLM}(q,C)$
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:uac} makes the asymmetry explicit: $F$ and $I_A$ are durable sources, while $V$ is a disposable materialized view. Prefix limits bound both the structuring call and the answer prompt, but they do not bound what remains retrievable from the two source indices. This design prevents view regeneration from becoming a destructive memory update; it does not guarantee that generated Python is complete, semantically correct, or safe to execute. A deployment should parse and validate a candidate view before activation and execute it in an isolated interpreter.
 
 \subsection{Retrieval and Use}
 \label{sec:retrieval-use}
@@ -108,7 +128,7 @@ At query time, retrieval composes three channels rather than picking one. The tw
 
 \textbf{(3)~Archive retrieval.} A second ChromaDB collection holds the raw conversation chunked at session granularity; the top 10 chunks by cosine similarity are appended. Used as a last-resort fallback for direct-quote questions.
 
-The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer structured state on conflicts. The leave-one-out ablation quantifies their contribution to LOCOMO recall, while the analytical benchmark separately tests code execution over enumerable state.
+The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer structured state on conflicts. The leave-one-out ablation quantifies their contribution to LOCOMO recall, while the analytical benchmark separately tests code execution over enumerable state. This distinction is important: LOCOMO does not give UaC a Python tool, so its result measures typed code as answer context. The analytical suite gives both UaC and the raw-record FC+REPL control the same computation interface, isolating whether the representation exposes a complete collection that the interpreter can enumerate.
 
 \subsection{Design Principles}
 \label{sec:principles}
@@ -134,11 +154,15 @@ Three further principles guide production deployment but are not isolated by the
 
 \subsection{Setup}
 
-\textbf{Full LOCOMO protocol.}\label{sec:full-locomo-protocol} We evaluate all 1{,}986 annotations across 10 LOCOMO conversations~\citep{maharana2024locomo}: 1{,}540 answer-bearing questions (categories 1--4) and 446 adversarial questions (category~5). Each of seven systems is run through Krill's OpenAI-compatible endpoint (\texttt{https://api.krill-ai.net/v1}) with \texttt{gpt-5.6-luna} and \texttt{gemini-3-flash-preview}; the selected backbone handles applicable write, answer, and judge calls. Gemini uses the exact User-Agent \texttt{GeminiCLI/0.28.0/}\allowbreak\texttt{gemini-3-flash-preview}\allowbreak\texttt{ (darwin; arm64; terminal)}. Krill exposes no \texttt{thinking\_budget}, so neither suite transmits one.
+\textbf{Full LOCOMO protocol.}\label{sec:full-locomo-protocol} We evaluate all 1{,}986 annotations across 10 LOCOMO conversations~\citep{maharana2024locomo}: 1{,}540 answer-bearing questions (categories 1--4) and 446 adversarial questions (category~5). Each of seven systems is run with the GPT-5.6 Luna and Gemini~3 Flash Preview.
 
 \textbf{Scoring.} Categories 1--4 use LOCOMO's official category-aware token F1 and a binary same-backbone LLM judge~\citep{zheng2023mtbench} that accepts semantically equivalent answers. Category~5 uses the deterministic refusal criterion and is never judged. Judge accuracy supports within-panel comparisons; cross-panel differences also reflect judge calibration. Token F1 and refusal accuracy lack that judge confound.
 
-\textbf{Baselines and other benchmarks.} Five memory systems are compared with a Full-Context reference. Mem0~\citep{chhikara2025mem0} (mem0ai 1.0.5) and A-MEM~\citep{xu2025amem} (agentic-memory 0.0.1) use their libraries with the selected Krill backbone in full LOCOMO. MemMachine~\citep{wang2026memmachine}, Hindsight~\citep{latimer2025hindsight}, and EverMemOS~\citep{hu2026evermemos} are same-backbone reimplementations on shared ChromaDB/\texttt{all-MiniLM-L6-v2}, not native-stack reproductions. LongMemEval retains its original direct-Google Gemini~3 Flash setup. The analytical artifacts use the same Gemini~3 Flash Preview model; 99 cases are from the original direct-Google run, while one year-ambiguous item was corrected and rerun for all five systems through Krill with the Gemini CLI User-Agent before aggregates were recomputed.
+\textbf{Baselines and other benchmarks.} Five memory systems are compared with a Full-Context reference. Mem0~\citep{chhikara2025mem0} (mem0ai 1.0.5) and A-MEM~\citep{xu2025amem} (agentic-memory 0.0.1) use their libraries with the selected model API in full LOCOMO. MemMachine~\citep{wang2026memmachine}, Hindsight~\citep{latimer2025hindsight}, and EverMemOS~\citep{hu2026evermemos} are same-backbone reimplementations on shared ChromaDB/\texttt{all-MiniLM-L6-v2}, not native-stack reproductions. LongMemEval uses the Gemini~3 Flash API. The analytical artifacts use Gemini~3 Flash Preview; after correcting one year-ambiguous item, we reran that item for all five systems with the same API before recomputing aggregates.
+
+\textbf{Controlled implementation details.} Full Context receives the timestamped raw sessions in chronological order. MemMachine stores each turn verbatim, retrieves the 30 closest turns, and expands every hit by three neighboring turns on either side. Hindsight extracts typed facts into four logical networks and fuses semantic, BM25, graph, and temporal candidate lists with reciprocal-rank fusion ($k{=}60$), then cross-encoder reranks to 20 facts under a 4{,}000-token context budget. EverMemOS extracts session-level MemCells, consolidates them into MemScenes and a user profile, then combines top-3 scene routing with semantic and BM25 cell retrieval. These implementations preserve the systems' central storage and retrieval mechanisms while replacing their native services with shared local infrastructure; their scores therefore characterize the controlled harness, not the strongest published deployment of each system.
+
+\textbf{Run integrity.} Every system writes one record per original $(\text{conversation},\text{QA index})$ pair, including the prompt, gold answer, prediction, category-specific score, and judge decision. Model panels and systems are stored separately. The paper-facing validator requires exact 1{,}986-question coverage, rejects error records or missing judge fields, recomputes aggregates, and checks all fourteen model--system artifacts before emitting Table~\ref{tab:locomo}.
 
 \textbf{Provider-safety handling.} Luna refused one benign Mem0 write about four dogs/veterinary checkups; only that turn received a documented meaning-preserving paraphrase after session splitting. It also refused four systems' judge calls for one benign book-comparison QA; only the retry prompt used deterministic domain-neutral terms. Stored questions, golds, predictions, and token-F1 paths are unchanged; all four judge decisions are WRONG and artifact-tagged. Unknown refusals fail the build.
 
@@ -151,7 +175,7 @@ Three further principles guide production deployment but are not isolated by the
 
 \textbf{LongMemEval (Table~\ref{tab:longmemeval}, $n{=}500$).} The top three systems are within 2.4pp: Full~Context reaches 85.4\%, MemMachine 84.8\%, and UaC 83.0\%. UaC is highest on knowledge update (97\%) and single-session preference (83\%), while MemMachine is higher on multi-session (88\%) and temporal reasoning (69\%). These per-type differences are descriptive; the artifacts do not isolate a component or error mechanism that explains them. In particular, we do not attribute the rows to typed dates, timestamp loss, or contextual expansion without a controlled lesion study. The Mem0, A-MEM, and reimplementation numbers characterize this controlled stack rather than each system's strongest published deployment.
 
-\subsection{Analytical Inference}
+\subsection{Aggregate Inference}
 \label{sec:analytical}
 
 Beyond recall, agents may need \emph{aggregate inference over the user's records}---``how many contacts did I meet during undergrad'', ``average dining spend in 2024 by cuisine'', or ``did my workout count increase from Q1 to Q2''. Counts, group-bys, time-window filters, and joins are one-line Python over typed objects but can be lossy under top-$k$ retrieval, so this is where code-readable collections should help.
@@ -160,9 +184,13 @@ Beyond recall, agents may need \emph{aggregate inference over the user's records
 
 \textbf{Systems.} Five systems, identical cases, Gemini~3 Flash throughout: Full~Context (in-head reasoning over raw JSON), Full~Context+REPL (same data plus \texttt{python}/\texttt{read\_file} tools), UaC (records structured into typed Python, exposed via REPL), MemMachine (top-20 sentence retrieval with contextual expansion), Mem0 (flat fact extraction, top-20).
 
+\textbf{Execution protocol.} Because the benchmark inputs are already normalized records rather than conversations, the UaC runner bypasses Phase~1 and directly asks one structuring call to define a \texttt{data} list of typed dataclass instances. It serializes the complete case up to a separate 500{,}000-character analytical cap; no evaluated case exceeds that cap. The generated program is loaded before the question is shown. UaC and FC+REPL then share a persistent Python namespace, a 20-second limit per tool call, and at most 15 model--tool turns. FC+REPL must read and parse an allowlisted JSON file, whereas UaC begins with the generated typed objects.
+
+The UaC namespace also retains the original list as \texttt{records\_raw} so a malformed or inconvenient generated schema does not make the case unrecoverable. All 100 generated programs load without a recorded pre-execution error, but the stored tool traces show that the model queries only typed \texttt{data} in 65 cases, only \texttt{records\_raw} in 21, and both in 14. The UaC row therefore evaluates an executable memory interface with typed state as the primary view and raw records as a recovery channel; it is not a dataclass-only lesion. FC+REPL controls for the stronger claim: once complete raw records are enumerable through the same tool, Python syntax itself provides no accuracy advantage. Isolating the incremental effect of typed objects requires a future run that removes UaC's raw fallback.
+
 \begin{table}[t]
 \centering
-\caption{Deterministically scored analytical accuracy (\%) on 100 cases. FC+REPL executes over raw records; UaC executes over typed state.}
+\caption{Deterministically scored analytical accuracy (\%) on 100 cases. FC+REPL executes over raw records; UaC preloads typed state and retains a raw-record recovery channel.}
 \label{tab:analytical}
 \scriptsize
 \setlength{\tabcolsep}{1.5pt}
@@ -213,27 +241,35 @@ To isolate the three retrieval channels, we evaluate leave-one-out variants on t
 
 \begin{table}[t]
 \centering
-\caption{Retrieval-channel ablation on LOCOMO ($n=300$). $p$ is the paired McNemar test against Full.}
+\caption{Retrieval-channel ablation on LOCOMO ($n=300$). Each conversation has 60 questions.}
 \label{tab:channel-ablation}
-\small
-\begin{tabular}{@{}lccc@{}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-Configuration & Accuracy & $\Delta$ & $p$ \\
+Conversation & Full & $-$STATE & $-$FACTS & $-$ARCHIVE \\
 \midrule
-Full       & 78.0\% & ---     & --- \\
-$-$STATE   & 76.7\% & $-$1.3pp & .67 \\
-$-$FACTS   & 68.7\% & $-$9.3pp & .0008 \\
-$-$ARCHIVE & 70.7\% & $-$7.3pp & .008 \\
+conv-26 & 75.0 & 83.3 & 70.0 & 75.0 \\
+conv-30 & 90.0 & 85.0 & 86.7 & 80.0 \\
+conv-41 & 80.0 & 80.0 & 73.3 & 71.7 \\
+conv-42 & 76.7 & 68.3 & 48.3 & 61.7 \\
+conv-43 & 68.3 & 66.7 & 65.0 & 65.0 \\
+\midrule
+Overall & \textbf{78.0} & 76.7 & 68.7 & 70.7 \\
+$\Delta$ & --- & $-$1.3pp & $-$9.3pp & $-$7.3pp \\
+McNemar $p$ & --- & .67 & .0008 & .008 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Removing FACTS or ARCHIVE lowers accuracy by 9.3pp and 7.3pp, respectively, whereas removing STATE changes accuracy by only $-$1.3pp in this sample. Thus conventional recall primarily comes from the text channels; the analytical benchmark separately evaluates executable access to typed state.
+Removing FACTS or ARCHIVE lowers accuracy by 9.3pp and 7.3pp, respectively, with paired McNemar $p{=}.0008$ and $.008$. Both textual sources are load-bearing: atomic facts normalize surface variation, whereas archive chunks preserve wording and local dialogue context. The largest joint sensitivity occurs on conv-42, where removing FACTS or ARCHIVE costs 28.4pp or 15.0pp.
+
+STATE has a different profile. Its aggregate change is only $-$1.3pp ($p{=}.67$), but it helps conv-42 by 8.4pp and hurts conv-26 by 8.3pp. A bounded generated view can therefore make a useful entity or date salient in one history while compressing or foregrounding the wrong detail in another. This heterogeneity explains why UaC keeps all three channels rather than treating typed state as a replacement for retrieval. The analytical experiment then isolates the capability that the state channel uniquely supplies: enumeration under execution.
 
 \subsection{Modularity and Progressive Disclosure}
 \label{sec:modularity}
 
-We compare three loading strategies on 100 single-domain questions over a 10-domain, 500-record state: always inlining the full state (Monolithic), loading one domain on demand (Modular), or routing through one-line domain summaries (Manifest).
+We compare three loading strategies on 100 single-domain questions over a 10-domain, 500-record state. All strategies receive identical records, questions, Python REPL access, and model. \emph{Monolithic} serializes all 500 records into every system prompt and also exposes them as \texttt{records\_raw}. \emph{Modular} initially exposes only the domain names and a \texttt{load\_domain(name)} function, which materializes the chosen 50-record collection. \emph{Manifest} adds a one-line natural-language summary per domain before the same on-demand load. This separates the effect of state partitioning from the routing hint used to select a partition.
 
 \begin{table}[t]
 \centering
@@ -251,7 +287,7 @@ Manifest & 87.0\% & 624,922 & \$0.38 \\
 \end{tabular}
 \end{table}
 
-Modular loading preserves accuracy while reducing prompt tokens 23.8$\times$ and cost 14.9$\times$ relative to Monolithic. The cost ratio is computed from the unrounded totals (\$3.638797/\$0.2446868), not the two-decimal values displayed in Table~\ref{tab:modularity}. Manifest routing is 10pp below Modular in this run; inspection of the stored traces attributes its errors to routing decisions based on the one-line summaries.
+Modular loading preserves accuracy while reducing prompt tokens 23.8$\times$ and cost 14.9$\times$ relative to Monolithic. The cost ratio is computed from the unrounded totals (\$3.638797/\$0.2446868), not the two-decimal values displayed in Table~\ref{tab:modularity}. Because the Modular and Monolithic accuracies differ by only one question, this experiment supports efficiency rather than an accuracy advantage. Manifest routing is 10pp below Modular; trace inspection shows that its additional errors arise when a short summary routes the model to the wrong domain. Progressive disclosure is therefore beneficial only when routing remains reliable: loading an explicitly selected domain bounds prompt growth by the largest relevant partition, while a lossy manifest can become a new retrieval bottleneck. As in the analytical suite, the records are schema-clean, so this ablation evaluates read-side organization rather than the quality of LLM-generated domain boundaries.
 
 \section{Discussion}
 
