@@ -11,7 +11,7 @@ We propose \textbf{User as Code} (UaC), which gives that responsibility to the l
 
 UaC does not claim that Python alone improves reasoning: on clean, already structured inputs, Full Context with a Python REPL matches UaC. The contribution is a persistent write-and-use architecture that converts unstructured conversation into an evolving, code-readable representation and reuses it across later questions. Specifically, we contribute:
 \begin{itemize}[leftmargin=*]
-\item \textbf{An LLM-generated executable memory view} whose schemas and typed state are generated rather than fixed by a human. The representation supports attribute access and complete-set computation with ordinary Python.
+\item \textbf{An LLM-generated executable memory view} whose schemas and typed state are generated rather than fixed by a human. The representation supports attribute access, complete-set computation, and deterministic checks against explicit invariants with ordinary Python.
 \item \textbf{A durable-source/write-view architecture} that retains append-only facts and raw conversation separately from the generated code view. The three answer-time channels can therefore recover evidence that the bounded structuring input or generated schema omits.
 \item \textbf{Evaluation across recall and aggregate inference:} full 1{,}986-question LOCOMO suites and 100 deterministically scored aggregate cases. UaC has the highest observed persistent-system judge accuracy with Luna/Gemini (78.8\%/80.6\%), with metric-dependent token-F1/refusal tradeoffs, and reaches 100\% aggregate accuracy.
 \end{itemize}
@@ -42,33 +42,32 @@ Extraction (Section~\ref{sec:extraction}) converts raw multi-session conversatio
 \subsection{What ``User as Code'' Looks Like}
 \label{sec:code-example}
 
-\begin{figure}[!t]
+\begin{figure}[H]
 \centering
-\textbf{Phase 1: append atomic facts with provenance.}
+\textbf{Phase 1: append atomic facts with provenance.}\par
+\vspace{4pt}
 \begin{lstlisting}[basicstyle=\footnotesize\ttfamily,numbers=none]
 facts = [
   "[session_1, 4:04 pm on 20 January, 2023] "
   "Jon lost his job on January 19, 2023.",
-  "[session_1, 4:04 pm on 20 January, 2023] "
+  # Same session/timestamp provenance:
   "Jon's former job was as a banker.",
-  "[session_1, 4:04 pm on 20 January, 2023] "
   "Jon is starting a dance studio.",
   # ... 1,416 more facts across 19 sessions ...
 ]
 \end{lstlisting}
-\textbf{Phase 2: generate schema and typed state.}
+\vspace{8pt}
+\textbf{Phase 2: generate schema and typed state.}\par
+\vspace{4pt}
 \begin{lstlisting}[basicstyle=\footnotesize\ttfamily,numbers=none]
 @dataclass
 class Person:
   name: str
   passions: list[str] = field(default_factory=list)
-  # ... skills and notes fields omitted ...
   jobs: list["JobHistory"] = field(default_factory=list)
 
 jon = Person(
-  name="Jon",
-  passions=["Dancing (Contemporary, Hip-hop)",
-            "Sharing dance with others"],
+  name="Jon", passions=["Dancing (Contemporary, Hip-hop)", ...],
 )
 jon.jobs.append(JobHistory(
   title="Banker", date_ended=date(2023, 1, 19),
@@ -76,12 +75,11 @@ jon.jobs.append(JobHistory(
 ))
 jon_studio = Business(
   name="Jon's Dance Studio", owner="Jon",
-  # ... industry and status fields omitted ...
-  location_description=(
-    "Downtown area (potential), ideally by the water"),
+  location_description="Downtown area (potential), ideally by the water",
 )
 \end{lstlisting}
-\caption{Two-phase output from the real \texttt{conv-30} run. Stored values are verbatim excerpts; adjacent string literals are wrapped for layout and comments mark omitted facts or fields.}
+\vspace{4pt}
+\caption{Two-phase output from the real \texttt{conv-30} run. Stored values are verbatim excerpts; repeated provenance and constructor arguments are elided, and adjacent string literals are wrapped for layout.}
 \label{fig:two-phase-example}
 \end{figure}
 
@@ -136,7 +134,7 @@ At query time, retrieval composes three channels rather than picking one. The tw
 
 \textbf{(3)~Archive retrieval.} A second ChromaDB collection holds the raw conversation chunked at session granularity; the top 10 chunks by cosine similarity are appended. Used as a last-resort fallback for direct-quote questions.
 
-The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer structured state on conflicts. The leave-one-out ablation quantifies their contribution to LOCOMO recall, while the analytical benchmark separately tests code execution over enumerable state. This distinction is important: LOCOMO does not give UaC a Python tool, so its result measures typed code as answer context. The analytical suite gives both UaC and the raw-record FC+REPL control the same computation interface, isolating whether the representation exposes a complete collection that the interpreter can enumerate.
+The three channels are concatenated under fixed headers (\texttt{[STATE]}, \texttt{[FACTS]}, \texttt{[ARCHIVE]}) and passed to the answer LLM with no reranking; the prompt instructs it to prefer structured state on conflicts. The answer-channel evaluation quantifies their contribution to LOCOMO recall, while the analytical benchmark separately tests code execution over enumerable state. This distinction is important: LOCOMO does not give UaC a Python tool, so its result measures typed code as answer context. The analytical suite gives both UaC and the raw-record FC+REPL control the same computation interface, isolating whether the representation exposes a complete collection that the interpreter can enumerate.
 
 \textbf{End-to-end retrieval example.} For ``When did Jon lose his job as a banker?'', the three channels expose complementary surfaces from Figure~\ref{fig:two-phase-example}: \texttt{STATE} contains \texttt{date(2023,1,19)}, \texttt{FACTS} contains the normalized January~19 statement, and \texttt{ARCHIVE} retains ``lost my job as a banker yesterday'' together with the January~20 timestamp. The answer call receives all three. This is not voting among independent memories: state supplies the typed answer, while facts and archive preserve recoverable evidence when bounded structuring omits or compresses a detail.
 
@@ -146,7 +144,7 @@ The three channels are concatenated under fixed headers (\texttt{[STATE]}, \text
 Two cross-cutting principles are evaluated directly in this paper:
 
 \begin{enumerate}[leftmargin=*]
-\item \textbf{Durable Sources and a Generated View.} Append-only facts and the raw archive remain available alongside the bounded typed-code view. The retrieval-channel ablation in Section~\ref{sec:channel-ablation} evaluates the three answer-time sources.
+\item \textbf{Durable Sources and a Generated View.} Append-only facts and the raw archive remain available alongside the bounded typed-code view. The answer-channel study in Section~\ref{sec:channel-evaluation} evaluates the three answer-time sources.
 \item \textbf{Executable Analytical Representation.} Typed collections can be enumerated with ordinary Python. Section~\ref{sec:analytical} compares that interface with raw-record execution and retrieval-only systems.
 \end{enumerate}
 
@@ -250,37 +248,30 @@ The results (Table~\ref{tab:analytical}, Figures~\ref{fig:aggregation-example} a
 
 The divide is between representations a code tool can enumerate (UaC and FC+REPL) and systems limited to retrieved subsets in this harness (Mem0 and MemMachine). The former remain accurate as $N$ grows; the latter do not. This synthetic benchmark deliberately isolates read-side representation and tool access: its inputs are already schema-clean and therefore do not test UaC's conversation-to-structure conversion. UaC matches the JSON+REPL reference here, establishing the value of an enumerable interface rather than an advantage of Python syntax itself. UaC's architectural contribution occurs one step earlier in a deployment: Phase~1 and Phase~2 convert unstructured, timestamped conversation into the code-readable collection that makes repeated full-set computation possible.
 
-\subsection{Retrieval-Channel Ablation}
-\label{sec:channel-ablation}
+\subsection{Evaluation of Answer-Channel Roles}
+\label{sec:channel-evaluation}
 
-To isolate the three retrieval channels, we evaluate leave-one-out variants on the same five-conversation, 300-question LOCOMO subset (Table~\ref{tab:channel-ablation}).
+We evaluate the contributions of structured state (S), retrieved facts (F), and raw-archive excerpts (A) on the same five-conversation, 300-question LOCOMO subset. Table~\ref{tab:channel-evaluation} compares the full system with three configurations that each exclude one answer-time source.
 
 \begin{table}[t]
 \centering
-\caption{Retrieval-channel ablation on LOCOMO ($n=300$). Each conversation has 60 questions.}
-\label{tab:channel-ablation}
+\caption{Answer-channel evaluation on LOCOMO ($n=300$). S/F/A denote structured state, retrieved facts, and raw-archive excerpts.}
+\label{tab:channel-evaluation}
 \footnotesize
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}lrrrr@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccrr@{}}
 \toprule
-Conversation & Full & $-$STATE & $-$FACTS & $-$ARCHIVE \\
+Configuration & S & F & A & Accuracy & $\Delta$ \\
 \midrule
-conv-26 & 75.0 & 83.3 & 70.0 & 75.0 \\
-conv-30 & 90.0 & 85.0 & 86.7 & 80.0 \\
-conv-41 & 80.0 & 80.0 & 73.3 & 71.7 \\
-conv-42 & 76.7 & 68.3 & 48.3 & 61.7 \\
-conv-43 & 68.3 & 66.7 & 65.0 & 65.0 \\
-\midrule
-Overall & \textbf{78.0} & 76.7 & 68.7 & 70.7 \\
-$\Delta$ & --- & $-$1.3pp & $-$9.3pp & $-$7.3pp \\
-McNemar $p$ & --- & .67 & .0008 & .008 \\
+Full system & \checkmark & \checkmark & \checkmark & \textbf{78.0} & --- \\
+Facts + Archive & --- & \checkmark & \checkmark & 76.7 & $-$1.3pp \\
+State + Archive & \checkmark & --- & \checkmark & 68.7 & $-$9.3pp \\
+State + Facts & \checkmark & \checkmark & --- & 70.7 & $-$7.3pp \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Removing FACTS or ARCHIVE lowers accuracy by 9.3pp and 7.3pp, respectively, with paired McNemar $p{=}.0008$ and $.008$. Both textual sources are load-bearing: atomic facts normalize surface variation, whereas archive chunks preserve wording and local dialogue context. The largest joint sensitivity occurs on conv-42, where removing FACTS or ARCHIVE costs 28.4pp or 15.0pp.
-
-STATE has a different profile. Its aggregate change is only $-$1.3pp ($p{=}.67$), but it helps conv-42 by 8.4pp and hurts conv-26 by 8.3pp. A bounded generated view can therefore make a useful entity or date salient in one history while compressing or foregrounding the wrong detail in another. This heterogeneity explains why UaC keeps all three channels rather than treating typed state as a replacement for retrieval. The analytical experiment then isolates the capability that the state channel uniquely supplies: enumeration under execution.
+Excluding structured state changes accuracy by $-$1.3pp (paired McNemar $p{=}.67$). Excluding facts or archive excerpts lowers accuracy by 9.3pp and 7.3pp ($p{=}.0008$ and $.008$), respectively. Thus, retrieved facts and archive excerpts provide most of the conventional QA benefit, while structured state supplies the enumerable interface evaluated in Section~\ref{sec:analytical}.
 
 \subsection{Modularity and Progressive Disclosure}
 \label{sec:modularity}
@@ -308,13 +299,15 @@ Modular loading preserves accuracy while reducing prompt tokens 23.8$\times$ and
 
 \section{Discussion and Limitations}
 
-UaC changes the access interface rather than uniformly improving recall. We report LOCOMO token F1, within-panel same-backbone judge accuracy, and adversarial refusal separately; cross-panel judge comparisons also change the judge. The channel ablation shows that structured state changes conventional QA only slightly, whereas the aggregate benchmark demonstrates the value of an enumerable representation. Retrieval remains complementary: Phase~1 facts preserve normalized atomic evidence, the archive preserves wording and local dialogue, and Phase~2 supplies a disposable computational view. The representation should therefore be read as durable sources plus a generated index, not as a claim that Python replaces textual memory.
+UaC changes the access interface rather than uniformly improving recall. We report LOCOMO token F1, within-panel same-backbone judge accuracy, and adversarial refusal separately; cross-panel judge comparisons also change the judge. The answer-channel evaluation shows that structured state changes conventional QA only slightly, whereas the aggregate benchmark demonstrates the value of an enumerable representation. Retrieval remains complementary: Phase~1 facts preserve normalized atomic evidence, the archive preserves wording and local dialogue, and Phase~2 supplies a disposable computational view. The representation should therefore be read as durable sources plus a generated index, not as a claim that Python replaces textual memory.
 
-Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, so typed state is incomplete on long LOCOMO histories; hierarchical or incremental structuring is needed. Second, generated Python may be incomplete or semantically wrong and requires parsing, validation, and sandboxing before use. Third, the aggregate suite starts from synthetic, schema-clean records and bypasses Phase~1; moreover, UaC retains \texttt{records\_raw}, so a typed-state-only lesion is still needed to isolate the incremental effect of generated classes. Finally, controlled baselines simplify some published stacks, and the full LOCOMO answer backbone also judges within each panel; a cross-family audit covers only the legacy 600-question subset. Native reproductions and independent full-scale judging remain future work.
+Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, so typed state is incomplete on long LOCOMO histories; hierarchical or incremental structuring is needed. Second, generated Python may be incomplete or semantically wrong and requires parsing, validation, and sandboxing before use. Third, the aggregate suite starts from synthetic, schema-clean records and bypasses Phase~1; UaC also retains \texttt{records\_raw}, so a typed-state-only lesion and a component-pure direct-to-code write-path comparison remain missing. Finally, controlled baselines simplify some published stacks, and the full LOCOMO answer backbone also judges within each panel; a cross-family audit covers only the legacy 600-question subset. Native reproductions and independent full-scale judging remain future work.
 
 \section{Conclusion}
 
-User as Code represents persistent memory as generated typed state backed by append-only facts and raw conversation. Full LOCOMO shows metric-specific recall tradeoffs, while typed-state and raw-record REPL interfaces answer all 100 aggregate queries exactly. The two-phase design separates durable memorization from a replaceable computational view: how an agent records a user determines not only what it can retrieve, but what it can compute over the complete visible collection.
+Python rather than Markdown is a functional choice, not a stylistic one. Markdown preserves human-readable evidence, but prose does not by itself expose a typed collection that an interpreter can enumerate. Generated Python makes schemas and records explicit, enabling deterministic filters, counts, joins, and temporal aggregates without reconstructing structure at every query. UaC therefore retains append-only facts and raw conversation for recall while using Python as a replaceable computational view. Executable state also permits deterministic checks against explicit constraints---for example, whether a planned departure occurs after a stored passport expiration date---although reliable proactive constraint monitoring remains future work.
+
+The experiments support this division of labor. UaC achieves the highest observed persistent-system judge accuracy on full LOCOMO in both model panels, with metric-dependent token-F1 and refusal tradeoffs, and remains within 2.4pp of the best system on LongMemEval. In the answer-channel study, facts and archive excerpts provide most of the conventional QA benefit, whereas structured state provides the executable interface. On aggregate inference, UaC+REPL and raw-record FC+REPL both answer all 100 cases correctly at every tested collection size, while retrieval-only systems degrade as the collection grows. Modular loading also preserves accuracy while reducing prompt tokens by 23.8$\times$ and cost by 14.9$\times$, although lossy manifest routing reduces accuracy. Thus, the central advantage is not Python syntax itself, but complete, executable access to user records; Python provides that access in a representation an agent can generate and reuse.
 
 \textbf{AI assistance disclosure.} Generative AI tools were used for language editing, code assistance, and manuscript formatting; the authors verified all research claims, analyses, and final text.
 
