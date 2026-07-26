@@ -1115,7 +1115,7 @@
       },
       "n_retrieved": 8,
       "log": [],
-      "raw": "Based on the memories provided, there is no specific date linked to the longest sleep duration. While the memories mention that sleep durations reached a maximum of approximately 8.97 hours and provide several date ranges (January 1\u201320, May 20\u2013June 8, June 9\u201328, and June 29\u2013July 18), they do not specify which individual date recorded the longest sleep.\n\nI don't know.",
+      "raw": "Based on the memories provided, there is no specific date linked to the longest sleep duration. While the memories mention that sleep durations reached a maximum of approximately 8.97 hours and provide several date ranges (January 1–20, May 20–June 8, June 9–28, and June 29–July 18), they do not specify which individual date recorded the longest sleep.\n\nI don't know.",
       "error": null
     },
     "sleep_sleep_count_poor_n500": {
@@ -1145,23 +1145,24 @@
       "type": "sleep",
       "n": 500,
       "question_id": "sleep_trend_q1_q2",
-      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
       "answer_kind": "string",
       "gold": "increase",
-      "prediction": "Stay the same",
+      "prediction": "Unknown",
       "correct": false,
-      "answer_time": 242.0,
+      "answer_time": 520.1,
       "turns": 1,
       "tool_calls": 0,
       "usage": {
-        "prompt": 609,
-        "output": 82,
-        "thoughts": 1116,
+        "prompt": 297,
+        "output": 2234,
+        "thoughts": 0,
         "cached": 0
       },
-      "n_retrieved": 20,
+      "structuring_usage": null,
+      "n_retrieved": 1,
       "log": [],
-      "raw": "Based on the provided memories, there is no specific data or trend information regarding the average sleep durations for Q1 (January, February, March) compared to Q2 (April, May, June). The memories only list the dates when sleep was tracked and state that durations ranged from 5.55 to 8.6 hours without providing specific averages or comparisons between these time periods.\n\nStay the same",
+      "raw": "Unknown",
       "error": null
     },
     "workouts_wo_count_cardio_n20": {
@@ -1460,7 +1461,7 @@
       },
       "n_retrieved": 3,
       "log": [],
-      "raw": ", and 4.\n2.  **Determine the counts**: \n    *   The user has read a total of **16 books** (Book Titles 19, 36, 14, 51, 57, 43, 1, 37, 34, 23, 29, 54, 53, 48, 21, and 52).\n    *   The memory states the ratings were \"**mostly 1**\" with \"**some ratings of 2, 3, and 4**.\"\n    *   In logical puzzles of this type, \"some\" typically refers to at least one instance of each mentioned value. If there is 1 rating of 2, 1 rating of 3, and 1 rating of 4, that accounts for 3 books. \n    *   The remaining 13 books (the majority) would be rated 1.\n3.  **Calculate the average**:\n    *   Sum of ratings: (13 books \u00d7 1) + (1 book \u00d7 2) + (1 book \u00d7 3) + (1 book \u00d7 4) = 13 + 2 + 3 + 4 = 22.\n    *   Total number of books: 16.\n    *   Average: 22 / 16 = 1.375.\n4.  **Round to 2 decimals**: 1.375 rounds to 1.38.\n\n1.38",
+      "raw": ", and 4.\n2.  **Determine the counts**: \n    *   The user has read a total of **16 books** (Book Titles 19, 36, 14, 51, 57, 43, 1, 37, 34, 23, 29, 54, 53, 48, 21, and 52).\n    *   The memory states the ratings were \"**mostly 1**\" with \"**some ratings of 2, 3, and 4**.\"\n    *   In logical puzzles of this type, \"some\" typically refers to at least one instance of each mentioned value. If there is 1 rating of 2, 1 rating of 3, and 1 rating of 4, that accounts for 3 books. \n    *   The remaining 13 books (the majority) would be rated 1.\n3.  **Calculate the average**:\n    *   Sum of ratings: (13 books × 1) + (1 book × 2) + (1 book × 3) + (1 book × 4) = 13 + 2 + 3 + 4 = 22.\n    *   Total number of books: 16.\n    *   Average: 22 / 16 = 1.375.\n4.  **Round to 2 decimals**: 1.375 rounds to 1.38.\n\n1.38",
       "error": null
     },
     "books_books_groupby_top_genre_n50": {
@@ -2318,7 +2319,7 @@
       },
       "n_retrieved": 20,
       "log": [],
-      "raw": "Based on the memory entries provided for 2024:\n\n**H1 (January - June):**\n1. Jan 26 \u2013 Feb 10\n2. Mar 21 \u2013 Apr 5\n3. Apr 6 \u2013 Apr 19\n4. Apr 21 \u2013 Apr 30\n5. May 26 \u2013 Jun 10\n(Total: 5 periods of multiple purchases)\n\n**H2 (July - December):**\n1. Jul 6 \u2013 Jul 16\n2. Oct 10 \u2013 Oct 29\n3. Nov 29 \u2013 Dec 12\n4. Dec 13 \u2013 Dec 31\n(Total: 4 periods of multiple purchases)\n\nComparing the recorded activity periods, the count decreased.\n\nDecreased",
+      "raw": "Based on the memory entries provided for 2024:\n\n**H1 (January - June):**\n1. Jan 26 – Feb 10\n2. Mar 21 – Apr 5\n3. Apr 6 – Apr 19\n4. Apr 21 – Apr 30\n5. May 26 – Jun 10\n(Total: 5 periods of multiple purchases)\n\n**H2 (July - December):**\n1. Jul 6 – Jul 16\n2. Oct 10 – Oct 29\n3. Nov 29 – Dec 12\n4. Dec 13 – Dec 31\n(Total: 4 periods of multiple purchases)\n\nComparing the recorded activity periods, the count decreased.\n\nDecreased",
       "error": null
     }
   },
@@ -2404,6 +2405,21 @@
       "n": 20,
       "correct": 3,
       "accuracy": 0.15
+    }
+  },
+  "case_repairs": {
+    "sleep_sleep_trend_q1_q2_n500": {
+      "reason": "year-ambiguous benchmark item corrected and rerun",
+      "old_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "new_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
+      "rerun_artifact": "analytical_rerun_2024_mem0.json",
+      "run_config": {
+        "provider": "krill",
+        "base_url": "https://api.krill-ai.net/v1",
+        "model": "gemini-3-flash-preview",
+        "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+        "embedding": "chroma-default-onnx-all-MiniLM-L6-v2"
+      }
     }
   }
 }

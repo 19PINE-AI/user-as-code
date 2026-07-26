@@ -1,0 +1,73 @@
+{
+  "system": "uac_v5",
+  "by_case": {
+    "sleep_sleep_trend_q1_q2_n500": {
+      "type": "sleep",
+      "n": 500,
+      "question_id": "sleep_trend_q1_q2",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
+      "answer_kind": "string",
+      "gold": "increase",
+      "prediction": "increase",
+      "correct": true,
+      "answer_time": 333.2,
+      "turns": 3,
+      "tool_calls": 2,
+      "usage": {
+        "thoughts": 0,
+        "output": 30576,
+        "prompt": 40635,
+        "cached": 0
+      },
+      "structuring_usage": {
+        "prompt": 39463,
+        "output": 29941,
+        "thoughts": 0,
+        "cached": 0
+      },
+      "n_retrieved": null,
+      "log": [
+        {
+          "tool": "python",
+          "code": "import datetime\n\n# Check the fields of the dataclass instances in 'data'\nif data:\n    print(data[0])\nelse:\n    print(\"No data\")\n",
+          "stdout": "SleepRecord(id=0, date=datetime.date(2024, 1, 1), bedtime='23:15', wake_time='04:51', duration_hours=5.61, quality='poor')\n",
+          "error": null
+        },
+        {
+          "tool": "python",
+          "code": "# Filter data for Q1 2024 and Q2 2024\nimport datetime\n\nq1_durations = []\nq2_durations = []\n\nfor record in data:\n    if record.date.year == 2024:\n        if 1 <= record.date.month <= 3:\n            q1_durations.append(record.duration_hours)\n        elif 4 <= record.date.month <= 6:\n            q2_durations.append(record.duration_hours)\n\navg_q1 = sum(q1_durations) / len(q1_durations) if q1_durations else 0\navg_q2 = sum(q2_durations) / len(q2_durations) if q2_durations else 0\n\nprint(f\"Q1 Average: {",
+          "stdout": "Q1 Average: 7.193736263736269\nQ2 Average: 7.194945054945055\nincrease\n",
+          "error": null
+        }
+      ],
+      "raw": "increase",
+      "error": null
+    }
+  },
+  "aggregate": {
+    "n_total": 1,
+    "n_correct": 1,
+    "accuracy": 1.0
+  },
+  "per_type": {
+    "sleep": {
+      "n": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  },
+  "per_n": {
+    "500": {
+      "n": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  },
+  "run_config": {
+    "provider": "krill",
+    "base_url": "https://api.krill-ai.net/v1",
+    "model": "gemini-3-flash-preview",
+    "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+    "embedding": null
+  }
+}

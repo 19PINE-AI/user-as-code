@@ -1,9 +1,10 @@
 # User as Code — interactive paper companion
 
 A React website for the paper *User as Code: Executable Memory for Personalized Agents*.
-It explains the mechanism and lets you interactively explore the graded cases bundled for
-four benchmarks (LOCOMO, LongMemEval, Analytical Inference, Active Service). The LOCOMO
-explorer currently contains the legacy 600-question subset, not the full 1,986-question suites.
+It explains the mechanism and lets you interactively explore the cases bundled for three
+reported evaluations (LOCOMO, LongMemEval, and Analytical Inference) plus an explicitly
+exploratory alert protocol. The LOCOMO explorer currently contains the legacy 600-question
+subset, not the full 1,986-question suites.
 
 ## Stack
 - Vite + React 18
@@ -39,8 +40,8 @@ scenario definitions, and writes:
 | `locomo.json` | Legacy LOCOMO subset: the first 60 QAs from each of 10 conversations (600 total; not random) × 7 systems, with conversation-evidence context and dual-judge grades |
 | `longmemeval.json` | 500 LongMemEval QAs × 7 systems, dual-judge grades |
 | `analytical.json` | 100 analytical cases × 5 systems, with executed Python traces |
-| `active.json` | 60 Active-Service scenarios with multi-session context + per-system runs |
-| `summary.json` | aggregate tables / chart data (from the paper) |
+| `active.json` | 60 exploratory alert scenarios with multi-session context; not publication evidence |
+| `summary.json` | aggregate tables / chart data supported by the current paper |
 
 Re-run the script if the underlying results change, then rebuild.
 
@@ -48,4 +49,4 @@ Re-run the script if the underlying results change, then rebuild.
 - **(a)** the benchmark result / gold answer
 - **(b)** the context (conversation evidence, seeded sessions, or record set)
 - **(c)** each system's response (including UaC's executed code trace)
-- **(d)** the grading — dual-judged under Gemini 3 Flash and Claude Opus 4.7 where applicable
+- **(d)** the stored grading fields where applicable; legacy cross-judge data are not current headline evidence

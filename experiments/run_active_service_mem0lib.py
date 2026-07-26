@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run Active Service with the actual mem0ai 1.0.5 library as the memory.
+"""Run a deprecated proactive-alert pilot with mem0ai 1.0.5.
 
-This is a sanity check against the existing hand-crafted flat-fact baseline:
-do real Mem0 retrievals reach a similar number on Active Service?
+The interaction contains alert-oriented prompting and is not a reportable
+exploratory Active Service protocol. Outputs are retained only for protocol development.
 """
 from __future__ import annotations
 
@@ -14,7 +14,8 @@ import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from active_service_experiment import (  # noqa: E402
-    SYSTEM_PROMPT_FLAT, MODEL, client, load_scenarios,
+    SYSTEM_PROMPT_FLAT, MODEL, client, history_sessions, load_scenarios,
+    trigger_user_message, user_only_text,
 )
 from google import genai
 
@@ -23,20 +24,8 @@ RESULTS_DIR = pathlib.Path(__file__).resolve().parent / "results"
 
 
 def _build_session_text(session: dict) -> str:
-    """Render a scenario session as conversational text.
-
-    Active-service scenarios store the dialogue under `conversation` as a
-    plain string. Some other formats use `turns: [{speaker, text}]` instead;
-    handle both.
-    """
-    if "conversation" in session and isinstance(session["conversation"], str):
-        return session["conversation"]
-    parts = []
-    for turn in session.get("turns", []):
-        speaker = turn.get("speaker", turn.get("role", "user"))
-        text = turn.get("text", turn.get("content", ""))
-        parts.append(f"{speaker}: {text}")
-    return "\n".join(parts)
+    """Render user-authored history without assistant alert cues."""
+    return user_only_text(session)
 
 
 def run_one(scenario: dict) -> dict:
@@ -52,20 +41,17 @@ def run_one(scenario: dict) -> dict:
     uid = f"as_{scenario.get('id', 'x')}_{int(time.time())}"
 
     # Ingest seed sessions.
-    for s in scenario.get("sessions", []):
+    for s in history_sessions(scenario):
         text = _build_session_text(s)
+        if not text:
+            continue
         try:
             m.add([{"role": "user", "content": text}], user_id=uid)
         except Exception:
             pass
 
-    # Trigger message — same as the original Active Service experiment.
-    user_message = scenario.get("trigger_session", {}).get(
-        "user_message", "Hey! Just checking in. Anything I should know about?"
-    )
-    # Active Service tests *proactive* alerts, not retrieval, so we surface
-    # the system's full memory rather than top-k results. This matches how
-    # the existing flat-fact baseline gives the LLM the full fact list.
+    user_message = trigger_user_message(scenario)
+    # This remains a pilot: surface all stored memories for protocol analysis.
     try:
         all_mems = m.get_all(user_id=uid)
     except Exception:
@@ -135,11 +121,18 @@ def run_one(scenario: dict) -> dict:
 
 
 def main() -> None:
+    print(
+        "WARNING: deprecated exploratory protocol; do not report as Active "
+        "Service evidence.",
+        flush=True,
+    )
     out_path = RESULTS_DIR / "active_service_mem0lib.json"
     if out_path.exists():
         results = json.load(open(out_path))
     else:
         results = {"by_scenario": {}}
+    results["publication_ready"] = False
+    results["protocol_status"] = "deprecated exploratory alert-prompting pilot"
 
     for fname, label in [("active_service_scenarios.json", "standard"),
                          ("hard_active_service_scenarios.json", "hard")]:

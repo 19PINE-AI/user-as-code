@@ -7,7 +7,7 @@ Evaluates 6 memory systems against the LOCOMO benchmark:
   - mem0:         Mem0 memory extraction and retrieval
   - a_mem:        A-MEM agentic memory system
   - engram:       Engram lightweight memory layer
-  - full_context: Upper bound (full conversation text)
+  - full_context: Reference that receives the full conversation text
   - no_memory:    Lower bound (no context)
 
 Runs on 2 LOCOMO conversations with ALL QA pairs.
@@ -187,7 +187,7 @@ def get_session_turns(conversation: dict) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 class FullContextSystem:
-    """Upper bound baseline: pass the full conversation as context."""
+    """Reference baseline: pass the full conversation as context."""
     name = "full_context"
 
     def reset(self):

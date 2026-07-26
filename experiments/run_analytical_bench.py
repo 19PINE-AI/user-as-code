@@ -2,6 +2,7 @@
 """Run a single system over all 100 analytical-benchmark cases.
 
 Usage: run_analytical_bench.py <system> [--cases path] [--limit N] [--start N]
+       [--case-id ID] [--output path] [--force]
   system: uac_v5 | full_context | fc_repl | mem0 | memmachine
 
 Resumable: writes per-case results to results/analytical_<system>.json after
@@ -19,6 +20,8 @@ import traceback
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from analytical_bench.runners import RUNNERS  # noqa: E402
 from analytical_bench.scoring import score  # noqa: E402
+from analytical_bench.tools import GEMINI_MODEL  # noqa: E402
+from krill_client import KRILL_BASE_URL, gemini_cli_user_agent  # noqa: E402
 
 CASES_PATH = pathlib.Path(__file__).resolve().parent / "results" / "analytical_cases.json"
 RESULTS_DIR = pathlib.Path(__file__).resolve().parent / "results"
@@ -34,23 +37,53 @@ def main() -> None:
     ap.add_argument("--cases", default=str(CASES_PATH))
     ap.add_argument("--limit", type=int, default=100)
     ap.add_argument("--start", type=int, default=0)
+    ap.add_argument(
+        "--case-id",
+        help="Run exactly one case by stable case_id (applied before --start/--limit).",
+    )
+    ap.add_argument(
+        "--output",
+        help="Write to an isolated result file instead of results/analytical_<system>.json.",
+    )
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Recompute selected cases even when they already exist in the output file.",
+    )
     args = ap.parse_args()
 
     runner = RUNNERS[args.system]
-    out = RESULTS_DIR / f"analytical_{args.system}.json"
-    cases = json.load(open(args.cases))["cases"][args.start:args.start + args.limit]
+    out = pathlib.Path(args.output) if args.output else RESULTS_DIR / f"analytical_{args.system}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    all_cases = json.load(open(args.cases))["cases"]
+    if args.case_id:
+        all_cases = [case for case in all_cases if case["case_id"] == args.case_id]
+        if not all_cases:
+            ap.error(f"unknown --case-id: {args.case_id}")
+    cases = all_cases[args.start:args.start + args.limit]
 
     if out.exists():
         results = json.load(open(out))
     else:
         results = {"system": args.system, "by_case": {}}
+    results["run_config"] = {
+        "provider": "krill",
+        "base_url": KRILL_BASE_URL,
+        "model": GEMINI_MODEL,
+        "user_agent": gemini_cli_user_agent(GEMINI_MODEL),
+        "embedding": (
+            "chroma-default-onnx-all-MiniLM-L6-v2"
+            if args.system in {"mem0", "memmachine"}
+            else None
+        ),
+    }
 
     n_done = sum(1 for cid in results["by_case"] if cid in {c["case_id"] for c in cases})
     _log(f"system={args.system}  cases={len(cases)}  already_done={n_done}")
 
     for i, case in enumerate(cases):
         cid = case["case_id"]
-        if cid in results["by_case"]:
+        if cid in results["by_case"] and not args.force:
             continue
         try:
             t0 = time.time()

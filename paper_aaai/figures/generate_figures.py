@@ -78,7 +78,7 @@ def fig_architecture():
         boxstyle="round,pad=0.08", facecolor=LIGHTGREEN, edgecolor=GREEN, linewidth=1.5)
     ax.add_patch(phase2)
     ax.text(7.6, 5.35, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=10, color='#15803D')
-    ax.text(7.6, 5.05, '(periodic, from all facts)', ha='center', fontsize=8, color=DARKGRAY)
+    ax.text(7.6, 5.05, '(periodic, first 30K serialized characters)', ha='center', fontsize=8, color=DARKGRAY)
 
     # Code representation
     code_box = mpatches.FancyBboxPatch((5.9, 4.32), 3.4, 0.48,
@@ -92,11 +92,11 @@ def fig_architecture():
     ax.text(4.98, 4.07, 'Structure\n(thinking LLM)', ha='center', va='center',
             fontsize=6.1, linespacing=1.1, color='#15803D', rotation=39)
 
-    # Constraint box (label wrapped to two lines so it stays inside the box)
+    # Analytical execution over the typed view.
     const_box = mpatches.FancyBboxPatch((5.9, 3.58), 3.4, 0.48,
         boxstyle="round,pad=0.05", facecolor=LIGHTORANGE, edgecolor=ORANGE, linewidth=0.8)
     ax.add_patch(const_box)
-    ax.text(7.6, 3.82, 'Constraint execution  ->  ACTIVE_ALERTS',
+    ax.text(7.6, 3.82, 'Python REPL  ->  exact aggregation',
             ha='center', va='center', fontsize=7.5, fontweight='bold', color='#92400E')
 
     # Tier 3 Archive
@@ -116,16 +116,26 @@ def fig_architecture():
     # Arrows to retrieval
     ax.annotate('', xy=(5.5, 2.74), xytext=(4.5, 2.74),
         arrowprops=dict(arrowstyle='->', color=PURPLE, lw=1.2))
-    ax.annotate('', xy=(7.6, 3.10), xytext=(7.6, 3.45),
-        arrowprops=dict(arrowstyle='->', color=GREEN, lw=1.2))
+    ax.annotate('', xy=(9.45, 3.08), xytext=(9.05, 4.32),
+        arrowprops=dict(arrowstyle='->', color=GREEN, lw=1.2,
+                        connectionstyle='arc3,rad=0.25'))
 
-    # Bottom: output
-    out_box = mpatches.FancyBboxPatch((2.5, 1.55), 5, 0.55,
+    # Bottom: separate analytical and standard-QA outputs.
+    analytical_out = mpatches.FancyBboxPatch((0.8, 1.55), 3.7, 0.55,
         boxstyle="round,pad=0.06", facecolor='#F3F4F6', edgecolor=DARKGRAY, linewidth=1.2)
-    ax.add_patch(out_box)
-    ax.text(5, 1.91, 'Manifest: Domains + ACTIVE_ALERTS', ha='center', fontweight='bold', fontsize=9)
-    ax.text(5, 1.69, 'Always in agent context (~300 tokens)', ha='center', fontsize=7.5, color=DARKGRAY)
-    ax.annotate('', xy=(5, 2.1), xytext=(6, 2.40),
+    ax.add_patch(analytical_out)
+    ax.text(2.65, 1.91, 'Analytical result', ha='center', fontweight='bold', fontsize=9)
+    ax.text(2.65, 1.69, 'Interpreter output', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.annotate('', xy=(4.5, 1.92), xytext=(5.9, 3.82),
+        arrowprops=dict(arrowstyle='->', color=ORANGE, lw=1.2,
+                        connectionstyle='arc3,rad=0.25'))
+
+    qa_out = mpatches.FancyBboxPatch((5.5, 1.55), 4.2, 0.55,
+        boxstyle="round,pad=0.06", facecolor='#F3F4F6', edgecolor=DARKGRAY, linewidth=1.2)
+    ax.add_patch(qa_out)
+    ax.text(7.6, 1.91, 'Question-answering result', ha='center', fontweight='bold', fontsize=9)
+    ax.text(7.6, 1.69, 'LLM over retrieved evidence', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.annotate('', xy=(7.6, 2.1), xytext=(7.6, 2.40),
         arrowprops=dict(arrowstyle='->', color=DARKGRAY, lw=1.2))
 
     plt.savefig('figures/architecture.pdf')
@@ -144,69 +154,36 @@ def fig_benchmarks():
 
 
 # =====================================================================
-# Figure 3: Active Service — standard vs hard
+# Legacy Active Service asset: explicitly mark the protocol as exploratory.
 # =====================================================================
 def fig_active_service():
-    fig, ax = plt.subplots(figsize=(5, 3.2))
-
-    systems = ['UaC\n+ pipeline', 'Mem0', 'Full Context', 'UaC\n(no alerts)']
-    standard = [100, 92.5, 0, 52.5]
-    hard = [85, 65, 55, 45]
-    has_standard = [True, True, False, True]
-
-    x = np.arange(len(systems))
-    width = 0.32
-
-    bars1 = ax.bar(x - width/2, standard, width,
-                   label='Standard (40 scenarios)', color=BLUE, edgecolor='white', alpha=0.85)
-    bars2 = ax.bar(x + width/2, hard, width,
-                   label='Hard (20 scenarios)', color=ORANGE, edgecolor='white', alpha=0.85)
-
-    # Hide missing standard bar for Full Context
-    bars1[2].set_alpha(0)
-
-    ax.set_ylabel('Alert Detection Rate (%)')
-    ax.set_title('Active Service: Standard vs Hard Scenarios', fontweight='bold')
-    ax.set_xticks(x)
-    ax.set_xticklabels(systems, fontsize=8)
-    ax.set_ylim(0, 118)
-    ax.legend(loc='upper right', framealpha=0.9, fontsize=8)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    for bar, val, has in zip(bars1, standard, has_standard):
-        if has and val:
-            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2,
-                    f'{val:.0f}%', ha='center', va='bottom', fontsize=7.5, fontweight='bold', color=BLUE)
-    for bar, val in zip(bars2, hard):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2,
-                f'{val:.0f}%', ha='center', va='bottom', fontsize=7.5, fontweight='bold', color='#92400E')
-
-    # Annotate Mem0 drop
-    ax.annotate('-27.5pp', xy=(1, 78), fontsize=7.5, color=RED, fontweight='bold',
-                ha='center', va='center',
-                bbox=dict(boxstyle='round,pad=0.2', facecolor=LIGHTRED, edgecolor=RED, alpha=0.8))
-
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(5, 2.4))
+    ax.axis('off')
+    ax.text(0.5, 0.68, 'Exploratory Active Service protocol',
+            ha='center', va='center', fontsize=13, fontweight='bold',
+            transform=ax.transAxes)
+    ax.text(0.5, 0.38,
+            'Not publication evidence: the stored runs prompt for alerts\n'
+            'and do not execute generated persistent constraints.',
+            ha='center', va='center', fontsize=10, color=DARKGRAY,
+            transform=ax.transAxes)
     plt.savefig('figures/active_service.pdf')
     plt.savefig('figures/active_service.png')
-    print('Saved active service figure')
+    print('Saved exploratory-protocol notice')
     plt.close()
 
 
 # =====================================================================
-# Figure 4: Ablation progression
+# Legacy development-version comparison (not a controlled component ablation).
 # =====================================================================
 def fig_ablation():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
+    fig, ax1 = plt.subplots(figsize=(4.6, 3))
 
-    versions = ['Basic\n3-tier', 'Flat\nfacts', 'Incremental\ncode', 'Two-\nphase', '+\npipeline']
-    locomo_j = [56.7, 75.7, 65.7, 78.0, 78.0]
-    active_s = [30.0, 37.5, 40.0, 67.5, 100.0]
+    versions = ['v2', 'v3', 'v4', 'v5']
+    locomo_j = [56.7, 75.7, 65.7, 78.0]
 
     x = range(len(versions))
 
-    # LOCOMO ablation
     ax1.plot(x, locomo_j, 'o-', color=BLUE, linewidth=2, markersize=8, zorder=5)
     ax1.fill_between(x, locomo_j, alpha=0.1, color=BLUE)
     offsets = [(0, 12), (8, 10), (0, -18), (0, 12), (0, 12)]
@@ -216,30 +193,14 @@ def fig_ablation():
     ax1.set_xticks(x)
     ax1.set_xticklabels(versions, fontsize=7)
     ax1.set_ylabel('LLM-Judge Accuracy (%)')
-    ax1.set_title('LOCOMO Recall', fontweight='bold')
+    ax1.set_title('Historical LOCOMO Development Runs', fontweight='bold')
     ax1.set_ylim(20, 95)
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
 
-    # Annotate key transitions
-    ax1.annotate('+19pp', xy=(0.5, 70), fontsize=7, color=GREEN, fontweight='bold', ha='center')
-    ax1.annotate('-10pp', xy=(1.5, 73), fontsize=7, color=RED, fontweight='bold', ha='center')
-
-    # Active Service ablation
-    ax2.plot(x, active_s, 's-', color=ORANGE, linewidth=2, markersize=8, zorder=5)
-    ax2.fill_between(x, active_s, alpha=0.1, color=ORANGE)
-    offsets2 = [(0, 10), (0, 10), (0, 10), (0, 10), (0, 10)]
-    for i, (xi, yi) in enumerate(zip(x, active_s)):
-        ax2.annotate(f'{yi:.1f}%', (xi, yi), textcoords="offset points",
-                    xytext=offsets2[i], ha='center', fontsize=8, fontweight='bold', color='#92400E')
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(versions, fontsize=7)
-    ax2.set_title('Active Service', fontweight='bold')
-    ax2.set_ylim(10, 118)
-    ax2.spines['top'].set_visible(False)
-    ax2.spines['right'].set_visible(False)
-
-    ax2.annotate('+32.5pp', xy=(3.5, 83), fontsize=7, color=GREEN, fontweight='bold', ha='center')
+    ax1.text(0.5, -0.22, 'Versions differ in multiple implementation details; not controlled lesions.',
+             ha='center', va='top', fontsize=7.5, color=DARKGRAY,
+             transform=ax1.transAxes)
 
     plt.tight_layout()
     plt.savefig('figures/ablation.pdf')

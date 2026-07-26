@@ -479,7 +479,7 @@ def sleep_questions(records: list[dict]) -> list[dict]:
          "q": "How many nights had poor sleep quality?",
          "a": len(poor)},
         {"id": "sleep_trend_q1_q2", "kind": "string",
-         "q": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+         "q": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
          "a": trend},
     ]
 

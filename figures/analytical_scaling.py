@@ -18,6 +18,17 @@ from generate_figures import BLUE, GREEN, ORANGE, RED, GRAY, PURPLE  # noqa: E40
 
 R = pathlib.Path(__file__).resolve().parent.parent / "experiments" / "results"
 
+# The paper repository does not ship the raw experiment directory. Keep the
+# published per-N values here so the committed figure remains reproducible;
+# local raw results take precedence when they are available.
+PUBLISHED_PER_N = {
+    "fc_repl": {20: 100, 50: 100, 100: 100, 200: 100, 500: 100},
+    "uac_v5": {20: 100, 50: 100, 100: 100, 200: 100, 500: 100},
+    "full_context": {20: 100, 50: 90, 100: 100, 200: 90, 500: 90},
+    "memmachine": {20: 100, 50: 55, 100: 20, 200: 15, 500: 25},
+    "mem0": {20: 5, 50: 10, 100: 0, 200: 0, 500: 15},
+}
+
 plt.rcParams.update({
     "font.family": "serif",
     "font.size": 10,
@@ -33,7 +44,7 @@ plt.rcParams.update({
 def per_n(name):
     path = R / f"analytical_{name}.json"
     if not path.exists():
-        return None
+        return PUBLISHED_PER_N.get(name)
     d = json.load(open(path))
     out = {}
     for v in d["by_case"].values():
@@ -54,7 +65,9 @@ def main():
         ("mem0", "Mem0", RED, "v", ":"),
     ]
     ns = [20, 50, 100, 200, 500]
-    fig, ax = plt.subplots(figsize=(6.0, 3.6))
+    # Reserve a separate band below the axes for the legend so it never
+    # obscures the accuracy curves.
+    fig, ax = plt.subplots(figsize=(6.0, 4.0))
     for name, label, color, marker, ls in systems:
         data = per_n(name)
         if not data:
@@ -69,12 +82,13 @@ def main():
     ax.set_ylabel("Accuracy (%)")
     ax.set_ylim(-5, 105)
     ax.set_yticks([0, 25, 50, 75, 100])
-    ax.set_title("Analytical inference: accuracy vs. record count", fontweight="bold")
     ax.grid(True, alpha=0.3, linestyle="-", linewidth=0.5)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.legend(loc="lower left", framealpha=0.9, ncol=1)
-    plt.tight_layout()
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.01),
+               framealpha=0.9, ncol=3, columnspacing=1.2, handlelength=2.4)
+    plt.tight_layout(rect=(0, 0.18, 1, 1))
     out = pathlib.Path(__file__).parent / "analytical_scaling.pdf"
     plt.savefig(out)
     plt.savefig(str(out).replace(".pdf", ".png"))

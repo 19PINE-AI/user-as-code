@@ -1,6 +1,9 @@
 """
 Ablation Experiment: Code vs JSON vs Markdown format
 
+DEPRECATED EXPLORATORY PROTOCOL: these runs are not controlled publication
+ablations and must not be reported as Active Service evidence.
+
 Tests the format effect on proactive alerting, holding the pipeline constant.
 Two sub-experiments:
 1. With pre-computed alerts (read path) — does format affect alert surfacing?

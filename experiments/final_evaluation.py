@@ -2,7 +2,8 @@
 """
 Final Full Evaluation Suite for User as Code Paper
 ===================================================
-Runs all 3 benchmarks (LOCOMO, LongMemEval, Active Service) across all systems.
+Runs the legacy LOCOMO/LongMemEval paths. The former Active Service pilot is
+disabled because it does not execute generated persistent UaC constraints.
 Outputs: experiments/results/final_full_evaluation.json
 """
 
@@ -697,6 +698,11 @@ def check_alert(response, expected_alert):
 
 
 def run_active_service():
+    raise RuntimeError(
+        "Active Service pilot disabled: the stored protocol prompts for alerts "
+        "and does not generate/persist/execute UaC constraints. See "
+        "evaluation/README.md for replacement-protocol requirements."
+    )
     print("\n" + "=" * 70)
     print("BENCHMARK 3: Active Service (40 scenarios)")
     print("=" * 70)
@@ -721,42 +727,27 @@ def run_active_service():
 
             try:
                 if sys_name in ("uac_v5_with_alerts", "uac_v5_no_alerts"):
+                    from active_service_experiment import (
+                        history_sessions,
+                        trigger_user_message,
+                        user_only_text,
+                    )
                     from user_as_code_v5 import UserAsCodeV5
                     v5 = UserAsCodeV5(user_id=f"active_{si}")
 
-                    # Ingest all sessions
-                    for sess in sessions:
-                        turns = sess["conversation"].split("\n")
+                    # Cue-free pilot path: user-only pre-trigger history.
+                    for sess in history_sessions(scenario):
+                        turns = user_only_text(sess).splitlines()
+                        if not turns:
+                            continue
                         v5.ingest_session(turns, f"session_{sess['session_id']}", sess.get("timestamp", ""))
                         time.sleep(0.3)
 
                     v5.structure()
                     time.sleep(0.5)
 
-                    # Find trigger session
-                    trigger_text = ""
-                    for sess in sessions:
-                        if sess["session_id"] == trigger_id:
-                            trigger_text = sess["conversation"]
-                            break
-
-                    if sys_name == "uac_v5_with_alerts":
-                        # With constraint pipeline: ask explicitly about alerts
-                        context = v5.retrieve(trigger_text)
-                        prompt = (
-                            f"A user just had this conversation:\n{trigger_text}\n\n"
-                            f"Based on everything you know about this user from their history, "
-                            f"are there any alerts, warnings, or concerns you should raise? "
-                            f"Check for: document expirations, health interactions, scheduling conflicts, "
-                            f"financial issues, travel requirements, or any other constraints that may be violated.\n\n"
-                            f"If there are concerns, describe them clearly with specific details and dates."
-                        )
-                        response = llm_answer(prompt, system=f"User history:\n{context}")
-                    else:
-                        # Without alerts: just neutral response
-                        response = v5.answer(
-                            f"What should I know about this conversation? {trigger_text[:500]}"
-                        )
+                    trigger_text = trigger_user_message(scenario)
+                    response = v5.answer(trigger_text)
                     del v5
 
                 elif sys_name == "amem":

@@ -1145,23 +1145,24 @@
       "type": "sleep",
       "n": 500,
       "question_id": "sleep_trend_q1_q2",
-      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
       "answer_kind": "string",
       "gold": "increase",
-      "prediction": "Final answer: increase",
+      "prediction": "Final answer: increased",
       "correct": true,
-      "answer_time": 21.3,
+      "answer_time": 250.9,
       "turns": 1,
       "tool_calls": 0,
       "usage": {
-        "prompt": 40431,
-        "output": 6,
-        "thoughts": 4843,
-        "cached": 32738
+        "prompt": 40435,
+        "output": 6412,
+        "thoughts": 0,
+        "cached": 0
       },
+      "structuring_usage": null,
       "n_retrieved": null,
       "log": [],
-      "raw": "Increase\n\nFinal answer: increase",
+      "raw": "Increased\n\nFinal answer: increased",
       "error": null
     },
     "workouts_wo_count_cardio_n20": {
@@ -2404,6 +2405,21 @@
       "n": 20,
       "correct": 18,
       "accuracy": 0.9
+    }
+  },
+  "case_repairs": {
+    "sleep_sleep_trend_q1_q2_n500": {
+      "reason": "year-ambiguous benchmark item corrected and rerun",
+      "old_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "new_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
+      "rerun_artifact": "analytical_rerun_2024_full_context.json",
+      "run_config": {
+        "provider": "krill",
+        "base_url": "https://api.krill-ai.net/v1",
+        "model": "gemini-3-flash-preview",
+        "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+        "embedding": null
+      }
     }
   }
 }

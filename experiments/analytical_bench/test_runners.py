@@ -1,8 +1,7 @@
 """End-to-end runner tests.
 
 Each runner is exercised on one small case (N=20) to verify the plumbing
-works. Hits live Gemini and OpenAI (for Mem0) so requires GEMINI_API_KEY and
-OPENAI_API_KEY.
+works. Hits Gemini through Krill, so requires KRILL_API_KEY.
 """
 from __future__ import annotations
 
@@ -37,8 +36,8 @@ class TestRunners(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if not os.environ.get("GEMINI_API_KEY"):
-            raise unittest.SkipTest("GEMINI_API_KEY not set")
+        if not os.environ.get("KRILL_API_KEY"):
+            raise unittest.SkipTest("KRILL_API_KEY not set")
         global SMALL_CASE
         SMALL_CASE = _load_small_case()
         print(f"\n[setup] using case {SMALL_CASE['case_id']}: {SMALL_CASE['question'][:80]}")
@@ -63,7 +62,7 @@ class TestRunners(unittest.TestCase):
         print(f"\nuac_v5 => {r['answer']!r}  ok={ok}  turns={r['turns']}  tool_calls={r['tool_calls']}")
         self.assertTrue(r["answer"])
 
-    @unittest.skipUnless(os.environ.get("OPENAI_API_KEY"), "OPENAI_API_KEY not set")
+    @unittest.skipUnless(os.environ.get("KRILL_API_KEY"), "KRILL_API_KEY not set")
     def test_mem0(self) -> None:
         r = run_mem0(SMALL_CASE)
         ok = score(SMALL_CASE["answer_kind"], r["answer"], SMALL_CASE["gold"])

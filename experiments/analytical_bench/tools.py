@@ -13,16 +13,37 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
+import os
 import pathlib
+import random
 import signal
 import time
 import traceback
 from typing import Any, Optional
 
-from google import genai
+from openai import OpenAI
+try:
+    from krill_client import KRILL_BASE_URL, request_headers_for_model
+except ModuleNotFoundError:  # package import from the repository root
+    from experiments.krill_client import KRILL_BASE_URL, request_headers_for_model
 
-GEMINI_MODEL = "gemini-3-flash-preview"
-_gclient = genai.Client()
+GEMINI_MODEL = os.environ.get("ANALYTICAL_MODEL", "gemini-3-flash-preview")
+_client: Optional[OpenAI] = None
+
+
+def _get_client() -> OpenAI:
+    global _client
+    if _client is None:
+        api_key = os.environ.get("KRILL_API_KEY")
+        if not api_key:
+            raise RuntimeError("KRILL_API_KEY is not set")
+        _client = OpenAI(
+            base_url=KRILL_BASE_URL,
+            api_key=api_key,
+            max_retries=0,
+        )
+    return _client
 
 
 # ---------------------------------------------------------------------------
@@ -94,44 +115,56 @@ class ReadFileTool:
 # ---------------------------------------------------------------------------
 
 def extract_usage(resp: Any) -> dict[str, int]:
-    """Pull token counts from a Gemini response's usage_metadata."""
+    """Pull token counts from an OpenAI-compatible completion."""
     usage = {"prompt": 0, "output": 0, "thoughts": 0, "cached": 0}
-    um = getattr(resp, "usage_metadata", None)
+    um = getattr(resp, "usage", None)
     if um is None:
         return usage
-    usage["prompt"] = int(getattr(um, "prompt_token_count", 0) or 0)
-    usage["output"] = int(getattr(um, "candidates_token_count", 0) or 0)
-    usage["thoughts"] = int(getattr(um, "thoughts_token_count", 0) or 0)
-    usage["cached"] = int(getattr(um, "cached_content_token_count", 0) or 0)
+    usage["prompt"] = int(getattr(um, "prompt_tokens", 0) or 0)
+    usage["output"] = int(getattr(um, "completion_tokens", 0) or 0)
+    completion_details = getattr(um, "completion_tokens_details", None)
+    prompt_details = getattr(um, "prompt_tokens_details", None)
+    usage["thoughts"] = int(
+        getattr(completion_details, "reasoning_tokens", 0) or 0
+    )
+    usage["cached"] = int(getattr(prompt_details, "cached_tokens", 0) or 0)
     return usage
 
 
-def _gemini_call(contents: list, tools: list, system_instruction: str,
-                 thinking_budget: int = 2048, max_retries: int = 6) -> Any:
-    cfg = genai.types.GenerateContentConfig(
-        thinking_config=genai.types.ThinkingConfig(thinking_budget=thinking_budget),
-        temperature=1.0,
-        system_instruction=system_instruction,
-        tools=tools,
-        # Disable automatic function calling so we drive the loop ourselves.
-        automatic_function_calling=genai.types.AutomaticFunctionCallingConfig(disable=True),
-    )
+def _chat_completion(
+    *,
+    messages: list[dict[str, Any]],
+    tools: Optional[list[dict[str, Any]]] = None,
+    thinking_budget: int = 2048,
+    max_retries: int = 6,
+) -> Any:
+    """Call Gemini through Krill's OpenAI-compatible endpoint."""
+    del thinking_budget  # Krill's compatibility API does not expose this knob.
     last_err: Exception | None = None
     for attempt in range(max_retries):
         try:
-            return _gclient.models.generate_content(
-                model=GEMINI_MODEL, contents=contents, config=cfg)
+            kwargs: dict[str, Any] = {
+                "model": GEMINI_MODEL,
+                "messages": messages,
+                "extra_headers": request_headers_for_model(GEMINI_MODEL) or None,
+            }
+            if tools:
+                kwargs["tools"] = tools
+            return _get_client().chat.completions.create(**kwargs)
         except Exception as e:
             last_err = e
-            err = str(e)
-            if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                wait = 15 * (attempt + 1)
-            elif "500" in err or "503" in err or "UNAVAILABLE" in err:
-                wait = 10 * (attempt + 1)
-            else:
-                wait = 5
+            status = getattr(e, "status_code", None)
+            retryable = (
+                status == 429
+                or (isinstance(status, int) and status >= 500)
+                or type(e).__name__ in {"APIConnectionError", "APITimeoutError"}
+            )
+            if not retryable or attempt + 1 >= max_retries:
+                break
+            base = 15 if status == 429 else 5
+            wait = min(base * (attempt + 1), 60) + random.uniform(0, 2)
             time.sleep(wait)
-    raise RuntimeError(f"gemini failed after {max_retries} attempts: {last_err}")
+    raise RuntimeError(f"Krill Gemini request failed: {last_err}") from last_err
 
 
 def run_tool_loop(
@@ -143,36 +176,41 @@ def run_tool_loop(
     max_turns: int = 10,
     thinking_budget: int = 2048,
 ) -> dict[str, Any]:
-    """Drive a Gemini tool-use loop.
+    """Drive a Gemini tool-use loop through Krill.
 
     Returns:
       {"answer": str, "turns": int, "tool_calls": int, "log": [...]}
     """
-    tool_decls = []
+    tools: list[dict[str, Any]] = []
     if repl is not None:
-        tool_decls.append(genai.types.FunctionDeclaration(
-            name="python",
-            description=(
-                "Execute Python code in a persistent REPL namespace. "
-                "Use print() to surface values you want to read back."
-            ),
-            parameters=genai.types.Schema(
-                type=genai.types.Type.OBJECT,
-                properties={"code": genai.types.Schema(type=genai.types.Type.STRING)},
-                required=["code"],
-            ),
-        ))
+        tools.append({
+            "type": "function",
+            "function": {
+                "name": "python",
+                "description": (
+                    "Execute Python code in a persistent REPL namespace. "
+                    "Use print() to surface values you want to read back."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {"code": {"type": "string"}},
+                    "required": ["code"],
+                },
+            },
+        })
     if read_file is not None:
-        tool_decls.append(genai.types.FunctionDeclaration(
-            name="read_file",
-            description="Read the contents of a file at the given path.",
-            parameters=genai.types.Schema(
-                type=genai.types.Type.OBJECT,
-                properties={"path": genai.types.Schema(type=genai.types.Type.STRING)},
-                required=["path"],
-            ),
-        ))
-    tools = [genai.types.Tool(function_declarations=tool_decls)] if tool_decls else []
+        tools.append({
+            "type": "function",
+            "function": {
+                "name": "read_file",
+                "description": "Read the contents of a file at the given path.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"path": {"type": "string"}},
+                    "required": ["path"],
+                },
+            },
+        })
 
     user_msg = (
         f"{question}\n\n"
@@ -180,71 +218,70 @@ def run_tool_loop(
         "When you are done, reply with ONLY the final answer on the last line, "
         "with no extra commentary."
     )
-    contents: list = [
-        genai.types.Content(role="user", parts=[genai.types.Part(text=user_msg)])
+    messages: list[dict[str, Any]] = [
+        {"role": "system", "content": system_instruction},
+        {"role": "user", "content": user_msg},
     ]
     log: list[dict] = []
     tool_calls = 0
     total_usage = {"prompt": 0, "output": 0, "thoughts": 0, "cached": 0}
 
     for turn in range(max_turns):
-        resp = _gemini_call(
-            contents=contents,
+        resp = _chat_completion(
+            messages=messages,
             tools=tools,
-            system_instruction=system_instruction,
             thinking_budget=thinking_budget,
         )
         u = extract_usage(resp)
         for k in total_usage:
             total_usage[k] += u[k]
-        cand = resp.candidates[0] if resp.candidates else None
-        if cand is None or cand.content is None:
+        choice = resp.choices[0] if resp.choices else None
+        if choice is None or choice.message is None:
             return {"answer": "", "turns": turn + 1, "tool_calls": tool_calls,
-                    "log": log, "error": "no candidate", "usage": total_usage}
+                    "log": log, "error": "no completion choice", "usage": total_usage}
 
-        contents.append(cand.content)
+        message = choice.message
+        assistant_message: dict[str, Any] = {
+            "role": "assistant",
+            "content": message.content or "",
+        }
+        if message.tool_calls:
+            assistant_message["tool_calls"] = [
+                call.model_dump(exclude_none=True) for call in message.tool_calls
+            ]
+        messages.append(assistant_message)
 
         # Look for function calls.
-        fc_parts = [p for p in (cand.content.parts or []) if getattr(p, "function_call", None)]
-        if fc_parts:
-            response_parts = []
-            for p in fc_parts:
-                fc = p.function_call
+        if message.tool_calls:
+            for call in message.tool_calls:
+                fc = call.function
                 tool_calls += 1
+                try:
+                    args = json.loads(fc.arguments or "{}")
+                except json.JSONDecodeError:
+                    args = {}
                 if fc.name == "python" and repl is not None:
-                    code = (fc.args or {}).get("code", "")
+                    code = args.get("code", "")
                     out = repl.run(code)
                     log.append({"tool": "python", "code": code[:500], "stdout": out["stdout"][:500], "error": out["error"]})
-                    response_parts.append(genai.types.Part(
-                        function_response=genai.types.FunctionResponse(
-                            name="python",
-                            response={"stdout": out["stdout"][:6000],
-                                      "error": (out["error"] or "")[:2000]},
-                        ),
-                    ))
+                    payload = {"stdout": out["stdout"][:6000],
+                               "error": (out["error"] or "")[:2000]}
                 elif fc.name == "read_file" and read_file is not None:
-                    path = (fc.args or {}).get("path", "")
+                    path = args.get("path", "")
                     text = read_file.read(path)
                     log.append({"tool": "read_file", "path": path, "len": len(text)})
-                    response_parts.append(genai.types.Part(
-                        function_response=genai.types.FunctionResponse(
-                            name="read_file",
-                            response={"content": text[:80000]},
-                        ),
-                    ))
+                    payload = {"content": text[:80000]}
                 else:
-                    response_parts.append(genai.types.Part(
-                        function_response=genai.types.FunctionResponse(
-                            name=fc.name,
-                            response={"error": f"unknown tool: {fc.name}"},
-                        ),
-                    ))
-            contents.append(genai.types.Content(role="user", parts=response_parts))
+                    payload = {"error": f"unknown tool: {fc.name}"}
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "content": json.dumps(payload),
+                })
             continue
 
         # No function call — extract final text answer.
-        text_parts = [p.text for p in (cand.content.parts or []) if getattr(p, "text", None)]
-        text = "\n".join(text_parts).strip()
+        text = (message.content or "").strip()
         # The last non-empty line is the final answer.
         lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
         answer = lines[-1] if lines else ""

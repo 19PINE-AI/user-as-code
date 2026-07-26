@@ -3,7 +3,7 @@
 Research artifact for the paper **_User as Code: Executable Memory for Personalized Agents_** (Bojie Li, Pine AI).
 
 - 📄 **Paper:** [arXiv:2606.16707](https://arxiv.org/abs/2606.16707) (LaTeX sources in this repo; build with `make`)
-- 🌐 **Interactive companion site:** <https://01.me/research/user-as-code> — explore every graded test case across all four benchmarks
+- 🌐 **Interactive companion site:** <https://01.me/research/user-as-code> — explore the supported benchmark cases plus separately labeled exploratory alert scenarios
 - ⚖️ **License:** [Apache-2.0](LICENSE)
 
 ---
@@ -12,14 +12,12 @@ Research artifact for the paper **_User as Code: Executable Memory for Personali
 
 Personalized agents need a **user memory**: a model of the user that accumulates across
 conversations. Today that memory is stored as unstructured text, knowledge graphs, or flat
-fact stores and consulted by **retrieval** (similarity search). Because storing a fact and
-acting on it are separate steps, such "bag-of-facts" memory recalls well but struggles to
-resolve contradictions, aggregate over many records, or enforce logical rules. **User as
-Code (UaC)** instead makes memory *executable*: a user's state is a directory of typed
-Python objects, and the rules over that state are ordinary Python functions, so representing
-the user and reasoning about the user happen in one medium an interpreter can run. The
-enabling mechanism is a **two-phase pipeline** — an append-only fact log, periodically
-checkpointed into structured typed code.
+fact stores and consulted by **retrieval** (similarity search). Such "bag-of-facts"
+memory recalls individual records well but struggles to enumerate every relevant record
+for an aggregate query. **User as Code (UaC)** adds an executable typed-Python view over
+the user's records while retaining fact and raw-archive retrieval. The evaluated system
+uses a **two-phase write path**—an append-only fact log followed by periodic bounded
+structuring—and exposes the typed view to ordinary Python for analytical queries.
 
 ## What's in this repository
 
@@ -29,7 +27,7 @@ checkpointed into structured typed code.
 | [`figures/`](figures/) | Paper figures (PDF) and the scripts that generate them |
 | [`prototype/`](prototype/) | **Reference UaC implementation** — a worked example user (`jessica_thompson`) as typed domains + executable constraints + tests |
 | [`experiments/`](experiments/) | Full experiment harness, the UaC pipeline (`user_as_code_v5.py`), baseline reimplementations, generated `results/`, and strict validators. See [`experiments/README.md`](experiments/README.md) |
-| [`evaluation/`](evaluation/) | The **Active Service benchmark** scenario definitions (60 scenarios, 5 categories). See [`evaluation/README.md`](evaluation/README.md) |
+| [`evaluation/`](evaluation/) | Exploratory proactive-alert scenarios and deprecated pilot runners; these are not publication-ready evidence. See [`evaluation/README.md`](evaluation/README.md) |
 | [`benchmarks/`](benchmarks/) | Fetch script + instructions for the third-party datasets (LOCOMO, LongMemEval). Raw data is **not** redistributed. See [`benchmarks/README.md`](benchmarks/README.md) |
 | [`web/`](web/) | React companion site that visualizes every graded test case. See [`web/README.md`](web/README.md) |
 | [`scripts/`](scripts/) | `build_site_data.py` — turns `experiments/results/` into the site's data bundles |
@@ -114,18 +112,18 @@ npm run dev      # http://localhost:5173
 | Capability | Evaluation | UaC | Interpretation |
 |------------|------------|-----|----------------|
 | **Factual recall and refusal** | Full LOCOMO, all 1,986 questions; validated GPT-5.6 Luna / Gemini 3 Flash Preview suites | 39.4% / 46.9% token F1 and 78.8% / 80.6% judge accuracy on 1,540 answer-bearing questions; 64.3% / 95.7% refusal accuracy on 446 adversarial questions | lexical overlap, semantic correctness, and refusal behavior are reported separately within each backbone panel |
-| **Analytical inference** | 100 aggregate queries | 99% exact match | answer is a one-line computation over typed state, not a search over text |
-| **Active Service** | 40 standard + 20 hard scenarios | 100% standard / 85% hard observed detection | constraints execute on state change; rates and Wilson intervals are descriptive |
+| **Analytical inference** | 100 deterministically scored aggregate queries | 100% accuracy | UaC and the raw-record FC+REPL reference both enumerate records through Python |
 
 All fourteen full-LOCOMO artifacts pass the strict two-suite validator. See the
 paper and experiment guide for the complete two-backbone table,
-reimplementation caveats, provider-fallback disclosures, ablations, and cost
-analysis.
+reimplementation caveats, provider-fallback disclosures, and validated
+analytical results.
 
 ## Reproducibility notes
 
 - **Version-controlled source:** experiment and validation scripts, the synthetic analytical
-  benchmark, the Active Service scenarios, and the reference prototype.
+  benchmark, exploratory proactive-alert scenarios, and the reference prototype. The alert
+  pilot is retained for future protocol repair and is not a reported benchmark.
 - **Generated results:** per-run JSON artifacts are written under `experiments/results/`.
   A paper-facing full LOCOMO artifact is valid only after strict validation of
   coverage, provenance, stored scores, judge fields, and aggregates.

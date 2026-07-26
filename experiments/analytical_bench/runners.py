@@ -7,13 +7,25 @@ apples on tool semantics.
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 import sys
 import tempfile
+from types import SimpleNamespace
 from typing import Any
 
-from .tools import PythonREPL, ReadFileTool, run_tool_loop, _gemini_call, extract_usage
-from google import genai
+from .tools import (
+    GEMINI_MODEL,
+    PythonREPL,
+    ReadFileTool,
+    _chat_completion,
+    extract_usage,
+    run_tool_loop,
+)
+try:
+    from krill_client import KRILL_BASE_URL, request_headers_for_model
+except ModuleNotFoundError:  # package import from the repository root
+    from experiments.krill_client import KRILL_BASE_URL, request_headers_for_model
 
 
 def _add_usage(a: dict, b: dict) -> dict:
@@ -63,15 +75,15 @@ def run_full_context(case: dict) -> dict[str, Any]:
         f"Question: {case['question']}\n\n"
         f"Final answer on the last line."
     )
-    contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=user)])]
-    resp = _gemini_call(
-        contents=contents, tools=[], system_instruction=sys_inst,
+    resp = _chat_completion(
+        messages=[
+            {"role": "system", "content": sys_inst},
+            {"role": "user", "content": user},
+        ],
         thinking_budget=4096,
     )
     usage = extract_usage(resp)
-    cand = resp.candidates[0] if resp.candidates else None
-    text_parts = [p.text for p in (cand.content.parts or []) if getattr(p, "text", None)] if cand else []
-    text = "\n".join(text_parts).strip()
+    text = (resp.choices[0].message.content or "").strip() if resp.choices else ""
     return {"answer": _extract_final_line(text), "raw": text, "turns": 1, "tool_calls": 0,
             "usage": usage}
 
@@ -146,16 +158,15 @@ def _uac_structure_with_usage(case: dict) -> tuple[str, dict]:
         records_text = records_text[:MAX_CHARS] + "\n... (truncated)"
     prompt = _UAC_STRUCTURE_PROMPT.format(
         type_label=case["type"], n=len(case["records"]), records=records_text)
-    contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=prompt)])]
-    resp = _gemini_call(
-        contents=contents, tools=[],
-        system_instruction="You are a precise Python code generator.",
+    resp = _chat_completion(
+        messages=[
+            {"role": "system", "content": "You are a precise Python code generator."},
+            {"role": "user", "content": prompt},
+        ],
         thinking_budget=8192,
     )
     usage = extract_usage(resp)
-    cand = resp.candidates[0] if resp.candidates else None
-    parts = [p.text for p in (cand.content.parts or []) if getattr(p, "text", None)] if cand else []
-    code = "\n".join(parts).strip()
+    code = (resp.choices[0].message.content or "").strip() if resp.choices else ""
     if "```python" in code:
         code = code.split("```python")[1].split("```")[0]
     elif "```" in code:
@@ -212,39 +223,113 @@ def run_uac_v5(case: dict) -> dict[str, Any]:
 
 def run_mem0(case: dict) -> dict[str, Any]:
     import time as _time
+    from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
     from mem0 import Memory
+    from openai import OpenAI
+
+    class LocalMiniLMEmbedder:
+        """Mem0 adapter for Chroma's local all-MiniLM-L6-v2 embedder."""
+
+        def __init__(self) -> None:
+            self.embedding_function = DefaultEmbeddingFunction()
+            self.config = SimpleNamespace(embedding_dims=384)
+
+        def embed(self, text: str, memory_action: str | None = None) -> list[float]:
+            del memory_action
+            return [float(value) for value in self.embedding_function([text])[0]]
 
     # Clear any leftover lock files from prior runs.
     for p in [pathlib.Path("/tmp/qdrant/.lock"),
               pathlib.Path.home() / ".mem0" / "migrations_qdrant" / ".lock"]:
         p.unlink(missing_ok=True)
 
-    m = Memory()
-    uid = f"analytical_{case['case_id']}_{int(_time.time())}"
-    type_label = case["type"]
-    # Convert each record to a natural-language sentence — Mem0's LLM
-    # extractor produces nothing from raw JSON, but extracts cleanly from prose.
-    sentences = [_record_to_sentence(type_label, rec) for rec in case["records"]]
-    # Batch into chunks so Mem0's per-add LLM cost stays bounded on large N.
-    BATCH = 20
-    for start in range(0, len(sentences), BATCH):
-        chunk = sentences[start:start + BATCH]
-        text = "I want to tell you about my recent activity. " + " ".join(chunk)
-        try:
-            m.add([{"role": "user", "content": text}], user_id=uid)
-        except Exception:
-            pass
+    api_key = os.environ.get("KRILL_API_KEY")
+    if not api_key:
+        raise RuntimeError("KRILL_API_KEY is not set")
+    os.environ.pop("OPENROUTER_API_KEY", None)
 
-    results = m.search(case["question"], user_id=uid, limit=20)
-    if isinstance(results, dict) and "results" in results:
-        mems = results["results"]
-    elif isinstance(results, list):
-        mems = results
-    else:
-        mems = []
-    ctx = "\n".join(
-        m_.get("memory", str(m_)) if isinstance(m_, dict) else str(m_) for m_ in mems
-    ) if mems else "(no memories retrieved)"
+    with tempfile.TemporaryDirectory(prefix="analytical_mem0_") as tmp:
+        m = Memory.from_config({
+            "vector_store": {
+                "provider": "chroma",
+                "config": {
+                    "collection_name": f"mem0_{os.getpid()}_{int(_time.time())}",
+                    "path": tmp,
+                },
+            },
+            "embedder": {
+                # Construct a no-call placeholder, then replace it below with
+                # Chroma's local ONNX all-MiniLM-L6-v2 implementation. This
+                # avoids depending on sentence-transformers/PEFT at runtime.
+                "provider": "openai",
+                "config": {
+                    "model": "text-embedding-3-small",
+                    "api_key": api_key,
+                    "openai_base_url": KRILL_BASE_URL,
+                    "embedding_dims": 384,
+                },
+            },
+            "llm": {
+                "provider": "openai",
+                "config": {
+                    "model": GEMINI_MODEL,
+                    "api_key": api_key,
+                    "openai_base_url": KRILL_BASE_URL,
+                },
+            },
+            "history_db_path": str(pathlib.Path(tmp) / "history.db"),
+        })
+        m.embedding_model = LocalMiniLMEmbedder()
+        model_headers = request_headers_for_model(GEMINI_MODEL)
+        client_options: dict[str, Any] = {
+            "base_url": KRILL_BASE_URL,
+            "api_key": api_key,
+            "max_retries": 6,
+        }
+        if model_headers:
+            client_options["default_headers"] = model_headers
+        m.llm.client = OpenAI(**client_options)
+
+        # Krill JSON mode requires the request itself to mention JSON.
+        original_generate = m.llm.generate_response
+
+        def generate_response(messages, response_format=None, **kwargs):
+            if response_format and response_format.get("type") == "json_object":
+                messages = [dict(message) for message in messages]
+                messages[-1]["content"] = (
+                    str(messages[-1].get("content", ""))
+                    + "\n\nReturn only a valid JSON object."
+                )
+            return original_generate(
+                messages=messages,
+                response_format=response_format,
+                **kwargs,
+            )
+
+        m.llm.generate_response = generate_response
+        uid = f"analytical_{case['case_id']}_{int(_time.time())}"
+        type_label = case["type"]
+        # Convert each record to a natural-language sentence — Mem0's LLM
+        # extractor produces nothing from raw JSON, but extracts cleanly from prose.
+        sentences = [_record_to_sentence(type_label, rec) for rec in case["records"]]
+        # Batch into chunks so Mem0's per-add LLM cost stays bounded on large N.
+        BATCH = 20
+        for start in range(0, len(sentences), BATCH):
+            chunk = sentences[start:start + BATCH]
+            text = "I want to tell you about my recent activity. " + " ".join(chunk)
+            m.add([{"role": "user", "content": text}], user_id=uid)
+
+        results = m.search(case["question"], user_id=uid, limit=20)
+        if isinstance(results, dict) and "results" in results:
+            mems = results["results"]
+        elif isinstance(results, list):
+            mems = results
+        else:
+            mems = []
+        ctx = "\n".join(
+            m_.get("memory", str(m_)) if isinstance(m_, dict) else str(m_)
+            for m_ in mems
+        ) if mems else "(no memories retrieved)"
 
     sys_inst = (
         "You will be given a list of memories about a user. "
@@ -256,15 +341,15 @@ def run_mem0(case: dict) -> dict[str, Any]:
         f"Question: {case['question']}\n\n"
         f"Final answer on the last line."
     )
-    contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=user)])]
-    resp = _gemini_call(
-        contents=contents, tools=[], system_instruction=sys_inst,
+    resp = _chat_completion(
+        messages=[
+            {"role": "system", "content": sys_inst},
+            {"role": "user", "content": user},
+        ],
         thinking_budget=2048,
     )
     usage = extract_usage(resp)
-    cand = resp.candidates[0] if resp.candidates else None
-    text_parts = [p.text for p in (cand.content.parts or []) if getattr(p, "text", None)] if cand else []
-    text = "\n".join(text_parts).strip()
+    text = (resp.choices[0].message.content or "").strip() if resp.choices else ""
     try:
         m.delete_all(user_id=uid)
     except Exception:
@@ -333,15 +418,15 @@ def run_memmachine(case: dict) -> dict[str, Any]:
         f"Question: {case['question']}\n\n"
         f"Final answer on the last line."
     )
-    contents = [genai.types.Content(role="user", parts=[genai.types.Part(text=user)])]
-    resp = _gemini_call(
-        contents=contents, tools=[], system_instruction=sys_inst,
+    resp = _chat_completion(
+        messages=[
+            {"role": "system", "content": sys_inst},
+            {"role": "user", "content": user},
+        ],
         thinking_budget=2048,
     )
     usage = extract_usage(resp)
-    cand = resp.candidates[0] if resp.candidates else None
-    text_parts = [p.text for p in (cand.content.parts or []) if getattr(p, "text", None)] if cand else []
-    text = "\n".join(text_parts).strip()
+    text = (resp.choices[0].message.content or "").strip() if resp.choices else ""
     try:
         client.delete_collection("memmachine_temp")
     except Exception:

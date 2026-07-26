@@ -1,6 +1,9 @@
 """
 Fair Active Service Experiment
 
+DEPRECATED EXPLORATORY PROTOCOL: the stored runs are not publication evidence
+and do not establish that generated persistent UaC constraints were executed.
+
 Key insight from POC: when we explicitly tell the LLM "check for issues",
 both code and flat representations score well because the LLM is smart enough
 to reason over any presented facts.
@@ -25,7 +28,7 @@ Protocol:
 
 4. None condition: No memory at all. Control.
 
-This isolates the representation effect: same LLM, same prompt framing,
+This was intended to isolate the representation effect: same LLM, same prompt framing,
 different memory format.
 """
 

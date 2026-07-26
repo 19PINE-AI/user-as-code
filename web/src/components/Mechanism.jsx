@@ -163,7 +163,7 @@ const TIERS = [
     id: 'recall',
     name: 'Recall',
     tag: 'real LOCOMO answer',
-    desc: 'Because Phase 1 resolved “yesterday” to a real date, the fact is recoverable. On this real conv-30 question UaC answers correctly; Mem0 never surfaces it.',
+    desc: 'In the stored legacy conv-30 run, UaC answers this temporal question correctly while Mem0 returns no information; this is a descriptive case, not a causal diagnosis.',
     code: `# real LOCOMO conv-30 (temporal):
 #   "When did Jon lose his job as a banker?"
 #   gold: 19 January, 2023
@@ -176,7 +176,7 @@ Mem0  -> "No information available"  [wrong]`,
     id: 'analytical',
     name: 'Analytical inference',
     tag: 'real executed code',
-    desc: 'Counts, sums and group-bys must enumerate every record — top-k retrieval structurally cannot. UaC 99% vs MemMachine 43% on the analytical benchmark.',
+    desc: 'Counts, sums and group-bys require an enumerable interface. After correcting and rerunning the year-ambiguous item, UaC scores 100% and MemMachine 43% in this harness.',
     code: `# analytical bench (500 meals):
 #   "How many italian-cuisine meals did I have?"  gold: 56
 # UaC's agent wrote and ran this Python:
@@ -191,8 +191,8 @@ print(count)        # -> 56   [correct]
   {
     id: 'active',
     name: 'Active service',
-    tag: 'boolean check, fired on update',
-    desc: 'A constraint the interpreter runs deterministically at every state change — the basis of proactive alerts the user never asked for.',
+    tag: 'reference-prototype behavior',
+    desc: 'The reference prototype illustrates how a sandboxed interpreter can run a stored constraint after a state change. The alert evaluation remains exploratory.',
     code: `# fired whenever travel state changes
 >>> (passport.expiry_date
 ...  - trips[0].departure_date).days >= 180
@@ -236,8 +236,8 @@ const CHANNELS = [
 // Every case below is real output from our system: the three "prototype"
 // cases are taken verbatim from the reference implementation (state.py,
 // the constraint module, and the runner's printed alert); the others are
-// scenarios from the Active Service benchmark (evaluation/
-// active_service_scenarios.json), with the gold alert quoted verbatim.
+// authored scenarios from the exploratory alert protocol (evaluation/
+// active_service_scenarios.json), with the target alert quoted verbatim.
 const EXAMPLES = {
   travel: {
     label: 'Passport · travel',
@@ -358,7 +358,7 @@ destination with the account holder before sending.`,
   },
   schedule: {
     label: 'Double-booking · schedule',
-    source: 'Active Service benchmark · schedule_02',
+    source: 'Exploratory alert protocol · schedule_02',
     severity: 'critical',
     state: `# Phase 1 — facts from two sessions, two weeks apart
 facts = [
@@ -392,7 +392,7 @@ need to reschedule one of them.`,
   },
   deadline: {
     label: 'License expiry · deadline',
-    source: 'Active Service benchmark · deadline_06',
+    source: 'Exploratory alert protocol · deadline_06',
     severity: 'critical',
     state: `# Phase 1 — facts, five months apart
 facts = [
@@ -424,7 +424,7 @@ renew online before December 15.`,
   },
   fooddrug: {
     label: 'Food–drug · health',
-    source: 'Active Service benchmark · health_03',
+    source: 'Exploratory alert protocol · health_03',
     severity: 'warning',
     state: `# Phase 1 — facts, ~8 months apart
 facts = [
@@ -545,10 +545,10 @@ export default function Mechanism() {
         {/* ============ PIPELINE 1 — EXTRACTION ============ */}
         <div className="space-y-10">
           <SectionHead eyebrow="Pipeline 1 · Extraction" title="From conversation to code">
-            UaC is two pipelines. The first turns raw, multi-session dialogue into typed Python in two
+            UaC's write path turns raw, multi-session dialogue into a durable fact source and a typed view in two
             phases — <span className="text-slate-200">Memorize</span>, then <span className="text-slate-200">Structure</span>.
-            Keeping them separate is the decisive design choice: append-only extraction then whole-corpus
-            regeneration gives <span className="text-slate-200">+19pp recall on LOCOMO</span> over structuring incrementally.
+            The evaluated write path keeps append-only facts separate from a generated typed view. Phase 2 reads
+            only the first 30,000 serialized fact characters, so fact and archive retrieval remain important backstops.
           </SectionHead>
           <motion.div {...reveal(1)}><PipelineDiagram /></motion.div>
 
@@ -565,9 +565,9 @@ export default function Mechanism() {
         {/* ============ PIPELINE 2 — RETRIEVAL & USE ============ */}
         <div className="space-y-12 border-t border-white/5 pt-16">
           <SectionHead eyebrow="Pipeline 2 · Retrieval & Use" title="Querying and using the code">
-            With the user represented as code, the second pipeline answers questions and drives proactive
-            service. At query time three channels compose; and three capabilities all reduce to one line of
-            Python over the same typed state the first pipeline produced.
+            With the user represented as code, the read path answers questions through three evidence channels
+            and exposes typed analytical records to Python. Constraint execution is demonstrated by the reference
+            prototype but is not a reported benchmark result.
           </SectionHead>
 
           {/* Retrieval channels */}
@@ -592,21 +592,18 @@ export default function Mechanism() {
           {/* Capability tiers, grounded in real benchmark runs */}
           <div className="space-y-5">
             <SubHead title="Three capabilities, one medium">
-              Once the user is code, recall, aggregation, and proactive alerting are three uses of the same typed
-              state. Each card below is a real question our system answered — verbatim predictions from our LOCOMO
-              grading and the actual Python our agent executed on the analytical benchmark.
+              Recall and aggregation are evaluated uses of the representation; the alert card illustrates the
+              separate reference prototype. The displayed predictions and analytical trace come from stored runs.
             </SubHead>
             <Tiers />
           </div>
 
           {/* End-to-end proactive alerts */}
           <div className="space-y-5">
-            <SubHead title="End-to-end: proactive alerts">
-              The hardest case is active service — the constraint depends on facts that arrived in different
-              sessions, by different people, sometimes months apart, and the agent surfaces the alert
-              <em> before the user asks anything</em>. Real cases from our system: three verbatim from the
-              reference implementation (state, constraint, and the alert the runner prints), three from the
-              Active Service benchmark.
+            <SubHead title="Illustrative proactive-alert protocol">
+              These examples show the intended constraint interface. Three are verbatim reference-prototype
+              examples; three are authored protocol targets. They are retained for protocol development and are
+              not evidence of cross-system Active Service performance.
             </SubHead>
             <motion.div {...reveal(1)}><WorkedExample /></motion.div>
           </div>

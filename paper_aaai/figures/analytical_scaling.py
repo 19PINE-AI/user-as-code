@@ -16,14 +16,14 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from generate_figures import BLUE, GREEN, ORANGE, RED, GRAY, PURPLE  # noqa: E402
 
-R = pathlib.Path(__file__).resolve().parent.parent / "experiments" / "results"
+R = pathlib.Path(__file__).resolve().parents[2] / "experiments" / "results"
 
 # The paper repository does not ship the raw experiment directory. Keep the
 # published per-N values here so the committed figure remains reproducible;
 # local raw results take precedence when they are available.
 PUBLISHED_PER_N = {
     "fc_repl": {20: 100, 50: 100, 100: 100, 200: 100, 500: 100},
-    "uac_v5": {20: 100, 50: 100, 100: 100, 200: 100, 500: 95},
+    "uac_v5": {20: 100, 50: 100, 100: 100, 200: 100, 500: 100},
     "full_context": {20: 100, 50: 90, 100: 100, 200: 90, 500: 90},
     "memmachine": {20: 100, 50: 55, 100: 20, 200: 15, 500: 25},
     "mem0": {20: 5, 50: 10, 100: 0, 200: 0, 500: 15},

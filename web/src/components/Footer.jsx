@@ -59,7 +59,7 @@ export default function Footer() {
             </a>
           </div>
           <p className="font-mono text-[11px] text-slate-600">
-            Interactive companion · 600 + 500 + 100 + 60 graded cases · cross-judged under Claude Opus 4.7
+            Interactive companion · legacy 600-question LOCOMO subset + 500 LongMemEval + 100 analytical cases · alert scenarios are exploratory
           </p>
         </div>
       </div>

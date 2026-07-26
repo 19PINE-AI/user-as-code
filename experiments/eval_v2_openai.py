@@ -499,7 +499,7 @@ def run_locomo_eval(max_convs=2, max_qa=60):
             avg_mem0_judge = 0
 
         # ===================================================================
-        # System 3: Full context (upper bound)
+        # System 3: Full Context reference
         # ===================================================================
         print(f"    full_ctx: answering...", end="", flush=True)
         t0 = time.time()

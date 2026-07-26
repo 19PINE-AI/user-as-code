@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from generate_figures import BLUE, GREEN, ORANGE, GRAY, RED  # noqa: E402
 
-R = pathlib.Path(__file__).resolve().parent.parent / "experiments" / "results"
+R = pathlib.Path(__file__).resolve().parents[2] / "experiments" / "results"
 
 plt.rcParams.update({
     "font.family": "serif", "font.size": 10,

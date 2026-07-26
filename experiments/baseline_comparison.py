@@ -1,14 +1,17 @@
 """
 Baseline Comparison: User as Code vs Mem0 vs A-MEM vs ENGRAM vs Hindsight
 
+DEPRECATED EXPLORATORY PROTOCOL: this runner is not publication evidence for
+Active Service and does not establish cross-system performance.
+
 For each Active Service scenario:
 1. Feed conversation sessions into each memory system
 2. Retrieve all memories for the user
 3. Give the retrieved memories to the same LLM (Gemini 3 Flash) with a neutral prompt
 4. Check whether the LLM produces a proactive alert
 
-This tests the full pipeline: memory extraction + storage + retrieval + LLM reasoning.
-User as Code additionally runs constraint execution and includes ACTIVE_ALERTS in manifest.
+This was intended to probe memory extraction + storage + retrieval + LLM
+reasoning. Its outputs must not be treated as a controlled pipeline comparison.
 """
 
 import json

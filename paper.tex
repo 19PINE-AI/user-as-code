@@ -105,6 +105,10 @@
 
 \lstset{style=pythonstyle}
 
+% Allow the one-column preprint to absorb long model names and citation groups
+% without protruding into the margin.
+\setlength{\emergencystretch}{3em}
+
 
 \title{User as Code: Executable Memory for Personalized Agents}
 
@@ -120,9 +124,7 @@
 \maketitle
 
 \begin{abstract}
-A personalized AI agent needs a \emph{user memory}: a persistent model of who the user is, accumulated across many conversations and consulted on each new one. Today this memory is almost always stored as unstructured text, a knowledge graph, or a flat store of extracted facts, and consulted by \emph{retrieval}---fetching the stored entries most similar to the current request. Such ``bag-of-facts'' memory recalls individual facts well, but because storing a fact and acting on it are separate steps, it struggles to resolve contradictions, aggregate over many records, or enforce logical rules. We argue that user memory should instead be \emph{executable}. We introduce \textbf{User as Code} (UaC), a paradigm in which an agent's model of a user is a living software project: typed Python objects hold the user's state, and ordinary Python functions encode the rules that govern it, so that representing the user and reasoning about the user happen in one medium an interpreter can run. The enabling mechanism is a \emph{two-phase pipeline} that turns raw conversation into this code---an append-only log that never discards a fact, periodically checkpointed into structured, typed code---a design long used in database systems and, to our knowledge, applied here for the first time to LLM memory.
-
-This shift changes what memory can do. On standard long-term conversation benchmarks, UaC is competitive with both a full-context upper bound and the strongest prior memory systems on ordinary factual recall (78.8\% on LOCOMO). Its advantage emerges where representation matters most. On aggregate questions over a user's history---\emph{``how many international trips did I take last year?''}---retrieval-based memory collapses (6--43\%) while UaC stays near-perfect (99\%), because the answer is a one-line computation over typed state rather than a search over text. And because its rules, once written, execute deterministically whenever the state changes, UaC can surface unsolicited, safety-critical alerts---such as a newly prescribed drug that conflicts with an allergy recorded months earlier---a proactive capability that query-driven memory cannot provide at all. The one-time cost of structuring the code is repaid after only a few queries against the same user.
+An agent that remembers 100 trips should answer not only where a user traveled, but how often they visited Europe. Textual memories accessed through top-$k$ retrieval can recover individual trips but cannot reliably enumerate all of them, while conventional structured stores require a domain model to be defined and maintained. We introduce \textbf{User as Code} (UaC), which appends session facts and periodically materializes an LLM-generated typed Python view while retaining fact and archive channels for recall. On full 1{,}986-question LOCOMO suites, UaC records the highest observed same-backbone judge accuracy among six persistent-memory systems with GPT-5.6 Luna/Gemini~3 Flash Preview (78.8\%/80.6\% on 1{,}540 answer-bearing questions). Token F1 on those questions (39.4\%/46.9\%) and refusal accuracy on 446 adversarial questions (64.3\%/95.7\%) expose metric-specific tradeoffs. On 100 deterministically scored aggregate queries, both UaC and a raw-record Full Context+REPL reference reach 100\%, versus 43\% for MemMachine and 6\% for Mem0. The results show that an enumerable, code-readable representation enables reliable analytical queries while remaining compatible with retrieval-based factual memory.
 \end{abstract}
 
 \begin{center}

@@ -1,6 +1,6 @@
 """Integration tests for the tool layer.
 
-Hits live Gemini for the end-to-end test, so requires GEMINI_API_KEY.
+Hits Gemini through Krill for the end-to-end test, so requires KRILL_API_KEY.
 Keep the live test small; unit-test parts that don't need the model.
 """
 from __future__ import annotations
@@ -68,8 +68,8 @@ class TestToolLoopLive(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         import os
-        if not os.environ.get("GEMINI_API_KEY"):
-            raise unittest.SkipTest("GEMINI_API_KEY not set")
+        if not os.environ.get("KRILL_API_KEY"):
+            raise unittest.SkipTest("KRILL_API_KEY not set")
 
     def test_python_only_simple_count(self) -> None:
         records = [{"x": i} for i in range(50)]

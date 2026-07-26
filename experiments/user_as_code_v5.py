@@ -8,10 +8,11 @@ Phase 1 (Memorizing): Append-only fact extraction per session
   - Store raw conversation in archive for fallback
 
 Phase 2 (Structuring): Periodically regenerate code from accumulated facts
-  - Take the full fact list and organize into typed Python dataclasses
+  - Serialize the fact list and expose at most the first 30,000 characters
+  - Organize the visible prefix into typed Python dataclasses
   - This is a READ-TIME operation, not write-time
-  - Code is regenerated fresh each time from the complete fact corpus
-  - No incremental overwrite → no fact loss
+  - Code is regenerated fresh each time from that bounded view
+  - The separate fact and archive indices remain available for broader coverage
 
 The key insight: memorizing (append-only) and structuring (code generation)
 are separate concerns with different update patterns.
@@ -152,19 +153,18 @@ List ALL facts:""",
             )
 
     # ---------------------------------------------------------------
-    # Phase 2: Structuring (regenerate code from all facts)
+    # Phase 2: Structuring (regenerate code from a bounded fact serialization)
     # ---------------------------------------------------------------
 
     def structure(self):
-        """Regenerate the structured Python code from ALL accumulated facts.
+        """Regenerate structured Python from a bounded accumulated-fact view.
         This is a periodic operation — call after ingesting multiple sessions."""
         if not self.fact_list:
             self.code_state = "# No facts yet"
             return
 
-        # Group facts into manageable chunks for the LLM
-        # With ~50 facts/session and ~19 sessions, we may have ~950 facts
-        # Send all of them (or as many as fit) to generate code
+        # Serialize the durable fact list, then expose a bounded prefix to the
+        # structuring model. The full facts remain separately retrievable.
         all_facts = "\n".join(f"{i+1}. {f}" for i, f in enumerate(self.fact_list))
 
         # Truncate if extremely long (>30K chars)
@@ -173,9 +173,9 @@ List ALL facts:""",
 
         try:
             response_text = krill_call(
-                f"""Organize ALL these facts into structured Python code using dataclasses.
+                f"""Organize these visible facts into structured Python code using dataclasses.
 
-FACTS ({len(self.fact_list)} total):
+VISIBLE SERIALIZED PREFIX ({len(self.fact_list)} facts exist in the durable source):
 {all_facts}
 
 RULES:
@@ -183,8 +183,8 @@ RULES:
 - Use date(year, month, day) for ALL dates — never store dates as strings
 - Group by entity: create a dataclass per person, per event type, etc.
 - Every dataclass should have a notes: list[str] field for facts that don't fit typed fields
-- Include ALL facts — either as typed fields or in the notes list
-- ZERO facts should be lost — if a fact doesn't fit a typed field, put it in notes
+- Include every visible fact — either as typed fields or in the notes list
+- If a visible fact does not fit a typed field, put it in notes
 - Organize collections: people = [...], events = [...], etc.
 
 Output ONLY Python code:""",

@@ -1775,50 +1775,33 @@
       "type": "sleep",
       "n": 500,
       "question_id": "sleep_trend_q1_q2",
-      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
       "answer_kind": "string",
       "gold": "increase",
       "prediction": "increase",
       "correct": true,
-      "answer_time": 20.6,
-      "turns": 10,
-      "tool_calls": 9,
+      "answer_time": 7.4,
+      "turns": 3,
+      "tool_calls": 2,
       "usage": {
-        "prompt": 378640,
-        "output": 1770,
+        "prompt": 2025,
+        "output": 946,
         "thoughts": 0,
-        "cached": 318733
+        "cached": 0
       },
+      "structuring_usage": null,
       "n_retrieved": null,
       "log": [
         {
           "tool": "python",
-          "code": "# Let's count how many records are in Q1 and Q2 for both years\ndef analyze_year(year):\n    q1 = [r['duration_hours'] for r in records if r['date'].startswith(f\"{year}-01\") or r['date'].startswith(f\"{year}-02\") or r['date'].startswith(f\"{year}-03\")]\n    q2 = [r['duration_hours'] for r in records if r['date'].startswith(f\"{year}-04\") or r['date'].startswith(f\"{year}-05\") or r['date'].startswith(f\"{year}-06\")]\n    return q1, q2\n\nq1_24, q2_24 = analyze_year(\"2024\")\nq1_25, q2_25 = analyze_year(\"2025\"",
-          "stdout": "2024 Q1 size: 91, Q2 size: 91\n2025 Q1 size: 90, Q2 size: 44\n",
+          "code": "import json\n\nfile_path = \"/var/folders/0l/vk1w1b5n2fxfwdlz3f_w25_w0000gp/T/tmploawll0m/records.json\"\nwith open(file_path, 'r') as f:\n    data = json.load(f)\n\n# Let's print the first few records to understand structure\nprint(type(data))\nif isinstance(data, list):\n    print(\"List of elements, count:\", len(data))\n    if len(data) > 0:\n        print(\"First record:\", data[0])\nelif isinstance(data, dict):\n    print(\"Keys:\", data.keys())\n    # print some sample\n    for k, v in list(data.items())[:2]:\n ",
+          "stdout": "<class 'list'>\nList of elements, count: 500\nFirst record: {'id': 0, 'date': '2024-01-01', 'bedtime': '23:15', 'wake_time': '04:51', 'duration_hours': 5.61, 'quality': 'poor'}\n",
           "error": null
         },
         {
           "tool": "python",
-          "code": "all_q1 = q1_24 + q1_25\nall_q2 = q2_24 + q2_25\n\navg_q1_total = sum(all_q1) / len(all_q1)\navg_q2_total = sum(all_q2) / len(all_q2)\n\nprint(f\"Total Avg Q1: {avg_q1_total}\")\nprint(f\"Total Avg Q2: {avg_q2_total}\")\n\nif avg_q2_total > avg_q1_total:\n    print(\"increase\")\nelif avg_q2_total < avg_q1_total:\n    print(\"decrease\")\nelse:\n    print(\"stay the same\")\n",
-          "stdout": "Total Avg Q1: 7.302707182320447\nTotal Avg Q2: 7.229111111111108\ndecrease\n",
-          "error": null
-        },
-        {
-          "tool": "python",
-          "code": "# Let's see the last date of the records\nprint(f\"First record: {records[0]['date']}\")\nprint(f\"Last record: {records[-1]['date']}\")\n",
-          "stdout": "First record: 2024-01-01\nLast record: 2025-05-14\n",
-          "error": null
-        },
-        {
-          "tool": "python",
-          "code": "# Final check of the calculation for 2024\navg_q1_24 = sum(q1_24) / len(q1_24)\navg_q2_24 = sum(q2_24) / len(q2_24)\nprint(f\"2024 Q1 Avg: {avg_q1_24}\")\nprint(f\"2024 Q2 Avg: {avg_q2_24}\")\nprint(\"Increase\" if avg_q2_24 > avg_q1_24 else \"Decrease\")\n",
-          "stdout": "2024 Q1 Avg: 7.193736263736269\n2024 Q2 Avg: 7.194945054945055\nIncrease\n",
-          "error": null
-        },
-        {
-          "tool": "python",
-          "code": "# Let's double check if my manual summing is correct.\nq1_24_sum = sum(q1_24)\nq2_24_sum = sum(q2_24)\nprint(f\"2024 Q1 Sum: {q1_24_sum}\")\nprint(f\"2024 Q2 Sum: {q2_24_sum}\")\nprint(f\"Difference: {q2_24_sum - q1_24_sum}\")\n",
-          "stdout": "2024 Q1 Sum: 654.6300000000005\n2024 Q2 Sum: 654.74\nDifference: 0.1099999999995589\n",
+          "code": "import datetime\n\nq1_durations = []\nq2_durations = []\n\nfor record in data:\n    dt = datetime.datetime.strptime(record['date'], '%Y-%m-%d')\n    if dt.year == 2024:\n        if dt.month in [1, 2, 3]:\n            q1_durations.append(record['duration_hours'])\n        elif dt.month in [4, 5, 6]:\n            q2_durations.append(record['duration_hours'])\n\navg_q1 = sum(q1_durations) / len(q1_durations) if q1_durations else 0\navg_q2 = sum(q2_durations) / len(q2_durations) if q2_durations else 0\n\nprint(f\"Q1",
+          "stdout": "Q1 count: 91, Avg: 7.193736263736269\nQ2 count: 91, Avg: 7.194945054945055\nincrease\n",
           "error": null
         }
       ],
@@ -3765,6 +3748,21 @@
       "n": 20,
       "correct": 20,
       "accuracy": 1.0
+    }
+  },
+  "case_repairs": {
+    "sleep_sleep_trend_q1_q2_n500": {
+      "reason": "year-ambiguous benchmark item corrected and rerun",
+      "old_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2? (one word)",
+      "new_question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
+      "rerun_artifact": "analytical_rerun_2024_fc_repl.json",
+      "run_config": {
+        "provider": "krill",
+        "base_url": "https://api.krill-ai.net/v1",
+        "model": "gemini-3-flash-preview",
+        "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+        "embedding": null
+      }
     }
   }
 }

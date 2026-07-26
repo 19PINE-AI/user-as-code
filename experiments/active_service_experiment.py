@@ -1,14 +1,8 @@
-"""
-Active Service Experiment: User as Code vs. Flat-Fact Baseline
+"""Deprecated exploratory proactive-alert pilot.
 
-Compares two memory representations on proactive alerting:
-1. User as Code: Python dataclasses + executable constraints
-2. Flat Facts: Mem0-style atomic fact list (no structure, no execution)
-
-For each scenario, we seed both representations with the same user information,
-then ask the LLM to act as a personal assistant starting a new conversation.
-The LLM is NOT asked about the constraint — we measure whether it proactively
-surfaces an alert.
+This script prompts an LLM to inspect hand-built code or flat facts. It does
+not generate, persist, or execute UaC constraints and must not be used as
+publication evidence for Active Service.
 
 Uses Gemini 3 Flash (gemini-3-flash-preview) as the LLM backbone.
 """
@@ -50,6 +44,43 @@ def load_scenarios(path: Path | None = None) -> list[dict]:
     return data.get("scenarios", data.get("test_cases", []))
 
 
+def user_only_text(session: dict) -> str:
+    """Return only user-authored text from a scenario session."""
+    if isinstance(session.get("turns"), list):
+        return "\n".join(
+            str(turn.get("text", turn.get("content", ""))).strip()
+            for turn in session["turns"]
+            if str(turn.get("speaker", turn.get("role", ""))).lower() == "user"
+            and str(turn.get("text", turn.get("content", ""))).strip()
+        )
+    lines = []
+    for line in str(session.get("conversation", "")).splitlines():
+        if line.strip().lower().startswith("user:"):
+            lines.append(line.split(":", 1)[1].strip())
+    return "\n".join(line for line in lines if line)
+
+
+def history_sessions(scenario: dict) -> list[dict]:
+    """Exclude the trigger session so its assistant continuation cannot leak."""
+    trigger_id = str(scenario.get("trigger_session", {}).get("session_id", ""))
+    return [
+        session for session in scenario.get("sessions", [])
+        if str(session.get("session_id", "")) != trigger_id
+    ]
+
+
+def trigger_user_message(scenario: dict) -> str:
+    """Use the actual user side of the trigger session, never its assistant cue."""
+    trigger = scenario.get("trigger_session", {})
+    trigger_id = str(trigger.get("session_id", ""))
+    for session in scenario.get("sessions", []):
+        if str(session.get("session_id", "")) == trigger_id:
+            text = user_only_text(session)
+            if text:
+                return text
+    return str(trigger.get("user_message") or "Hello.")
+
+
 # ---------------------------------------------------------------------------
 # Memory representations
 # ---------------------------------------------------------------------------
@@ -79,10 +110,6 @@ def build_code_representation(scenario: dict) -> str:
             code_lines.append(fact_to_python(fact, domain))
         code_lines.append("")
 
-    code_lines.append("# --- Constraints (agent should generate and execute) ---")
-    code_lines.append("# The agent can write Python checks against the above state")
-    code_lines.append("# and execute them to detect cross-domain issues.")
-
     return "\n".join(code_lines)
 
 
@@ -96,18 +123,14 @@ def build_flat_fact_representation(scenario: dict) -> str:
 
 
 def extract_facts(scenario: dict) -> list[str]:
-    """Extract factual statements from scenario conversations."""
+    """Extract user-authored facts from pre-trigger history only."""
     facts = []
-    for session in scenario.get("sessions", []):
-        conv = session.get("conversation", "")
-        # Extract user statements (lines starting with "User:")
-        for line in conv.split("\n"):
-            line = line.strip()
-            if line.startswith("User:"):
-                content = line[5:].strip()
-                # Skip greetings and meta-talk
-                if len(content) > 20 and not content.lower().startswith(("hi", "hey", "hello", "thanks", "ok", "sure")):
-                    facts.append(content)
+    for session in history_sessions(scenario):
+        for content in user_only_text(session).splitlines():
+            if len(content) > 20 and not content.lower().startswith(
+                ("hi", "hey", "hello", "thanks", "ok", "sure")
+            ):
+                facts.append(content)
     return facts
 
 
@@ -142,23 +165,17 @@ def fact_to_python(fact: str, domain: str) -> str:
 # LLM evaluation
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT_CODE = """You are a personal AI assistant for a user. Below is the user's memory, stored as a Python code project (User as Code). You can read the state and mentally execute checks against it.
-
-IMPORTANT: At the start of every conversation, you should review the user's state for any cross-domain issues, conflicts, or time-sensitive concerns. If you detect any issues, proactively alert the user WITHOUT being asked.
-
-You have the ability to reason about the code: perform date arithmetic, check constraints, and detect conflicts by mentally executing Python logic against the stored state.
+SYSTEM_PROMPT_CODE = """You are a personal AI assistant. Below is a generated Python-like view of facts from the user's prior conversations. Use it when it is relevant to the user's current message.
 
 {memory}
 
-The user is starting a new conversation. Review their state and respond. If you detect any proactive alerts, mention them FIRST before addressing the user's message."""
+Respond helpfully to the user's current message."""
 
-SYSTEM_PROMPT_FLAT = """You are a personal AI assistant for a user. Below is the user's memory, stored as a list of facts from previous conversations.
-
-IMPORTANT: At the start of every conversation, you should review the user's stored facts for any cross-domain issues, conflicts, or time-sensitive concerns. If you detect any issues, proactively alert the user WITHOUT being asked.
+SYSTEM_PROMPT_FLAT = """You are a personal AI assistant. Below are memories from the user's prior conversations. Use them when they are relevant to the user's current message.
 
 {memory}
 
-The user is starting a new conversation. Review their stored facts and respond. If you detect any proactive alerts, mention them FIRST before addressing the user's message."""
+Respond helpfully to the user's current message."""
 
 SYSTEM_PROMPT_NONE = """You are a personal AI assistant. The user is starting a new conversation. Respond helpfully."""
 
@@ -178,12 +195,7 @@ def run_single_evaluation(
     else:
         system = SYSTEM_PROMPT_NONE
 
-    # The user's opening message in the trigger session — something unrelated
-    # to the constraint, so the agent must proactively bring it up
-    user_message = scenario.get("trigger_session", {}).get(
-        "user_message",
-        "Hey! Just checking in. Anything I should know about?"
-    )
+    user_message = trigger_user_message(scenario)
 
     try:
         response = client.models.generate_content(
@@ -398,6 +410,12 @@ if __name__ == "__main__":
     parser.add_argument("--scenarios-file", type=str, default=None,
                         help="Path to scenarios JSON file")
     args = parser.parse_args()
+
+    print(
+        "WARNING: exploratory pilot only; no generated persistent constraints "
+        "are executed and outputs are not publication-ready.",
+        flush=True,
+    )
 
     scenarios_path = Path(args.scenarios_file) if args.scenarios_file else None
     run_experiment(

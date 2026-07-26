@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useJson, Spinner, cx, Verdict, CodeBlock, SYS_COLORS } from '../lib/ui.jsx'
 
 const BENCHES = [
-  { id: 'locomo', label: 'LOCOMO', file: 'locomo.json', mem: 'locomo_memory.json', sub: '600 multi-session QAs' },
+  { id: 'locomo', label: 'LOCOMO (legacy subset)', file: 'locomo.json', mem: 'locomo_memory.json', sub: 'first 60 QAs/conversation · 600 total' },
   { id: 'lme', label: 'LongMemEval', file: 'longmemeval.json', mem: 'lme_memory.json', sub: '500 long-memory QAs' },
   { id: 'analytical', label: 'Analytical', file: 'analytical.json', mem: 'analytical_memory.json', sub: '100 aggregation cases' },
-  { id: 'active', label: 'Active Service', file: 'active.json', mem: 'active_memory.json', sub: '60 proactive scenarios' },
+  { id: 'active', label: 'Alert protocol (exploratory)', file: 'active.json', mem: 'active_memory.json', sub: '60 authored scenarios · not paper evidence' },
 ]
 
 /* Arrow-key navigation across the filtered case list. */
@@ -183,7 +183,7 @@ function SystemResponse({ sysKey, meta, rec }) {
         <span className="h-2.5 w-2.5 rounded-full" style={{ background: SYS_COLORS[sysKey] || '#64748b' }} />
         <span className={cx('text-sm font-semibold', ours ? 'text-brand-200' : 'text-slate-200')}>{meta?.name || sysKey}</span>
         {ours && <span className="chip border-brand-400/30 bg-brand-400/10 text-[10px] text-brand-200">ours</span>}
-        {meta?.upper && <span className="chip border-accent-400/30 bg-accent-400/10 text-[10px] text-accent-300">upper bound</span>}
+        {meta?.reference && <span className="chip border-accent-400/30 bg-accent-400/10 text-[10px] text-accent-300">reference</span>}
         {meta?.lite && (
           <span className="chip border-white/15 bg-white/5 text-[10px] text-slate-400" title="Same-backbone lite reimplementation under Gemini 3 Flash">lite reimpl.</span>
         )}
@@ -624,7 +624,7 @@ function AnalyticalDetail({ c, systems, sys_order, memory }) {
 const ACTIVE_SYS = { uac_v5: { name: 'UaC + pipeline', ours: true }, mem0: { name: 'Mem0 (live)' }, a_mem: { name: 'A-MEM (live)' } }
 
 function ActiveExplorer({ data, memory }) {
-  const { cases } = data
+  const { cases, disclaimer } = data
   const [q, setQ] = useState('')
   const [diff, setDiff] = useState('all')
   const [cat, setCat] = useState('all')
@@ -657,6 +657,7 @@ function ActiveExplorer({ data, memory }) {
       setSel={setSel}
       filters={
         <>
+          <p className="rounded-lg border border-amber-400/20 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-amber-100/80">{disclaimer}</p>
           <SearchInput value={q} onChange={setQ} placeholder="Search scenario…" />
           <div className="grid grid-cols-2 gap-2">
             <Select value={diff} onChange={setDiff} options={[{ value: 'all', label: 'All difficulty' }, { value: 'standard', label: 'Standard (40)' }, { value: 'hard', label: 'Hard (20)' }]} />
@@ -669,7 +670,6 @@ function ActiveExplorer({ data, memory }) {
           key={c.id}
           active={i === sel}
           onClick={() => setSel(i)}
-          status={<StatusDot ok={c.runs.uac_v5?.detected} />}
           badge={<CatBadge color={c.difficulty === 'hard' ? 'warn' : 'accent'}>{c.difficulty}</CatBadge>}
           meta={c.id}
           title={c.description}
@@ -712,7 +712,7 @@ function ActiveDetail({ c, memory }) {
 
       {/* Expected alert + computation */}
       <section className="mt-5">
-        <SectionLabel n="a" text="Benchmark — expected proactive alert" />
+        <SectionLabel n="a" text="Exploratory protocol — expected alert" />
         <div className="mt-2 overflow-hidden rounded-xl border border-bad/30 bg-rose-500/5">
           <div className="flex items-center gap-2 border-b border-bad/20 bg-rose-500/10 px-4 py-2 font-mono text-[11px] text-bad">
             <span className="uppercase">{c.expected_alert?.severity}</span>·<span>{c.expected_alert?.type}</span>
@@ -724,7 +724,7 @@ function ActiveDetail({ c, memory }) {
         </div>
         {c.why_retrieval_fails && (
           <p className="mt-2 rounded-xl border border-white/10 bg-ink-900/40 px-4 py-3 text-xs leading-relaxed text-slate-400">
-            <span className="font-semibold text-slate-300">Why retrieval fails: </span>{c.why_retrieval_fails}
+            <span className="font-semibold text-slate-300">Authored protocol rationale: </span>{c.why_retrieval_fails}
           </p>
         )}
       </section>
@@ -734,7 +734,7 @@ function ActiveDetail({ c, memory }) {
 
       {/* System runs */}
       <section className="mt-5">
-        <SectionLabel n="c" text="Responses & grading — did each system alert proactively?" />
+        <SectionLabel n="c" text="Exploratory stored responses" />
         <div className="mt-2 space-y-2.5">
           {Object.entries(c.runs).map(([k, run]) => {
             const meta = ACTIVE_SYS[k] || { name: k }
@@ -759,7 +759,7 @@ function ActiveDetail({ c, memory }) {
           })}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          UaC's constraint pipeline computes the alert deterministically in code; baselines must infer it from flat text, which fails on multi-step arithmetic.
+          These responses are retained for protocol development only. They do not establish cross-system Active Service performance.
         </p>
       </section>
     </DetailShell>
@@ -789,7 +789,7 @@ export default function Explorer() {
           <span className="section-eyebrow">Interactive</span>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Test-case explorer</h2>
           <p className="mt-4 text-pretty text-slate-400">
-            Every graded case from all four benchmarks — the real data behind the paper. Pick any case to see its{' '}
+            Cases from the supported LOCOMO, LongMemEval, and analytical evaluations, plus a separately labeled exploratory alert protocol. Pick any case to see its{' '}
             <span className="text-slate-200">context</span>, the <span className="text-slate-200">UaC memory</span> the
             pipeline extracted for it (Phase-1 facts + Phase-2 typed state), every system's{' '}
             <span className="text-slate-200">response</span>, and the <span className="text-slate-200">grading</span>.

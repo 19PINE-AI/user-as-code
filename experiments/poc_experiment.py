@@ -1,13 +1,16 @@
 """
 Proof-of-Concept Experiment: User as Code vs. Flat Facts vs. No Memory
 
+EXPLORATORY ONLY: this proof of concept is not publication evidence for
+Active Service or a controlled cross-system comparison.
+
 Uses the actual Jessica Thompson prototype as the User-as-Code representation.
 Compares three conditions on the same user state:
 1. Code: The agent sees the Python schema + state + constraint output
 2. Flat: The agent sees a Mem0-style fact list
 3. None: The agent sees nothing (control)
 
-Tests whether each representation enables proactive alerting.
+Probes whether each displayed representation elicits proactive alerting.
 """
 
 import json

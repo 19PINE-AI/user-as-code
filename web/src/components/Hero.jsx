@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { CodeBlock, StatPill } from '../lib/ui.jsx'
 
 const HERO_CODE = `# A user isn't a "bag of facts" — it's a typed Python object.
-# Phase 2 of the pipeline structures each session into state:
+# Phase 2 periodically materializes a bounded typed view:
 user = UserProfile(
     name="Jessica Thompson",
     home_city="San Francisco",
@@ -71,9 +71,9 @@ export default function Hero() {
           >
             Instead of a “bag of facts,” UaC models a user as a version-controlled software
             project of <span className="font-semibold text-slate-100">typed Python dataclasses</span> and{' '}
-            <span className="font-semibold text-slate-100">executable constraints</span>. A two-phase
-            pipeline — append-only extraction, then periodic structuring into code — lets an interpreter
-            answer, aggregate, and <em>proactively alert</em>, deterministically.
+            <span className="font-semibold text-slate-100">executable collections</span>. A two-phase
+            pipeline — append-only extraction, then periodic bounded structuring into code — lets an interpreter
+            enumerate records for deterministic aggregate computation.
           </motion.p>
 
           <motion.div
@@ -121,20 +121,20 @@ export default function Hero() {
           custom={5}
           className="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4"
         >
-          <StatPill value="78.8%" label="LOCOMO (600 QAs)" />
-          <StatPill value="83.0%" label="LongMemEval (500)" accent="accent" />
-          <StatPill value="99%" label="Analytical inference" accent="ok" />
-          <StatPill value="100%" label="Active-Service alerts" />
+          <StatPill value="80.6%" label="LOCOMO judge · Gemini" />
+          <StatPill value="46.9%" label="LOCOMO token F1 · Gemini" accent="accent" />
+          <StatPill value="95.7%" label="LOCOMO refusal · Gemini" />
+          <StatPill value="100%" label="Analytical inference" accent="ok" />
         </motion.div>
       </div>
 
       <div className="container-page relative mt-16">
         <div className="card flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-6 py-4 text-center text-sm text-slate-400">
-          <span>Evaluated against <strong className="text-slate-200">5 memory systems</strong> + a full-context upper bound on one shared Gemini&nbsp;3&nbsp;Flash backbone</span>
+          <span>Evaluated against <strong className="text-slate-200">5 memory systems</strong> + a Full Context reference on Gemini&nbsp;3&nbsp;Flash Preview</span>
           <span className="hidden h-4 w-px bg-white/10 sm:block" />
           <span>Mem0 · A-MEM · MemMachine · EverMemOS · Hindsight · Full&nbsp;Context</span>
           <span className="hidden h-4 w-px bg-white/10 sm:block" />
-          <span>Cross-judged under <strong className="text-slate-200">Claude Opus 4.7</strong> (κ ≥ 0.74)</span>
+          <span>Full LOCOMO is also validated under <strong className="text-slate-200">GPT-5.6 Luna</strong></span>
         </div>
       </div>
     </section>

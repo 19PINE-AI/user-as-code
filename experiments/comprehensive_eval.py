@@ -6,7 +6,7 @@ Systems:
 - user_as_code_full: Structured state (Tiers 1-2) + Archive RAG (Tier 3)
 - user_as_code_state: Structured state only (Tiers 1-2, no archive)
 - mem0: Flat fact extraction + vector retrieval
-- full_context: Raw conversation in context (upper bound)
+- full_context: Raw-conversation Full Context reference
 - no_memory: No context (lower bound)
 """
 
@@ -290,7 +290,7 @@ class Mem0System:
 
 
 class FullContextSystem:
-    """Upper bound: full conversation in context."""
+    """Reference: full conversation in context."""
     name = "full_ctx"
 
     def __init__(self):

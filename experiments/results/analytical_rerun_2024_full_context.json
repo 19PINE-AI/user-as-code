@@ -1,0 +1,55 @@
+{
+  "system": "full_context",
+  "by_case": {
+    "sleep_sleep_trend_q1_q2_n500": {
+      "type": "sleep",
+      "n": 500,
+      "question_id": "sleep_trend_q1_q2",
+      "question": "Did my average sleep duration increase, decrease, or stay the same from Q1 to Q2 of 2024? (one word)",
+      "answer_kind": "string",
+      "gold": "increase",
+      "prediction": "Final answer: increased",
+      "correct": true,
+      "answer_time": 250.9,
+      "turns": 1,
+      "tool_calls": 0,
+      "usage": {
+        "prompt": 40435,
+        "output": 6412,
+        "thoughts": 0,
+        "cached": 0
+      },
+      "structuring_usage": null,
+      "n_retrieved": null,
+      "log": [],
+      "raw": "Increased\n\nFinal answer: increased",
+      "error": null
+    }
+  },
+  "aggregate": {
+    "n_total": 1,
+    "n_correct": 1,
+    "accuracy": 1.0
+  },
+  "per_type": {
+    "sleep": {
+      "n": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  },
+  "per_n": {
+    "500": {
+      "n": 1,
+      "correct": 1,
+      "accuracy": 1.0
+    }
+  },
+  "run_config": {
+    "provider": "krill",
+    "base_url": "https://api.krill-ai.net/v1",
+    "model": "gemini-3-flash-preview",
+    "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+    "embedding": null
+  }
+}

@@ -42,8 +42,10 @@ From the repository root:
 
 ## Core implementation
 
-- `user_as_code_v5.py` — the UaC pipeline (Phase-1 extraction, Phase-2
-  structuring, multi-strategy retrieval, constraint loop).
+- `user_as_code_v5.py` — the evaluated UaC pipeline (Phase-1 extraction,
+  bounded Phase-2 structuring, and three-channel retrieval). Its
+  `structure()` method passes at most the first 30,000 serialized fact
+  characters to Phase 2; the fact and archive indices remain separate.
 - Baselines reimplemented on the shared backbone: `run_locomo_memmachine.py`
   (MemMachine), `hindsight_lite.py` (Hindsight), `evermemos_lite.py` (EverMemOS).
   Mem0 (`mem0ai` 1.0.5) and A-MEM (`agentic-memory` 0.0.1) use their published
@@ -60,14 +62,14 @@ From the repository root:
 | Legacy LOCOMO 600 (first 60 QAs per conversation; superseded as the headline result) | `run_locomo_10conv.py` | `locomo10_*.json` |
 | Full LOCOMO 1,986, Table 1 (Luna + Gemini) | `run_locomo_full.py`, `summarize_locomo_full.py` | `full_locomo_gpt56_luna/*.json`, `full_locomo_gemini3_flash_preview/*.json` |
 | LongMemEval 500 (Table 2) | `run_lme_500.py`, `full_longmemeval_comparison.py` | `lme500_*.json` |
-| Analytical inference (Table 3) | `run_analytical_bench.py` | `analytical_*.json` |
-| Analytical cost / amortization | `analytical_cost_summary.py` | `analytical_cost_*` |
-| Active Service (standard + hard) | `run_active_service_mem0lib.py`, `run_active_service_amem_hard.py` | `active_service_*.json`, `hard_active_service_results.json` |
-| Ablation study | `ablation_experiment.py` | `ablation_v3_v4.json` |
+| Analytical inference (Table 3) | `run_analytical_bench.py`; one-case repair via `merge_analytical_case.py` | `analytical_*.json` |
+| Withdrawn analytical cost pilot (canonical UaC artifacts lack separate structuring usage) | `analytical_cost_summary.py` | `analytical_cost_*` |
+| Exploratory proactive-alert pilot (not paper evidence) | legacy `run_active_service_*.py` scripts | `active_service_*.json`, `hard_active_service_results.json` |
+| Historical development-version comparison (not controlled component lesions) | `ablation_experiment.py` | `ablation_v3_v4.json` |
 | Retrieval-channel ablation | `run_channel_ablation.py` | `locomo5_uac_v5_ablate_*.json` |
 | Modularity / progressive disclosure | `run_modularity.py` | `modularity_*` |
-| Phase-2 failure-mode audit | `run_phase2_failure_analysis.py` | `phase2_failure_analysis.json` |
-| Phase-2 scalability | `run_phase2_scalability.py` | `phase2_scalability.json` |
+| Deprecated Phase-2 token-overlap pilot (not an information-preservation measure) | `run_phase2_failure_analysis.py` | `phase2_failure_analysis.json` |
+| Separate 500K-cap Phase-2 stress test (not the evaluated 30K-cap UaC path) | `run_phase2_scalability.py` | `phase2_scalability.json` |
 | Cross-family judge re-judging | `run_full_rejudge.py`, `run_judge_crosscheck.py` | `full_rejudge.json`, `judge_crosscheck.json` |
 | Legacy cross-LLM portability (GPT-5.4; superseded by the two full suites) | `run_locomo_gpt54.py` | `locomo_gpt54_*` |
 | `conv-30` case study (Appendix) | `run_conv30_extraction.py`, `gen_case_memory.py` | `conv30_extraction/` |
@@ -75,6 +77,32 @@ From the repository root:
 Legacy tables and aggregate figures are assembled by `build_paper_tables.py` /
 `aggregate_results.py`. The full LOCOMO table must use the strictly validated
 output of `summarize_locomo_full.py`.
+
+The analytical item `sleep_sleep_trend_q1_q2_n500` originally omitted the
+year even though its deterministic gold calculation used 2024. The canonical
+case now asks explicitly about Q1 to Q2 of 2024. It was rerun for all five
+systems through Krill/Gemini and merged from isolated artifacts with:
+
+```bash
+case_id=sleep_sleep_trend_q1_q2_n500
+for system in fc_repl uac_v5 full_context memmachine mem0; do
+  ANALYTICAL_MODEL=gemini-3-flash-preview \
+    python experiments/run_analytical_bench.py "$system" \
+      --case-id "$case_id" \
+      --output "experiments/results/analytical_rerun_2024_${system}.json" \
+      --force
+  python experiments/merge_analytical_case.py \
+      --target "experiments/results/analytical_${system}.json" \
+      --rerun "experiments/results/analytical_rerun_2024_${system}.json" \
+      --case-id "$case_id" --dry-run
+done
+```
+
+Inspect each isolated row and remove `--dry-run` only when its question is
+year-qualified and its `error` field is empty. Each canonical artifact stores
+the repair reason and model/endpoint/User-Agent provenance under
+`case_repairs`. The corrected aggregate is 100/100 for UaC and FC+REPL; the
+other totals remain Full Context 94/100, MemMachine 43/100, and Mem0 6/100.
 
 For the full LOCOMO evaluation, run each of the seven systems in a separate
 process under each model. The explicit run names keep the suites isolated:
@@ -114,6 +142,13 @@ The validator fails on missing or error records. A complete paper-facing run
 must print all 14 model/system rows followed by `FINAL VALIDATION PASSED`. Its
 `--allow-partial` option is only for monitoring an active run and must not be
 used to certify or report results.
+
+For publication packaging, the canonical set is exactly the seven basenames
+`full_context.json`, `uac_v5.json`, `memmachine.json`, `hindsight.json`,
+`evermemos.json`, `a_mem.json`, and `mem0.json` in each of the two run
+directories. Timestamped `.bak`, `.invalid`, and other repair artifacts are
+audit history, not members of the 14-file result set, and must be excluded from
+the submission bundle.
 
 Krill/Luna currently safety-blocks one benign Mem0 extraction prompt in
 LOCOMO `conv-44` (`session_15`, turn `D15:3`, about four dogs and veterinary

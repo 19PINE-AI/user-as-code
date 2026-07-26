@@ -19,7 +19,7 @@ Protocol:
 Supported memory systems:
   - user_as_code: Converts conversations into structured Python code representation
   - mem0:         Uses Mem0's memory extraction and retrieval
-  - full_context: Baseline that passes the full conversation text (upper bound)
+  - full_context: Reference that passes the full conversation text
   - no_memory:    No context baseline (lower bound)
 
 Usage:
@@ -227,7 +227,7 @@ def get_session_turns(conversation: dict) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 class FullContextSystem:
-    """Upper bound baseline: pass the full conversation as context."""
+    """Reference baseline: pass the full conversation as context."""
     name = "full_context"
 
     def reset(self):

@@ -1,62 +1,51 @@
-\begin{table}[!ht]
+\begin{table*}[t]
+\begin{minipage}[t]{0.505\textwidth}
 \centering
-\caption{LOCOMO results on the \emph{full} 10-conversation benchmark (60 QAs/conv, 600 total). LLM-as-Judge accuracy with thinking-enabled Gemini~3 Flash judge; 95\% Wilson CIs reported per row. McNemar's exact test compares UaC vs.\ each row on the per-question correctness vector. UaC, Full Context, Mem0, and A-MEM use Gemini~3 Flash for answer generation; UaC (GPT-5.4) substitutes GPT-5.4 for cross-LLM portability. Recent SOTA systems are run as minimal-faithful same-backbone reimplementations (Appendix~\ref{app:reimpl}); their original published scores used stronger backbones (GPT-4.1-mini, Gemini-3 Pro) and richer retrieval stacks and are not directly comparable. \emph{Mem0's 29.3\% is below its published number; see Section~\ref{sec:mem0-diagnostic} for the three-factor decomposition (backbone, background pass, retrieval stack).}}
+\caption{Full LOCOMO results (\%) on all 1{,}986 questions. F/J use 1{,}540 answer-bearing questions; R uses 446 adversarial questions.}
 \label{tab:locomo}
-\small
-\begin{tabular}{@{}lcccc@{}}
+\scriptsize
+\setlength{\tabcolsep}{1.7pt}
+\begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-\textbf{System} & \textbf{LLM-as-Judge} & \textbf{Wilson 95\% CI} & \textbf{N} & \textbf{$p$ vs.\ UaC} \\
+ & \multicolumn{3}{c}{\textbf{Luna}} & \multicolumn{3}{c}{\textbf{Gemini}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+\textbf{System} & \textbf{F} & \textbf{J} & \textbf{R} & \textbf{F} & \textbf{J} & \textbf{R} \\
 \midrule
-Full Context (upper bound) & 79.8\% & [76.4, 82.8] & 600 & 0.65 \\
-\textbf{UaC (ours, Gemini)} & \textbf{78.8\%} & [75.4, 81.9] & 600 & --- \\
-MemMachine~\citep{wang2026memmachine} & 72.7\% & [69.0, 76.1] & 600 & 0.003 \\
-Hindsight (lite)~\citep{latimer2025hindsight} & 69.7\% & [65.9, 73.2] & 600 & $1.5\!\times\!10^{-5}$ \\
-EverMemOS (lite)~\citep{hu2026evermemos} & 55.5\% & [51.5, 59.4] & 600 & $<\!10^{-20}$ \\
-A-MEM & 51.8\% & [47.8, 55.8] & 600 & $<\!10^{-30}$ \\
-Mem0 & 29.3\% & [25.8, 33.1] & 600 & $<\!10^{-60}$ \\
-\midrule
-\multicolumn{5}{@{}l}{\textit{Cross-LLM portability (2 conversations, 120 QAs)}} \\
-UaC (ours, GPT-5.4) & 80.8\% & [72.9, 86.8] & 120 & --- \\
+Full Context       & 58.9 & 82.3 & 42.8 & 65.2 & 84.8 & 96.0 \\
+\textbf{UaC (ours)} & 39.4 & 78.8 & 64.3 & 46.9 & 80.6 & 95.7 \\
+MemMachine         & 54.8 & 73.6 & 48.7 & 57.5 & 74.9 & 96.9 \\
+Hindsight (lite)   & 33.8 & 70.6 & 83.4 & 43.4 & 71.4 & 98.4 \\
+EverMemOS (lite)   & 22.0 & 51.2 & 85.4 & 31.3 & 51.4 & 98.7 \\
+A-MEM              & 39.6 & 55.7 & 58.1 & 42.8 & 56.6 & 97.5 \\
+Mem0               & 35.4 & 52.5 & 72.2 & 15.2 & 20.1 & 98.0 \\
 \bottomrule
 \end{tabular}
-\end{table}
 
-\begin{table}[!ht]
+\vspace{2pt}
+\raggedright F = category-aware token F1; J = same-backbone judge accuracy; R = deterministic refusal accuracy. Luna/Gemini denote GPT-5.6 Luna/Gemini~3 Flash Preview via Krill; category~5 is never judged.\par
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.475\textwidth}
 \centering
-\caption{LongMemEval results on the \emph{full} 500-question benchmark. All systems use Gemini~3 Flash for answer generation and the same generous-scoring LLM-as-Judge. McNemar's exact test compares UaC against each row on the per-question correctness vector. \emph{The same Mem0 diagnostic applies as in Table~\ref{tab:locomo} (Section~\ref{sec:mem0-diagnostic}).}}
+\caption{LongMemEval accuracy (\%) by question type on all 500 questions using Gemini~3 Flash.}
 \label{tab:longmemeval}
-\small
-\begin{tabular}{@{}lcccccc|cc@{}}
+\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{Overall (CI)} & \textbf{$p$ vs.\ UaC} \\
+\textbf{System} & \textbf{KU} & \textbf{MS} & \textbf{SA} & \textbf{SP} & \textbf{SU} & \textbf{TR} & \textbf{All} \\
 \midrule
-Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4\% [82.0, 88.2] & 0.19 \\
-MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8\% [81.4, 87.7] & 0.33 \\
-\textbf{UaC (ours)} & \textbf{97} & 81 & 96 & \textbf{83} & 94 & 65 & \textbf{83.0\%} [79.5, 86.0] & --- \\
-EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4\% [72.5, 79.9] & 0.002 \\
-Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0\% [68.9, 76.7] & $<\!10^{-5}$ \\
-A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6\% [45.2, 54.0] & $<\!10^{-30}$ \\
-Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8\% [20.3, 27.7] & $<\!10^{-70}$ \\
+Full Context     & 91 & 87 & 96 & 70 & 96 & 74 & 85.4 \\
+MemMachine       & 96 & 88 & 96 & 63 & 96 & 69 & 84.8 \\
+\textbf{UaC (ours)} & 97 & 81 & 96 & 83 & 94 & 65 & 83.0 \\
+EverMemOS (lite) & 87 & 72 & 73 & 87 & 87 & 68 & 76.4 \\
+Hindsight (lite) & 78 & 72 & 66 & 77 & 93 & 62 & 73.0 \\
+A-MEM            & 54 & 44 & 93 & 40 & 49 & 37 & 49.6 \\
+Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8 \\
 \bottomrule
 \end{tabular}
-\begin{flushleft}
-\small KU=knowledge-update (n=78), MS=multi-session (n=133), SA=single-asst (n=56), SP=single-pref (n=30), SU=single-user (n=70), TR=temporal-reasoning (n=133). Per-type percentages shown.
-\end{flushleft}
-\end{table}
 
-\begin{table}[!ht]
-\centering
-\caption{Analytical inference benchmark: 100 cases across 10 record types (10 per type) with $N$ records per case ($N \in \{20, 50, 100, 200, 500\}$). Exact-match scoring against deterministic ground truth. \emph{FC+REPL} is Full Context with a Python REPL tool; \emph{UaC} loads structured records into a typed-Python REPL.}
-\label{tab:analytical}
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
-\textbf{System} & \textbf{Overall} & $N{=}20$ & $N{=}50$ & $N{=}100$ & $N{=}200$ & $N{=}500$ \\
-\midrule
-Full Context + Python REPL & 100.0\% & 100\% & 100\% & 100\% & 100\% & 100\% \\
-UaC (structured + REPL) & 99.0\% & 100\% & 100\% & 100\% & 100\% & 95\% \\
-Full Context (no tool) & 94.0\% & 100\% & 90\% & 100\% & 90\% & 90\% \\
-MemMachine & 43.0\% & 100\% & 55\% & 20\% & 15\% & 25\% \\
-Mem0 & 6.0\% & 5\% & 10\% & 0\% & 0\% & 15\% \\
-\bottomrule
-\end{tabular}
-\end{table}
+\vspace{2pt}
+\raggedright KU = knowledge update ($n=78$), MS = multi-session (133), SA = single-assistant (56), SP = single-preference (30), SU = single-user (70), TR = temporal reasoning (133).\par
+\end{minipage}
+\end{table*}

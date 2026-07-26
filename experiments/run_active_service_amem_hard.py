@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Run Active Service hard scenarios with actual A-MEM library.
+"""Run a deprecated proactive-alert pilot with the A-MEM library.
 
-Removes the "A-MEM omitted from hard for conciseness" disclaimer in the paper.
+This prompt-based pilot is not publication-ready evidence for constraint
+execution or cross-system Active Service performance.
 """
 from __future__ import annotations
 import json
@@ -12,7 +13,8 @@ import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from active_service_experiment import (  # noqa: E402
-    SYSTEM_PROMPT_FLAT, MODEL, client, load_scenarios,
+    SYSTEM_PROMPT_FLAT, MODEL, client, history_sessions, load_scenarios,
+    trigger_user_message, user_only_text,
 )
 from google import genai
 
@@ -21,12 +23,7 @@ RESULTS_DIR = pathlib.Path(__file__).resolve().parent / "results"
 
 
 def _session_text(session: dict) -> str:
-    if "conversation" in session and isinstance(session["conversation"], str):
-        return session["conversation"]
-    return "\n".join(
-        f"{t.get('speaker', 'user')}: {t.get('text', '')}"
-        for t in session.get("turns", [])
-    )
+    return user_only_text(session)
 
 
 def run_one(scenario: dict) -> dict:
@@ -35,12 +32,12 @@ def run_one(scenario: dict) -> dict:
     memory = AgenticMemorySystem(
         model_name="all-MiniLM-L6-v2", llm_backend="openai", llm_model="gpt-4o-mini",
     )
-    for s in scenario.get("sessions", []):
-        memory.add_note(_session_text(s))
+    for s in history_sessions(scenario):
+        text = _session_text(s)
+        if text:
+            memory.add_note(text)
 
-    user_message = scenario.get("trigger_session", {}).get(
-        "user_message", "Hey! Just checking in. Anything I should know about?"
-    )
+    user_message = trigger_user_message(scenario)
 
     # Use raw retrieval that includes content (top-20).
     try:
@@ -102,11 +99,18 @@ def run_one(scenario: dict) -> dict:
 
 
 def main() -> None:
+    print(
+        "WARNING: deprecated exploratory protocol; do not report as Active "
+        "Service evidence.",
+        flush=True,
+    )
     out_path = RESULTS_DIR / "active_service_amem_hard.json"
     if out_path.exists():
         results = json.load(open(out_path))
     else:
         results = {"by_scenario": {}}
+    results["publication_ready"] = False
+    results["protocol_status"] = "deprecated exploratory alert-prompting pilot"
 
     scenarios = load_scenarios(EVAL_DIR / "hard_active_service_scenarios.json")
     for i, sc in enumerate(scenarios):
