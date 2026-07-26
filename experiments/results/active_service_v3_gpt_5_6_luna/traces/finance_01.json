@@ -1,0 +1,361 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_01",
+  "category": "financial_authorization_conflicts",
+  "description": "Two family members give conflicting wire transfer instructions",
+  "started_at": "2026-07-26T17:00:01.779056+00:00",
+  "completed_at": "2026-07-26T17:00:17.113930+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-09-05",
+      "user_text": "My mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation."
+    },
+    {
+      "session_id": "4",
+      "timestamp": "2024-09-06",
+      "user_text": "Hey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "amount": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?5[, ]?000",
+                    "text": "$5,000"
+                  }
+                ]
+              },
+              "account": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "family trust",
+                    "text": "family trust"
+                  }
+                ]
+              },
+              "parties": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:mother|mom).*(?:father|dad)",
+                    "text": "mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  },
+                  {
+                    "pattern": "resolve",
+                    "text": "resolve"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-09-05",
+            "user_text": "My mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-09-05\n\nComplete user-authored history through this session:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_date\":\"2024-09-05\",\"mother_requested_wire\":{\"requested_by\":\"user's mom\",\"amount_usd\":5000,\"source_account\":\"family trust account\",\"recipient\":\"her contractor\",\"destination_bank\":\"Chase\",\"destination_account_ending\":\"4477\",\"purpose\":\"kitchen renovation\",\"request_date\":\"2024-09-05\"}},\"constraints\":[]}",
+                "latency_seconds": 5.404,
+                "usage": {
+                  "prompt_tokens": 1071,
+                  "total_tokens": 1294,
+                  "completion_tokens": 223,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_date": "2024-09-05",
+                  "mother_requested_wire": {
+                    "requested_by": "user's mom",
+                    "amount_usd": 5000,
+                    "source_account": "family trust account",
+                    "recipient": "her contractor",
+                    "destination_bank": "Chase",
+                    "destination_account_ending": "4477",
+                    "purpose": "kitchen renovation",
+                    "request_date": "2024-09-05"
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_date": "2024-09-05",
+              "mother_requested_wire": {
+                "requested_by": "user's mom",
+                "amount_usd": 5000,
+                "source_account": "family trust account",
+                "recipient": "her contractor",
+                "destination_bank": "Chase",
+                "destination_account_ending": "4477",
+                "purpose": "kitchen renovation",
+                "request_date": "2024-09-05"
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'current_session_date': '2024-09-05',\n            'mother_requested_wire': {'amount_usd': 5000,\n                                      'destination_account_ending': '4477',\n                                      'destination_bank': 'Chase',\n                                      'purpose': 'kitchen renovation',\n                                      'recipient': 'her contractor',\n                                      'request_date': '2024-09-05',\n                                      'requested_by': \"user's mom\",\n                                      'source_account': 'family trust account'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/finance_01/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 201,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "299c36a1c39e745167378656aaaa3989c973ba6390dadd09a2c4a1e4358ea8f7"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "current_session_date": "2024-09-05",
+                "mother_requested_wire": {
+                  "amount_usd": 5000,
+                  "destination_account_ending": "4477",
+                  "destination_bank": "Chase",
+                  "purpose": "kitchen renovation",
+                  "recipient": "her contractor",
+                  "request_date": "2024-09-05",
+                  "requested_by": "user's mom",
+                  "source_account": "family trust account"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-09-06",
+            "user_text": "Hey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-09-06\n\nComplete user-authored history through this session:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\n[2024-09-06; session 4]\nHey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-09-06\",\"history\":[{\"session_date\":\"2024-09-05\",\"session_number\":3,\"facts\":[{\"person\":\"mom\",\"action\":\"asked the user to wire\",\"amount\":\"$5,000\",\"source_account\":\"family trust account\",\"recipient\":\"her contractor\",\"destination_account\":\"account ending in 4477 at Chase\",\"purpose\":\"kitchen renovation\"}]},{\"session_date\":\"2024-09-06\",\"session_number\":4,\"facts\":[{\"person\":\"dad\",\"action\":\"called the user\",\"instruction\":\"under no circumstances should any money leave the family trust account this month\",\"reason\":\"He is restructuring something with the accountant\"}]}]},\"constraints\":[{\"id\":\"trust_transfer_conflict\",\"severity\":\"critical\",\"type\":\"direct_conflict\",\"message_template\":\"There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved.\",\"active_from\":\"2024-09-06\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null}]}",
+                "latency_seconds": 9.841,
+                "usage": {
+                  "prompt_tokens": 1113,
+                  "total_tokens": 1588,
+                  "completion_tokens": 475,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-09-06",
+                  "history": [
+                    {
+                      "session_date": "2024-09-05",
+                      "session_number": 3,
+                      "facts": [
+                        {
+                          "person": "mom",
+                          "action": "asked the user to wire",
+                          "amount": "$5,000",
+                          "source_account": "family trust account",
+                          "recipient": "her contractor",
+                          "destination_account": "account ending in 4477 at Chase",
+                          "purpose": "kitchen renovation"
+                        }
+                      ]
+                    },
+                    {
+                      "session_date": "2024-09-06",
+                      "session_number": 4,
+                      "facts": [
+                        {
+                          "person": "dad",
+                          "action": "called the user",
+                          "instruction": "under no circumstances should any money leave the family trust account this month",
+                          "reason": "He is restructuring something with the accountant"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "trust_transfer_conflict",
+                    "severity": "critical",
+                    "type": "direct_conflict",
+                    "message_template": "There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved.",
+                    "active_from": "2024-09-06",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-09-06",
+              "history": [
+                {
+                  "session_date": "2024-09-05",
+                  "session_number": 3,
+                  "facts": [
+                    {
+                      "person": "mom",
+                      "action": "asked the user to wire",
+                      "amount": "$5,000",
+                      "source_account": "family trust account",
+                      "recipient": "her contractor",
+                      "destination_account": "account ending in 4477 at Chase",
+                      "purpose": "kitchen renovation"
+                    }
+                  ]
+                },
+                {
+                  "session_date": "2024-09-06",
+                  "session_number": 4,
+                  "facts": [
+                    {
+                      "person": "dad",
+                      "action": "called the user",
+                      "instruction": "under no circumstances should any money leave the family trust account this month",
+                      "reason": "He is restructuring something with the accountant"
+                    }
+                  ]
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "trust_transfer_conflict",
+                "severity": "critical",
+                "type": "direct_conflict",
+                "message_template": "There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved.",
+                "active_from": "2024-09-06",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-09-06',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'trust_transfer_conflict',\n                  'message_template': \"There is a conflict between mom's request on 2024-09-05 to \"\n                                      'wire $5,000 from the family trust account to her '\n                                      \"kitchen-renovation contractor's Chase account ending in \"\n                                      \"4477 and dad's 2024-09-06 instruction that under no \"\n                                      'circumstances should any money leave the family trust '\n                                      'account this month while he restructures something with the '\n                                      'accountant. Do not make the $5,000 wire unless the '\n                                      'conflicting instructions are resolved.',\n                  'severity': 'critical',\n                  'type': 'direct_conflict'}],\n 'memory': {'current_session_timestamp': '2024-09-06',\n            'history': [{'facts': [{'action': 'asked the user to wire',\n                                    'amount': '$5,000',\n                                    'destination_account': 'account ending in 4477 at Chase',\n                                    'person': 'mom',\n                                    'purpose': 'kitchen renovation',\n                                    'recipient': 'her contractor',\n                                    'source_account': 'family trust account'}],\n                         'session_date': '2024-09-05',\n                         'session_number': 3},\n                        {'facts': [{'action': 'called the user',\n                                    'instruction': 'under no circumstances should any money leave '\n                                                   'the family trust account this month',\n                                    'person': 'dad',\n                                    'reason': 'He is restructuring something with the accountant'}],\n                         'session_date': '2024-09-06',\n                         'session_number': 4}]}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/finance_01/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 245,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "36ee4cb3330ab1cd3c078433b59615d29c3e893208fa41347dd6669fe70bac74"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-09-06",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "trust_transfer_conflict",
+                  "message_template": "There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved.",
+                  "severity": "critical",
+                  "type": "direct_conflict"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-09-06",
+                "history": [
+                  {
+                    "facts": [
+                      {
+                        "action": "asked the user to wire",
+                        "amount": "$5,000",
+                        "destination_account": "account ending in 4477 at Chase",
+                        "person": "mom",
+                        "purpose": "kitchen renovation",
+                        "recipient": "her contractor",
+                        "source_account": "family trust account"
+                      }
+                    ],
+                    "session_date": "2024-09-05",
+                    "session_number": 3
+                  },
+                  {
+                    "facts": [
+                      {
+                        "action": "called the user",
+                        "instruction": "under no circumstances should any money leave the family trust account this month",
+                        "person": "dad",
+                        "reason": "He is restructuring something with the accountant"
+                      }
+                    ],
+                    "session_date": "2024-09-06",
+                    "session_number": 4
+                  }
+                ]
+              }
+            },
+            "alerts": [
+              {
+                "severity": "critical",
+                "type": "direct_conflict",
+                "message": "There is a conflict between mom's request on 2024-09-05 to wire $5,000 from the family trust account to her kitchen-renovation contractor's Chase account ending in 4477 and dad's 2024-09-06 instruction that under no circumstances should any money leave the family trust account this month while he restructures something with the accountant. Do not make the $5,000 wire unless the conflicting instructions are resolved."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

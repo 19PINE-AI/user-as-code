@@ -1,0 +1,355 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_05",
+  "category": "warranty_deadline_expiration",
+  "description": "Return window closing for a purchase the user was unhappy with",
+  "started_at": "2026-07-26T17:03:56.585545+00:00",
+  "completed_at": "2026-07-26T17:04:22.004053+00:00",
+  "sessions": [
+    {
+      "session_id": "5",
+      "timestamp": "2024-10-08",
+      "user_text": "Bought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide."
+    },
+    {
+      "session_id": "9",
+      "timestamp": "2024-10-29",
+      "user_text": "Morning! What's the weather like today?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by 2024-11-01; 3 days remaining."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "espresso",
+                    "text": "espresso"
+                  },
+                  {
+                    "pattern": "williams[- ]?sonoma",
+                    "text": "Williams-Sonoma"
+                  }
+                ]
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-01",
+                    "text": "2024-11-01"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:3|three) days?",
+                    "text": "3 days"
+                  }
+                ]
+              },
+              "action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "return",
+                    "text": "return"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-10-08",
+            "user_text": "Bought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-10-08\n\nComplete user-authored history through this session:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_date\":\"2024-10-08\",\"purchase\":{\"item\":\"espresso machine\",\"seller\":\"Williams-Sonoma\",\"amount_usd\":400,\"purchase_date\":\"2024-10-02\",\"return_policy_duration_days\":30,\"return_decision_status\":\"undecided\",\"decision_intent\":\"Use the machine another week or two, then decide whether to return it\",\"concern\":\"The milk frother is kind of weak\"}},\"constraints\":[{\"id\":\"espresso_machine_return_deadline\",\"severity\":\"warning\",\"type\":\"unresolved_deadline\",\"message_template\":\"The return decision for the $400 espresso machine bought from Williams-Sonoma on October 2 is unresolved because the milk frother is kind of weak. The Williams-Sonoma return window ends on {deadline}; {days_remaining} days remaining to decide whether to return the espresso machine.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2024-10-02\",\"deadline_offset_days\":30}]}",
+                "latency_seconds": 7.446,
+                "usage": {
+                  "prompt_tokens": 1086,
+                  "total_tokens": 1416,
+                  "completion_tokens": 330,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_date": "2024-10-08",
+                  "purchase": {
+                    "item": "espresso machine",
+                    "seller": "Williams-Sonoma",
+                    "amount_usd": 400,
+                    "purchase_date": "2024-10-02",
+                    "return_policy_duration_days": 30,
+                    "return_decision_status": "undecided",
+                    "decision_intent": "Use the machine another week or two, then decide whether to return it",
+                    "concern": "The milk frother is kind of weak"
+                  }
+                },
+                "constraints": [
+                  {
+                    "id": "espresso_machine_return_deadline",
+                    "severity": "warning",
+                    "type": "unresolved_deadline",
+                    "message_template": "The return decision for the $400 espresso machine bought from Williams-Sonoma on October 2 is unresolved because the milk frother is kind of weak. The Williams-Sonoma return window ends on {deadline}; {days_remaining} days remaining to decide whether to return the espresso machine.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2024-10-02",
+                    "deadline_offset_days": 30
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_date": "2024-10-08",
+              "purchase": {
+                "item": "espresso machine",
+                "seller": "Williams-Sonoma",
+                "amount_usd": 400,
+                "purchase_date": "2024-10-02",
+                "return_policy_duration_days": 30,
+                "return_decision_status": "undecided",
+                "decision_intent": "Use the machine another week or two, then decide whether to return it",
+                "concern": "The milk frother is kind of weak"
+              }
+            },
+            "constraints": [
+              {
+                "id": "espresso_machine_return_deadline",
+                "severity": "warning",
+                "type": "unresolved_deadline",
+                "message_template": "The return decision for the $400 espresso machine bought from Williams-Sonoma on October 2 is unresolved because the milk frother is kind of weak. The Williams-Sonoma return window ends on {deadline}; {days_remaining} days remaining to decide whether to return the espresso machine.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2024-10-02",
+                "deadline_offset_days": 30
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-10-25',\n                  'active_until': '2024-11-01',\n                  'deadline': '2024-11-01',\n                  'deadline_anchor': '2024-10-02',\n                  'deadline_offset_days': 30,\n                  'id': 'espresso_machine_return_deadline',\n                  'message_template': 'The return decision for the $400 espresso machine bought '\n                                      'from Williams-Sonoma on October 2 is unresolved because the '\n                                      'milk frother is kind of weak. The Williams-Sonoma return '\n                                      'window ends on {deadline}; {days_remaining} days remaining '\n                                      'to decide whether to return the espresso machine.',\n                  'severity': 'warning',\n                  'type': 'unresolved_deadline'}],\n 'memory': {'current_session_date': '2024-10-08',\n            'purchase': {'amount_usd': 400,\n                         'concern': 'The milk frother is kind of weak',\n                         'decision_intent': 'Use the machine another week or two, then decide '\n                                            'whether to return it',\n                         'item': 'espresso machine',\n                         'purchase_date': '2024-10-02',\n                         'return_decision_status': 'undecided',\n                         'return_policy_duration_days': 30,\n                         'seller': 'Williams-Sonoma'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_05/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 220,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "a190fbffe75d76f297bb6d8f4388363909e133a3aea5b154b1a40d54dff4774a"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-10-25",
+                  "active_until": "2024-11-01",
+                  "deadline": "2024-11-01",
+                  "deadline_anchor": "2024-10-02",
+                  "deadline_offset_days": 30,
+                  "id": "espresso_machine_return_deadline",
+                  "message_template": "The return decision for the $400 espresso machine bought from Williams-Sonoma on October 2 is unresolved because the milk frother is kind of weak. The Williams-Sonoma return window ends on {deadline}; {days_remaining} days remaining to decide whether to return the espresso machine.",
+                  "severity": "warning",
+                  "type": "unresolved_deadline"
+                }
+              ],
+              "memory": {
+                "current_session_date": "2024-10-08",
+                "purchase": {
+                  "amount_usd": 400,
+                  "concern": "The milk frother is kind of weak",
+                  "decision_intent": "Use the machine another week or two, then decide whether to return it",
+                  "item": "espresso machine",
+                  "purchase_date": "2024-10-02",
+                  "return_decision_status": "undecided",
+                  "return_policy_duration_days": 30,
+                  "seller": "Williams-Sonoma"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "9",
+            "timestamp": "2024-10-29",
+            "user_text": "Morning! What's the weather like today?"
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-10-29\n\nComplete user-authored history through this session:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\n[2024-10-29; session 9]\nMorning! What's the weather like today?\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-10-29\",\"purchase\":{\"item\":\"espresso machine\",\"retailer\":\"Williams-Sonoma\",\"amount_usd\":400,\"purchase_date\":\"2024-10-02\",\"user_description\":\"The milk frother is kind of weak.\",\"return_policy_duration_days\":30,\"decision_plan\":\"Give it another week or two and decide whether to return it.\"},\"requests\":[{\"date\":\"2024-10-29\",\"request\":\"What's the weather like today?\"}]},\"constraints\":[{\"id\":\"espresso_machine_return_window\",\"severity\":\"warning\",\"type\":\"deadline\",\"message_template\":\"The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by {deadline}; {days_remaining} days remaining.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2024-10-02\",\"deadline_offset_days\":30}]}",
+                "latency_seconds": 17.878,
+                "usage": {
+                  "prompt_tokens": 1106,
+                  "total_tokens": 1809,
+                  "completion_tokens": 703,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-10-29",
+                  "purchase": {
+                    "item": "espresso machine",
+                    "retailer": "Williams-Sonoma",
+                    "amount_usd": 400,
+                    "purchase_date": "2024-10-02",
+                    "user_description": "The milk frother is kind of weak.",
+                    "return_policy_duration_days": 30,
+                    "decision_plan": "Give it another week or two and decide whether to return it."
+                  },
+                  "requests": [
+                    {
+                      "date": "2024-10-29",
+                      "request": "What's the weather like today?"
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "espresso_machine_return_window",
+                    "severity": "warning",
+                    "type": "deadline",
+                    "message_template": "The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by {deadline}; {days_remaining} days remaining.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2024-10-02",
+                    "deadline_offset_days": 30
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-10-29",
+              "purchase": {
+                "item": "espresso machine",
+                "retailer": "Williams-Sonoma",
+                "amount_usd": 400,
+                "purchase_date": "2024-10-02",
+                "user_description": "The milk frother is kind of weak.",
+                "return_policy_duration_days": 30,
+                "decision_plan": "Give it another week or two and decide whether to return it."
+              },
+              "requests": [
+                {
+                  "date": "2024-10-29",
+                  "request": "What's the weather like today?"
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "espresso_machine_return_window",
+                "severity": "warning",
+                "type": "deadline",
+                "message_template": "The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by {deadline}; {days_remaining} days remaining.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2024-10-02",
+                "deadline_offset_days": 30
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-10-25',\n                  'active_until': '2024-11-01',\n                  'deadline': '2024-11-01',\n                  'deadline_anchor': '2024-10-02',\n                  'deadline_offset_days': 30,\n                  'id': 'espresso_machine_return_window',\n                  'message_template': 'The $400 espresso machine bought from Williams-Sonoma on '\n                                      'October 2 has a 30-day return window. The user needs to '\n                                      'decide whether to return it while addressing the weak milk '\n                                      'frother by {deadline}; {days_remaining} days remaining.',\n                  'severity': 'warning',\n                  'type': 'deadline'}],\n 'memory': {'current_session_timestamp': '2024-10-29',\n            'purchase': {'amount_usd': 400,\n                         'decision_plan': 'Give it another week or two and decide whether to '\n                                          'return it.',\n                         'item': 'espresso machine',\n                         'purchase_date': '2024-10-02',\n                         'retailer': 'Williams-Sonoma',\n                         'return_policy_duration_days': 30,\n                         'user_description': 'The milk frother is kind of weak.'},\n            'requests': [{'date': '2024-10-29', 'request': \"What's the weather like today?\"}]}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_05/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 226,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "076d9b9832dff3542c8fbc9424812d40bc24f3d70bd829f7a1c57954488cf774"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-10-25",
+                  "active_until": "2024-11-01",
+                  "deadline": "2024-11-01",
+                  "deadline_anchor": "2024-10-02",
+                  "deadline_offset_days": 30,
+                  "id": "espresso_machine_return_window",
+                  "message_template": "The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by {deadline}; {days_remaining} days remaining.",
+                  "severity": "warning",
+                  "type": "deadline"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-10-29",
+                "purchase": {
+                  "amount_usd": 400,
+                  "decision_plan": "Give it another week or two and decide whether to return it.",
+                  "item": "espresso machine",
+                  "purchase_date": "2024-10-02",
+                  "retailer": "Williams-Sonoma",
+                  "return_policy_duration_days": 30,
+                  "user_description": "The milk frother is kind of weak."
+                },
+                "requests": [
+                  {
+                    "date": "2024-10-29",
+                    "request": "What's the weather like today?"
+                  }
+                ]
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "deadline",
+                "message": "The $400 espresso machine bought from Williams-Sonoma on October 2 has a 30-day return window. The user needs to decide whether to return it while addressing the weak milk frother by 2024-11-01; 3 days remaining."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

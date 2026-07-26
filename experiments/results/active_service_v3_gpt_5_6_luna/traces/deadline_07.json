@@ -1,0 +1,554 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_07",
+  "category": "warranty_deadline_expiration",
+  "description": "Home inspection contingency deadline about to expire during house purchase",
+  "started_at": "2026-07-26T17:04:22.005448+00:00",
+  "completed_at": "2026-07-26T17:05:10.891611+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-10-25",
+      "user_text": "Our offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out."
+    },
+    {
+      "session_id": "5",
+      "timestamp": "2024-10-30",
+      "user_text": "The home inspector can't come until November 7. Is that too late? What if he finds something?"
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-11-06",
+      "user_text": "So stressed about this house purchase. What are some good relaxation techniques?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by 2024-11-09; 3 days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "inspection",
+                    "text": "inspection"
+                  },
+                  {
+                    "pattern": "contingency",
+                    "text": "contingency"
+                  }
+                ]
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-09",
+                    "text": "2024-11-09"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:3|three) days?",
+                    "text": "3 days"
+                  }
+                ]
+              },
+              "action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "respond",
+                    "text": "respond"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-10-25",
+            "user_text": "Our offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-10-25\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-10-25\",\"house_offer\":\"Our offer on the house was accepted on 2024-10-25.\",\"purchase_agreement\":{\"home_inspection_contingency\":{\"duration_days\":15,\"starts_on\":\"2024-10-25\",\"required_actions\":[\"get the home inspection done\",\"respond within the 15-day period\"],\"consequence_if_not_completed\":\"The right to back out of the purchase is waived.\"}}},\"constraints\":[{\"id\":\"home_inspection_contingency_deadline\",\"severity\":\"high\",\"type\":\"unresolved_deadline\",\"message_template\":\"The accepted house purchase agreement requires you to get the home inspection done and respond within the 15-day home inspection contingency starting October 25, 2024. {days_remaining} days remaining until {deadline}; if you do not complete both actions within that period, you waive the right to back out of the purchase.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2024-10-25\",\"deadline_offset_days\":15}]}",
+                "latency_seconds": 10.33,
+                "usage": {
+                  "prompt_tokens": 1085,
+                  "total_tokens": 1584,
+                  "completion_tokens": 499,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-10-25",
+                  "house_offer": "Our offer on the house was accepted on 2024-10-25.",
+                  "purchase_agreement": {
+                    "home_inspection_contingency": {
+                      "duration_days": 15,
+                      "starts_on": "2024-10-25",
+                      "required_actions": [
+                        "get the home inspection done",
+                        "respond within the 15-day period"
+                      ],
+                      "consequence_if_not_completed": "The right to back out of the purchase is waived."
+                    }
+                  }
+                },
+                "constraints": [
+                  {
+                    "id": "home_inspection_contingency_deadline",
+                    "severity": "high",
+                    "type": "unresolved_deadline",
+                    "message_template": "The accepted house purchase agreement requires you to get the home inspection done and respond within the 15-day home inspection contingency starting October 25, 2024. {days_remaining} days remaining until {deadline}; if you do not complete both actions within that period, you waive the right to back out of the purchase.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2024-10-25",
+                    "deadline_offset_days": 15
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-10-25",
+              "house_offer": "Our offer on the house was accepted on 2024-10-25.",
+              "purchase_agreement": {
+                "home_inspection_contingency": {
+                  "duration_days": 15,
+                  "starts_on": "2024-10-25",
+                  "required_actions": [
+                    "get the home inspection done",
+                    "respond within the 15-day period"
+                  ],
+                  "consequence_if_not_completed": "The right to back out of the purchase is waived."
+                }
+              }
+            },
+            "constraints": [
+              {
+                "id": "home_inspection_contingency_deadline",
+                "severity": "high",
+                "type": "unresolved_deadline",
+                "message_template": "The accepted house purchase agreement requires you to get the home inspection done and respond within the 15-day home inspection contingency starting October 25, 2024. {days_remaining} days remaining until {deadline}; if you do not complete both actions within that period, you waive the right to back out of the purchase.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2024-10-25",
+                "deadline_offset_days": 15
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-02',\n                  'active_until': '2024-11-09',\n                  'deadline': '2024-11-09',\n                  'deadline_anchor': '2024-10-25',\n                  'deadline_offset_days': 15,\n                  'id': 'home_inspection_contingency_deadline',\n                  'message_template': 'The accepted house purchase agreement requires you to get '\n                                      'the home inspection done and respond within the 15-day home '\n                                      'inspection contingency starting October 25, 2024. '\n                                      '{days_remaining} days remaining until {deadline}; if you do '\n                                      'not complete both actions within that period, you waive the '\n                                      'right to back out of the purchase.',\n                  'severity': 'high',\n                  'type': 'unresolved_deadline'}],\n 'memory': {'current_session_timestamp': '2024-10-25',\n            'house_offer': 'Our offer on the house was accepted on 2024-10-25.',\n            'purchase_agreement': {'home_inspection_contingency': {'consequence_if_not_completed': 'The '\n                                                                                                   'right '\n                                                                                                   'to '\n                                                                                                   'back '\n                                                                                                   'out '\n                                                                                                   'of '\n                                                                                                   'the '\n                                                                                                   'purchase '\n                                                                                                   'is '\n                                                                                                   'waived.',\n                                                                   'duration_days': 15,\n                                                                   'required_actions': ['get the '\n                                                                                        'home '\n                                                                                        'inspection '\n                                                                                        'done',\n                                                                                        'respond '\n                                                                                        'within '\n                                                                                        'the '\n                                                                                        '15-day '\n                                                                                        'period'],\n                                                                   'starts_on': '2024-10-25'}}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_07/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 219,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "3a4279bbe53062876f1acbd77d83ad52d605ccfcd6d70ec6d729519406f30bec"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-02",
+                  "active_until": "2024-11-09",
+                  "deadline": "2024-11-09",
+                  "deadline_anchor": "2024-10-25",
+                  "deadline_offset_days": 15,
+                  "id": "home_inspection_contingency_deadline",
+                  "message_template": "The accepted house purchase agreement requires you to get the home inspection done and respond within the 15-day home inspection contingency starting October 25, 2024. {days_remaining} days remaining until {deadline}; if you do not complete both actions within that period, you waive the right to back out of the purchase.",
+                  "severity": "high",
+                  "type": "unresolved_deadline"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-10-25",
+                "house_offer": "Our offer on the house was accepted on 2024-10-25.",
+                "purchase_agreement": {
+                  "home_inspection_contingency": {
+                    "consequence_if_not_completed": "The right to back out of the purchase is waived.",
+                    "duration_days": 15,
+                    "required_actions": [
+                      "get the home inspection done",
+                      "respond within the 15-day period"
+                    ],
+                    "starts_on": "2024-10-25"
+                  }
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-10-30",
+            "user_text": "The home inspector can't come until November 7. Is that too late? What if he finds something?"
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-10-30\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\n[2024-10-30; session 5]\nThe home inspector can't come until November 7. Is that too late? What if he finds something?\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_date\":\"2024-10-30\",\"house_offer_status\":\"accepted\",\"purchase_agreement\":{\"home_inspection_contingency\":{\"duration_days\":15,\"start_date\":\"2024-10-25\",\"required_actions\":[\"complete the home inspection\",\"respond within the contingency period\"],\"consequence_if_actions_not_completed\":\"the buyer waives the right to back out\"}},\"home_inspector\":{\"availability_date\":\"2024-11-07\",\"cannot_come_before\":\"2024-11-07\"},\"user_questions\":[\"Whether the home inspection appointment on November 7 is too late for the 15-day home inspection contingency\",\"What happens if the home inspector finds something\"]},\"constraints\":[{\"id\":\"home_inspection_contingency_deadline\",\"severity\":\"warning\",\"type\":\"deadline\",\"message_template\":\"The accepted house offer's home inspection contingency requires the home inspection and your response within 15 days starting October 25, 2024. Complete the inspection and respond by {deadline}; {days_remaining} days remaining, or you waive the right to back out.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2024-10-25\",\"deadline_offset_days\":15}]}",
+                "latency_seconds": 14.939,
+                "usage": {
+                  "prompt_tokens": 1118,
+                  "total_tokens": 1859,
+                  "completion_tokens": 741,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_date": "2024-10-30",
+                  "house_offer_status": "accepted",
+                  "purchase_agreement": {
+                    "home_inspection_contingency": {
+                      "duration_days": 15,
+                      "start_date": "2024-10-25",
+                      "required_actions": [
+                        "complete the home inspection",
+                        "respond within the contingency period"
+                      ],
+                      "consequence_if_actions_not_completed": "the buyer waives the right to back out"
+                    }
+                  },
+                  "home_inspector": {
+                    "availability_date": "2024-11-07",
+                    "cannot_come_before": "2024-11-07"
+                  },
+                  "user_questions": [
+                    "Whether the home inspection appointment on November 7 is too late for the 15-day home inspection contingency",
+                    "What happens if the home inspector finds something"
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "home_inspection_contingency_deadline",
+                    "severity": "warning",
+                    "type": "deadline",
+                    "message_template": "The accepted house offer's home inspection contingency requires the home inspection and your response within 15 days starting October 25, 2024. Complete the inspection and respond by {deadline}; {days_remaining} days remaining, or you waive the right to back out.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2024-10-25",
+                    "deadline_offset_days": 15
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_date": "2024-10-30",
+              "house_offer_status": "accepted",
+              "purchase_agreement": {
+                "home_inspection_contingency": {
+                  "duration_days": 15,
+                  "start_date": "2024-10-25",
+                  "required_actions": [
+                    "complete the home inspection",
+                    "respond within the contingency period"
+                  ],
+                  "consequence_if_actions_not_completed": "the buyer waives the right to back out"
+                }
+              },
+              "home_inspector": {
+                "availability_date": "2024-11-07",
+                "cannot_come_before": "2024-11-07"
+              },
+              "user_questions": [
+                "Whether the home inspection appointment on November 7 is too late for the 15-day home inspection contingency",
+                "What happens if the home inspector finds something"
+              ]
+            },
+            "constraints": [
+              {
+                "id": "home_inspection_contingency_deadline",
+                "severity": "warning",
+                "type": "deadline",
+                "message_template": "The accepted house offer's home inspection contingency requires the home inspection and your response within 15 days starting October 25, 2024. Complete the inspection and respond by {deadline}; {days_remaining} days remaining, or you waive the right to back out.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2024-10-25",
+                "deadline_offset_days": 15
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-02',\n                  'active_until': '2024-11-09',\n                  'deadline': '2024-11-09',\n                  'deadline_anchor': '2024-10-25',\n                  'deadline_offset_days': 15,\n                  'id': 'home_inspection_contingency_deadline',\n                  'message_template': \"The accepted house offer's home inspection contingency \"\n                                      'requires the home inspection and your response within 15 '\n                                      'days starting October 25, 2024. Complete the inspection and '\n                                      'respond by {deadline}; {days_remaining} days remaining, or '\n                                      'you waive the right to back out.',\n                  'severity': 'warning',\n                  'type': 'deadline'}],\n 'memory': {'current_session_date': '2024-10-30',\n            'home_inspector': {'availability_date': '2024-11-07',\n                               'cannot_come_before': '2024-11-07'},\n            'house_offer_status': 'accepted',\n            'purchase_agreement': {'home_inspection_contingency': {'consequence_if_actions_not_completed': 'the '\n                                                                                                           'buyer '\n                                                                                                           'waives '\n                                                                                                           'the '\n                                                                                                           'right '\n                                                                                                           'to '\n                                                                                                           'back '\n                                                                                                           'out',\n                                                                   'duration_days': 15,\n                                                                   'required_actions': ['complete '\n                                                                                        'the home '\n                                                                                        'inspection',\n                                                                                        'respond '\n                                                                                        'within '\n                                                                                        'the '\n                                                                                        'contingency '\n                                                                                        'period'],\n                                                                   'start_date': '2024-10-25'}},\n            'user_questions': ['Whether the home inspection appointment on November 7 is too late '\n                               'for the 15-day home inspection contingency',\n                               'What happens if the home inspector finds something']}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_07/02_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 230,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "8a2b4a8716e7c4c48bbb33dc26815726188b01a27680ccf63c91509c6ad74d3c"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-02",
+                  "active_until": "2024-11-09",
+                  "deadline": "2024-11-09",
+                  "deadline_anchor": "2024-10-25",
+                  "deadline_offset_days": 15,
+                  "id": "home_inspection_contingency_deadline",
+                  "message_template": "The accepted house offer's home inspection contingency requires the home inspection and your response within 15 days starting October 25, 2024. Complete the inspection and respond by {deadline}; {days_remaining} days remaining, or you waive the right to back out.",
+                  "severity": "warning",
+                  "type": "deadline"
+                }
+              ],
+              "memory": {
+                "current_session_date": "2024-10-30",
+                "home_inspector": {
+                  "availability_date": "2024-11-07",
+                  "cannot_come_before": "2024-11-07"
+                },
+                "house_offer_status": "accepted",
+                "purchase_agreement": {
+                  "home_inspection_contingency": {
+                    "consequence_if_actions_not_completed": "the buyer waives the right to back out",
+                    "duration_days": 15,
+                    "required_actions": [
+                      "complete the home inspection",
+                      "respond within the contingency period"
+                    ],
+                    "start_date": "2024-10-25"
+                  }
+                },
+                "user_questions": [
+                  "Whether the home inspection appointment on November 7 is too late for the 15-day home inspection contingency",
+                  "What happens if the home inspector finds something"
+                ]
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-11-06",
+            "user_text": "So stressed about this house purchase. What are some good relaxation techniques?"
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-11-06\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\n[2024-10-30; session 5]\nThe home inspector can't come until November 7. Is that too late? What if he finds something?\n\n[2024-11-06; session 6]\nSo stressed about this house purchase. What are some good relaxation techniques?\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-11-06\",\"history\":[{\"session_date\":\"2024-10-25\",\"session_number\":4,\"facts\":[\"The user's offer on the house was accepted.\",\"The purchase agreement gives the user a 15-day home inspection contingency starting on 2024-10-25.\",\"The user must get the home inspection done and respond within that 15-day period or waive the right to back out of the house purchase.\"]},{\"session_date\":\"2024-10-30\",\"session_number\":5,\"facts\":[\"The home inspector cannot come until 2024-11-07.\",\"The user asked whether the inspection timing was too late and what would happen if the inspector found something.\"]},{\"session_date\":\"2024-11-06\",\"session_number\":6,\"facts\":[\"The user is stressed about the house purchase.\",\"The user asked for relaxation techniques.\"]}]},\"constraints\":[{\"id\":\"home_inspection_contingency_deadline\",\"severity\":\"high\",\"type\":\"unresolved_deadline\",\"message_template\":\"The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by {deadline}; {days_remaining} days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2024-10-25\",\"deadline_offset_days\":15}]}}",
+                "latency_seconds": 23.48,
+                "usage": {
+                  "prompt_tokens": 1144,
+                  "total_tokens": 2126,
+                  "completion_tokens": 982,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-11-06",
+                  "history": [
+                    {
+                      "session_date": "2024-10-25",
+                      "session_number": 4,
+                      "facts": [
+                        "The user's offer on the house was accepted.",
+                        "The purchase agreement gives the user a 15-day home inspection contingency starting on 2024-10-25.",
+                        "The user must get the home inspection done and respond within that 15-day period or waive the right to back out of the house purchase."
+                      ]
+                    },
+                    {
+                      "session_date": "2024-10-30",
+                      "session_number": 5,
+                      "facts": [
+                        "The home inspector cannot come until 2024-11-07.",
+                        "The user asked whether the inspection timing was too late and what would happen if the inspector found something."
+                      ]
+                    },
+                    {
+                      "session_date": "2024-11-06",
+                      "session_number": 6,
+                      "facts": [
+                        "The user is stressed about the house purchase.",
+                        "The user asked for relaxation techniques."
+                      ]
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "home_inspection_contingency_deadline",
+                    "severity": "high",
+                    "type": "unresolved_deadline",
+                    "message_template": "The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by {deadline}; {days_remaining} days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2024-10-25",
+                    "deadline_offset_days": 15
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-11-06",
+              "history": [
+                {
+                  "session_date": "2024-10-25",
+                  "session_number": 4,
+                  "facts": [
+                    "The user's offer on the house was accepted.",
+                    "The purchase agreement gives the user a 15-day home inspection contingency starting on 2024-10-25.",
+                    "The user must get the home inspection done and respond within that 15-day period or waive the right to back out of the house purchase."
+                  ]
+                },
+                {
+                  "session_date": "2024-10-30",
+                  "session_number": 5,
+                  "facts": [
+                    "The home inspector cannot come until 2024-11-07.",
+                    "The user asked whether the inspection timing was too late and what would happen if the inspector found something."
+                  ]
+                },
+                {
+                  "session_date": "2024-11-06",
+                  "session_number": 6,
+                  "facts": [
+                    "The user is stressed about the house purchase.",
+                    "The user asked for relaxation techniques."
+                  ]
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "home_inspection_contingency_deadline",
+                "severity": "high",
+                "type": "unresolved_deadline",
+                "message_template": "The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by {deadline}; {days_remaining} days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2024-10-25",
+                "deadline_offset_days": 15
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-02',\n                  'active_until': '2024-11-09',\n                  'deadline': '2024-11-09',\n                  'deadline_anchor': '2024-10-25',\n                  'deadline_offset_days': 15,\n                  'id': 'home_inspection_contingency_deadline',\n                  'message_template': 'The accepted house purchase agreement requires the user to '\n                                      'complete the home inspection and respond within the 15-day '\n                                      'home inspection contingency by {deadline}; {days_remaining} '\n                                      'days remaining. If the inspection is not completed and the '\n                                      'user does not respond within that period, the user waives '\n                                      'the right to back out of the house purchase.',\n                  'severity': 'high',\n                  'type': 'unresolved_deadline'}],\n 'memory': {'current_session_timestamp': '2024-11-06',\n            'history': [{'facts': [\"The user's offer on the house was accepted.\",\n                                   'The purchase agreement gives the user a 15-day home inspection '\n                                   'contingency starting on 2024-10-25.',\n                                   'The user must get the home inspection done and respond within '\n                                   'that 15-day period or waive the right to back out of the house '\n                                   'purchase.'],\n                         'session_date': '2024-10-25',\n                         'session_number': 4},\n                        {'facts': ['The home inspector cannot come until 2024-11-07.',\n                                   'The user asked whether the inspection timing was too late and '\n                                   'what would happen if the inspector found something.'],\n                         'session_date': '2024-10-30',\n                         'session_number': 5},\n                        {'facts': ['The user is stressed about the house purchase.',\n                                   'The user asked for relaxation techniques.'],\n                         'session_date': '2024-11-06',\n                         'session_number': 6}]}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_07/03_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 236,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "1fb903fcd144df6f317f6ab7165005d72dddc1a1ff2cd73182600ac4b7a8ed79"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-02",
+                  "active_until": "2024-11-09",
+                  "deadline": "2024-11-09",
+                  "deadline_anchor": "2024-10-25",
+                  "deadline_offset_days": 15,
+                  "id": "home_inspection_contingency_deadline",
+                  "message_template": "The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by {deadline}; {days_remaining} days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase.",
+                  "severity": "high",
+                  "type": "unresolved_deadline"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-11-06",
+                "history": [
+                  {
+                    "facts": [
+                      "The user's offer on the house was accepted.",
+                      "The purchase agreement gives the user a 15-day home inspection contingency starting on 2024-10-25.",
+                      "The user must get the home inspection done and respond within that 15-day period or waive the right to back out of the house purchase."
+                    ],
+                    "session_date": "2024-10-25",
+                    "session_number": 4
+                  },
+                  {
+                    "facts": [
+                      "The home inspector cannot come until 2024-11-07.",
+                      "The user asked whether the inspection timing was too late and what would happen if the inspector found something."
+                    ],
+                    "session_date": "2024-10-30",
+                    "session_number": 5
+                  },
+                  {
+                    "facts": [
+                      "The user is stressed about the house purchase.",
+                      "The user asked for relaxation techniques."
+                    ],
+                    "session_date": "2024-11-06",
+                    "session_number": 6
+                  }
+                ]
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "unresolved_deadline",
+                "message": "The accepted house purchase agreement requires the user to complete the home inspection and respond within the 15-day home inspection contingency by 2024-11-09; 3 days remaining. If the inspection is not completed and the user does not respond within that period, the user waives the right to back out of the house purchase."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

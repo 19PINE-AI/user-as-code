@@ -1,0 +1,359 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_03",
+  "category": "warranty_deadline_expiration",
+  "description": "Lease renewal deadline approaching with user wanting to negotiate",
+  "started_at": "2026-07-26T17:03:36.319953+00:00",
+  "completed_at": "2026-07-26T17:03:56.584463+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-08-20",
+      "user_text": "My apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms."
+    },
+    {
+      "session_id": "9",
+      "timestamp": "2024-11-25",
+      "user_text": "I'm so busy with the holidays. Can't even think straight."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by 2024-12-02; 7 days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "lease",
+                    "text": "lease"
+                  }
+                ]
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-12-02",
+                    "text": "2024-12-02"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:7|seven) days?",
+                    "text": "7 days"
+                  }
+                ]
+              },
+              "action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "notice",
+                    "text": "notice"
+                  },
+                  {
+                    "pattern": "renew",
+                    "text": "renew"
+                  },
+                  {
+                    "pattern": "landlord",
+                    "text": "landlord"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-08-20",
+            "user_text": "My apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-08-20\n\nComplete user-authored history through this session:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-08-20\",\"history\":[{\"session_date\":\"2024-08-20\",\"session_number\":4,\"facts\":{\"apartment_lease_expires\":\"2025-01-31\",\"landlord_requires_notice_days_for_renewal\":60,\"if_no_renewal_notice\":\"Lease auto-converts to month-to-month at a higher rate\",\"user_intends_to\":\"Negotiate the renewal terms\"}}]},\"constraints\":[{\"id\":\"lease_renewal_notice_deadline\",\"severity\":\"warning\",\"type\":\"deadline\",\"message_template\":\"The apartment lease expires on January 31, 2025, and the landlord requires 60 days notice if you want to renew. You want to negotiate the renewal terms; provide the renewal notice by {deadline}, with {days_remaining} days remaining, or the lease will auto-convert to month-to-month at a higher rate.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2025-01-31\",\"deadline_offset_days\":-60}]}",
+                "latency_seconds": 7.61,
+                "usage": {
+                  "prompt_tokens": 1082,
+                  "total_tokens": 1427,
+                  "completion_tokens": 345,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-08-20",
+                  "history": [
+                    {
+                      "session_date": "2024-08-20",
+                      "session_number": 4,
+                      "facts": {
+                        "apartment_lease_expires": "2025-01-31",
+                        "landlord_requires_notice_days_for_renewal": 60,
+                        "if_no_renewal_notice": "Lease auto-converts to month-to-month at a higher rate",
+                        "user_intends_to": "Negotiate the renewal terms"
+                      }
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "lease_renewal_notice_deadline",
+                    "severity": "warning",
+                    "type": "deadline",
+                    "message_template": "The apartment lease expires on January 31, 2025, and the landlord requires 60 days notice if you want to renew. You want to negotiate the renewal terms; provide the renewal notice by {deadline}, with {days_remaining} days remaining, or the lease will auto-convert to month-to-month at a higher rate.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2025-01-31",
+                    "deadline_offset_days": -60
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-08-20",
+              "history": [
+                {
+                  "session_date": "2024-08-20",
+                  "session_number": 4,
+                  "facts": {
+                    "apartment_lease_expires": "2025-01-31",
+                    "landlord_requires_notice_days_for_renewal": 60,
+                    "if_no_renewal_notice": "Lease auto-converts to month-to-month at a higher rate",
+                    "user_intends_to": "Negotiate the renewal terms"
+                  }
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "lease_renewal_notice_deadline",
+                "severity": "warning",
+                "type": "deadline",
+                "message_template": "The apartment lease expires on January 31, 2025, and the landlord requires 60 days notice if you want to renew. You want to negotiate the renewal terms; provide the renewal notice by {deadline}, with {days_remaining} days remaining, or the lease will auto-convert to month-to-month at a higher rate.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2025-01-31",
+                "deadline_offset_days": -60
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-25',\n                  'active_until': '2024-12-02',\n                  'deadline': '2024-12-02',\n                  'deadline_anchor': '2025-01-31',\n                  'deadline_offset_days': -60,\n                  'id': 'lease_renewal_notice_deadline',\n                  'message_template': 'The apartment lease expires on January 31, 2025, and the '\n                                      'landlord requires 60 days notice if you want to renew. You '\n                                      'want to negotiate the renewal terms; provide the renewal '\n                                      'notice by {deadline}, with {days_remaining} days remaining, '\n                                      'or the lease will auto-convert to month-to-month at a '\n                                      'higher rate.',\n                  'severity': 'warning',\n                  'type': 'deadline'}],\n 'memory': {'current_session_timestamp': '2024-08-20',\n            'history': [{'facts': {'apartment_lease_expires': '2025-01-31',\n                                   'if_no_renewal_notice': 'Lease auto-converts to month-to-month '\n                                                           'at a higher rate',\n                                   'landlord_requires_notice_days_for_renewal': 60,\n                                   'user_intends_to': 'Negotiate the renewal terms'},\n                         'session_date': '2024-08-20',\n                         'session_number': 4}]}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 222,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "3021400cca73f85cf3b122d24459ab13e27701a598b09ad054b5eb8d76078f60"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-25",
+                  "active_until": "2024-12-02",
+                  "deadline": "2024-12-02",
+                  "deadline_anchor": "2025-01-31",
+                  "deadline_offset_days": -60,
+                  "id": "lease_renewal_notice_deadline",
+                  "message_template": "The apartment lease expires on January 31, 2025, and the landlord requires 60 days notice if you want to renew. You want to negotiate the renewal terms; provide the renewal notice by {deadline}, with {days_remaining} days remaining, or the lease will auto-convert to month-to-month at a higher rate.",
+                  "severity": "warning",
+                  "type": "deadline"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-08-20",
+                "history": [
+                  {
+                    "facts": {
+                      "apartment_lease_expires": "2025-01-31",
+                      "if_no_renewal_notice": "Lease auto-converts to month-to-month at a higher rate",
+                      "landlord_requires_notice_days_for_renewal": 60,
+                      "user_intends_to": "Negotiate the renewal terms"
+                    },
+                    "session_date": "2024-08-20",
+                    "session_number": 4
+                  }
+                ]
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "9",
+            "timestamp": "2024-11-25",
+            "user_text": "I'm so busy with the holidays. Can't even think straight."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-11-25\n\nComplete user-authored history through this session:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\n[2024-11-25; session 9]\nI'm so busy with the holidays. Can't even think straight.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session\":{\"date\":\"2024-11-25\",\"context\":\"The user is busy with the holidays and cannot think straight.\"},\"apartment_lease\":{\"property\":\"user's apartment\",\"expires\":\"2025-01-31\",\"landlord_notice_requirement\":{\"action\":\"give notice if renewing\",\"notice_period_days\":60},\"consequence_if_no_renewal_notice\":\"The lease auto-converts to month-to-month at a higher rate.\",\"user_intention\":\"The user definitely wants to negotiate the renewal terms.\"}},\"constraints\":[{\"id\":\"apartment_lease_renewal_notice_deadline\",\"severity\":\"warning\",\"type\":\"deadline\",\"message_template\":\"Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by {deadline}; {days_remaining} days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate.\",\"active_from\":null,\"active_until\":null,\"deadline\":null,\"deadline_anchor\":\"2025-01-31\",\"deadline_offset_days\":-60}] }",
+                "latency_seconds": 12.562,
+                "usage": {
+                  "prompt_tokens": 1106,
+                  "total_tokens": 1716,
+                  "completion_tokens": 610,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session": {
+                    "date": "2024-11-25",
+                    "context": "The user is busy with the holidays and cannot think straight."
+                  },
+                  "apartment_lease": {
+                    "property": "user's apartment",
+                    "expires": "2025-01-31",
+                    "landlord_notice_requirement": {
+                      "action": "give notice if renewing",
+                      "notice_period_days": 60
+                    },
+                    "consequence_if_no_renewal_notice": "The lease auto-converts to month-to-month at a higher rate.",
+                    "user_intention": "The user definitely wants to negotiate the renewal terms."
+                  }
+                },
+                "constraints": [
+                  {
+                    "id": "apartment_lease_renewal_notice_deadline",
+                    "severity": "warning",
+                    "type": "deadline",
+                    "message_template": "Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by {deadline}; {days_remaining} days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate.",
+                    "active_from": null,
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": "2025-01-31",
+                    "deadline_offset_days": -60
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session": {
+                "date": "2024-11-25",
+                "context": "The user is busy with the holidays and cannot think straight."
+              },
+              "apartment_lease": {
+                "property": "user's apartment",
+                "expires": "2025-01-31",
+                "landlord_notice_requirement": {
+                  "action": "give notice if renewing",
+                  "notice_period_days": 60
+                },
+                "consequence_if_no_renewal_notice": "The lease auto-converts to month-to-month at a higher rate.",
+                "user_intention": "The user definitely wants to negotiate the renewal terms."
+              }
+            },
+            "constraints": [
+              {
+                "id": "apartment_lease_renewal_notice_deadline",
+                "severity": "warning",
+                "type": "deadline",
+                "message_template": "Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by {deadline}; {days_remaining} days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate.",
+                "active_from": null,
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": "2025-01-31",
+                "deadline_offset_days": -60
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-25',\n                  'active_until': '2024-12-02',\n                  'deadline': '2024-12-02',\n                  'deadline_anchor': '2025-01-31',\n                  'deadline_offset_days': -60,\n                  'id': 'apartment_lease_renewal_notice_deadline',\n                  'message_template': 'Your apartment lease expires on January 31, 2025, and the '\n                                      \"landlord requires 60 days' notice if you want to renew. You \"\n                                      'definitely want to negotiate the renewal terms, so give the '\n                                      'landlord notice and begin the renewal negotiation by '\n                                      '{deadline}; {days_remaining} days remaining. If you miss '\n                                      'the notice requirement, the lease auto-converts to '\n                                      'month-to-month at a higher rate.',\n                  'severity': 'warning',\n                  'type': 'deadline'}],\n 'memory': {'apartment_lease': {'consequence_if_no_renewal_notice': 'The lease auto-converts to '\n                                                                    'month-to-month at a higher '\n                                                                    'rate.',\n                                'expires': '2025-01-31',\n                                'landlord_notice_requirement': {'action': 'give notice if renewing',\n                                                                'notice_period_days': 60},\n                                'property': \"user's apartment\",\n                                'user_intention': 'The user definitely wants to negotiate the '\n                                                  'renewal terms.'},\n            'current_session': {'context': 'The user is busy with the holidays and cannot think '\n                                           'straight.',\n                                'date': '2024-11-25'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/deadline_03/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 224,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "d3b773707040843348b03170ae3d6ad9049b7bbd3b30ce3ad8593f4c53da7f15"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-25",
+                  "active_until": "2024-12-02",
+                  "deadline": "2024-12-02",
+                  "deadline_anchor": "2025-01-31",
+                  "deadline_offset_days": -60,
+                  "id": "apartment_lease_renewal_notice_deadline",
+                  "message_template": "Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by {deadline}; {days_remaining} days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate.",
+                  "severity": "warning",
+                  "type": "deadline"
+                }
+              ],
+              "memory": {
+                "apartment_lease": {
+                  "consequence_if_no_renewal_notice": "The lease auto-converts to month-to-month at a higher rate.",
+                  "expires": "2025-01-31",
+                  "landlord_notice_requirement": {
+                    "action": "give notice if renewing",
+                    "notice_period_days": 60
+                  },
+                  "property": "user's apartment",
+                  "user_intention": "The user definitely wants to negotiate the renewal terms."
+                },
+                "current_session": {
+                  "context": "The user is busy with the holidays and cannot think straight.",
+                  "date": "2024-11-25"
+                }
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "deadline",
+                "message": "Your apartment lease expires on January 31, 2025, and the landlord requires 60 days' notice if you want to renew. You definitely want to negotiate the renewal terms, so give the landlord notice and begin the renewal negotiation by 2024-12-02; 7 days remaining. If you miss the notice requirement, the lease auto-converts to month-to-month at a higher rate."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

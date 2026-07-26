@@ -1,0 +1,338 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_06",
+  "category": "financial_authorization_conflicts",
+  "description": "Investment instruction contradicts stated risk tolerance after life change",
+  "started_at": "2026-07-26T17:01:24.930153+00:00",
+  "completed_at": "2026-07-26T17:01:44.982421+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-08-10",
+      "user_text": "I'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments."
+    },
+    {
+      "session_id": "7",
+      "timestamp": "2024-11-05",
+      "user_text": "My buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "amount": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?15[,]?000",
+                    "text": "$15,000"
+                  }
+                ]
+              },
+              "proposal": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "volatile",
+                    "text": "volatile"
+                  },
+                  {
+                    "pattern": "biotech",
+                    "text": "biotech"
+                  }
+                ]
+              },
+              "preference": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conservative",
+                    "text": "conservative"
+                  },
+                  {
+                    "pattern": "no more risky",
+                    "text": "no more risky"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-08-10",
+            "user_text": "I'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-08-10\n\nComplete user-authored history through this session:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"pregnancy\":{\"status\":\"pregnant\",\"due_month\":\"March\"},\"financial_preferences\":{\"risk_tolerance\":\"more conservative\",\"prohibited_actions\":[\"making risky investments\"],\"reason\":\"pregnancy and anticipated need to conserve money\"}},\"constraints\":[]}",
+                "latency_seconds": 5.869,
+                "usage": {
+                  "prompt_tokens": 1059,
+                  "total_tokens": 1284,
+                  "completion_tokens": 225,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "pregnancy": {
+                    "status": "pregnant",
+                    "due_month": "March"
+                  },
+                  "financial_preferences": {
+                    "risk_tolerance": "more conservative",
+                    "prohibited_actions": [
+                      "making risky investments"
+                    ],
+                    "reason": "pregnancy and anticipated need to conserve money"
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "pregnancy": {
+                "status": "pregnant",
+                "due_month": "March"
+              },
+              "financial_preferences": {
+                "risk_tolerance": "more conservative",
+                "prohibited_actions": [
+                  "making risky investments"
+                ],
+                "reason": "pregnancy and anticipated need to conserve money"
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'financial_preferences': {'prohibited_actions': ['making risky investments'],\n                                      'reason': 'pregnancy and anticipated need to conserve money',\n                                      'risk_tolerance': 'more conservative'},\n            'pregnancy': {'due_month': 'March', 'status': 'pregnant'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/finance_06/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 197,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "cebd3dffd3cad3d5105b6a508cd76e8e6543c33727d744b266f2f429158462c6"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "financial_preferences": {
+                  "prohibited_actions": [
+                    "making risky investments"
+                  ],
+                  "reason": "pregnancy and anticipated need to conserve money",
+                  "risk_tolerance": "more conservative"
+                },
+                "pregnancy": {
+                  "due_month": "March",
+                  "status": "pregnant"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "7",
+            "timestamp": "2024-11-05",
+            "user_text": "My buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-11-05\n\nComplete user-authored history through this session:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\n[2024-11-05; session 7]\nMy buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"pregnancy\":{\"status\":\"pregnant\",\"stated_on\":\"2024-08-10\",\"due\":\"March\"},\"financial_preference\":{\"stated_on\":\"2024-08-10\",\"preference\":\"Be more conservative with money during the pregnancy.\",\"prohibited_action\":\"No more risky investments.\"},\"investment_proposal\":{\"stated_on\":\"2024-11-05\",\"source\":\"A buddy at work gave the user a hot tip.\",\"asset\":\"A small-cap biotech stock\",\"amount\":15000,\"currency\":\"USD\",\"risk_description\":\"Super volatile\",\"potential_return_description\":\"Could 10x\",\"status\":\"The user wants to invest the $15,000; no completion was stated.\"},\"current_session_timestamp\":\"2024-11-05\"},\"constraints\":[{\"id\":\"risky_biotech_investment_conflict\",\"severity\":\"high\",\"type\":\"direct_conflict\",\"message_template\":\"There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference.\",\"active_from\":\"2024-11-05\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null}] }",
+                "latency_seconds": 14.093,
+                "usage": {
+                  "prompt_tokens": 1106,
+                  "total_tokens": 1680,
+                  "completion_tokens": 574,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "pregnancy": {
+                    "status": "pregnant",
+                    "stated_on": "2024-08-10",
+                    "due": "March"
+                  },
+                  "financial_preference": {
+                    "stated_on": "2024-08-10",
+                    "preference": "Be more conservative with money during the pregnancy.",
+                    "prohibited_action": "No more risky investments."
+                  },
+                  "investment_proposal": {
+                    "stated_on": "2024-11-05",
+                    "source": "A buddy at work gave the user a hot tip.",
+                    "asset": "A small-cap biotech stock",
+                    "amount": 15000,
+                    "currency": "USD",
+                    "risk_description": "Super volatile",
+                    "potential_return_description": "Could 10x",
+                    "status": "The user wants to invest the $15,000; no completion was stated."
+                  },
+                  "current_session_timestamp": "2024-11-05"
+                },
+                "constraints": [
+                  {
+                    "id": "risky_biotech_investment_conflict",
+                    "severity": "high",
+                    "type": "direct_conflict",
+                    "message_template": "There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference.",
+                    "active_from": "2024-11-05",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "pregnancy": {
+                "status": "pregnant",
+                "stated_on": "2024-08-10",
+                "due": "March"
+              },
+              "financial_preference": {
+                "stated_on": "2024-08-10",
+                "preference": "Be more conservative with money during the pregnancy.",
+                "prohibited_action": "No more risky investments."
+              },
+              "investment_proposal": {
+                "stated_on": "2024-11-05",
+                "source": "A buddy at work gave the user a hot tip.",
+                "asset": "A small-cap biotech stock",
+                "amount": 15000,
+                "currency": "USD",
+                "risk_description": "Super volatile",
+                "potential_return_description": "Could 10x",
+                "status": "The user wants to invest the $15,000; no completion was stated."
+              },
+              "current_session_timestamp": "2024-11-05"
+            },
+            "constraints": [
+              {
+                "id": "risky_biotech_investment_conflict",
+                "severity": "high",
+                "type": "direct_conflict",
+                "message_template": "There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference.",
+                "active_from": "2024-11-05",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-05',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'risky_biotech_investment_conflict',\n                  'message_template': 'There is a conflict between your stated preference on '\n                                      '2024-08-10 to be more conservative with money during your '\n                                      'pregnancy and make no more risky investments, and your '\n                                      '2024-11-05 proposal to put $15,000 into a super-volatile '\n                                      'small-cap biotech stock based on a hot tip from your buddy '\n                                      'at work. Proceeding would violate your stated '\n                                      'no-risky-investments preference; do not make this '\n                                      'investment unless you revise that preference.',\n                  'severity': 'high',\n                  'type': 'direct_conflict'}],\n 'memory': {'current_session_timestamp': '2024-11-05',\n            'financial_preference': {'preference': 'Be more conservative with money during the '\n                                                   'pregnancy.',\n                                     'prohibited_action': 'No more risky investments.',\n                                     'stated_on': '2024-08-10'},\n            'investment_proposal': {'amount': 15000,\n                                    'asset': 'A small-cap biotech stock',\n                                    'currency': 'USD',\n                                    'potential_return_description': 'Could 10x',\n                                    'risk_description': 'Super volatile',\n                                    'source': 'A buddy at work gave the user a hot tip.',\n                                    'stated_on': '2024-11-05',\n                                    'status': 'The user wants to invest the $15,000; no completion '\n                                              'was stated.'},\n            'pregnancy': {'due': 'March', 'stated_on': '2024-08-10', 'status': 'pregnant'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/finance_06/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 236,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "1ef0b32e394620155998c979951b4961174d255e5c40717e69f9f5709498a618"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-05",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "risky_biotech_investment_conflict",
+                  "message_template": "There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference.",
+                  "severity": "high",
+                  "type": "direct_conflict"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-11-05",
+                "financial_preference": {
+                  "preference": "Be more conservative with money during the pregnancy.",
+                  "prohibited_action": "No more risky investments.",
+                  "stated_on": "2024-08-10"
+                },
+                "investment_proposal": {
+                  "amount": 15000,
+                  "asset": "A small-cap biotech stock",
+                  "currency": "USD",
+                  "potential_return_description": "Could 10x",
+                  "risk_description": "Super volatile",
+                  "source": "A buddy at work gave the user a hot tip.",
+                  "stated_on": "2024-11-05",
+                  "status": "The user wants to invest the $15,000; no completion was stated."
+                },
+                "pregnancy": {
+                  "due": "March",
+                  "stated_on": "2024-08-10",
+                  "status": "pregnant"
+                }
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "direct_conflict",
+                "message": "There is a conflict between your stated preference on 2024-08-10 to be more conservative with money during your pregnancy and make no more risky investments, and your 2024-11-05 proposal to put $15,000 into a super-volatile small-cap biotech stock based on a hot tip from your buddy at work. Proceeding would violate your stated no-risky-investments preference; do not make this investment unless you revise that preference."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,566 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "travel_03",
+  "category": "travel_document_validity",
+  "description": "Schengen visa single-entry already used, second trip planned",
+  "started_at": "2026-07-26T16:59:03.600639+00:00",
+  "completed_at": "2026-07-26T16:59:46.551666+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-09-20",
+      "user_text": "My Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024."
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-11-05",
+      "user_text": "Just got back from an amazing week in Paris. The croissants were unreal."
+    },
+    {
+      "session_id": "10",
+      "timestamp": "2024-12-01",
+      "user_text": "I'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 2,
+      "trigger_candidates": [
+        "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan.",
+        "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "constraint": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "single[- ]?entry",
+                    "text": "single-entry"
+                  }
+                ]
+              },
+              "prior_use": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "paris",
+                    "text": "Paris"
+                  }
+                ]
+              },
+              "new_trip": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "berlin",
+                    "text": "Berlin"
+                  }
+                ]
+              },
+              "consequence": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "new visa",
+                    "text": "new visa"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "passed": false,
+            "matched_groups": 1,
+            "required_groups": 4,
+            "groups": {
+              "constraint": {
+                "passed": false,
+                "matches": []
+              },
+              "prior_use": {
+                "passed": false,
+                "matches": []
+              },
+              "new_trip": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "berlin",
+                    "text": "Berlin"
+                  }
+                ]
+              },
+              "consequence": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-09-20",
+            "user_text": "My Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-09-20\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-09-20\",\"schengen_visa\":{\"status\":\"approved\",\"entry_type\":\"single-entry\",\"valid_from\":\"2024-10-01\",\"valid_until\":\"2024-12-31\",\"credential\":\"Schengen visa\"}},\"constraints\":[]}",
+                "latency_seconds": 16.762,
+                "usage": {
+                  "requests": 1,
+                  "total_tokens": 1190,
+                  "completion_tokens": 129,
+                  "prompt_tokens": 1061
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-09-20",
+                  "schengen_visa": {
+                    "status": "approved",
+                    "entry_type": "single-entry",
+                    "valid_from": "2024-10-01",
+                    "valid_until": "2024-12-31",
+                    "credential": "Schengen visa"
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-09-20",
+              "schengen_visa": {
+                "status": "approved",
+                "entry_type": "single-entry",
+                "valid_from": "2024-10-01",
+                "valid_until": "2024-12-31",
+                "credential": "Schengen visa"
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'current_session_timestamp': '2024-09-20',\n            'schengen_visa': {'credential': 'Schengen visa',\n                              'entry_type': 'single-entry',\n                              'status': 'approved',\n                              'valid_from': '2024-10-01',\n                              'valid_until': '2024-12-31'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/travel_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 195,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "2277b2c1cc90533ad7fb02f87dbf73b03293883f8fd9773b29f09c17f9d66bc8"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "current_session_timestamp": "2024-09-20",
+                "schengen_visa": {
+                  "credential": "Schengen visa",
+                  "entry_type": "single-entry",
+                  "status": "approved",
+                  "valid_from": "2024-10-01",
+                  "valid_until": "2024-12-31"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-11-05",
+            "user_text": "Just got back from an amazing week in Paris. The croissants were unreal."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-11-05\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\n[2024-11-05; session 6]\nJust got back from an amazing week in Paris. The croissants were unreal.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"schengen_visa\":{\"status\":\"came through\",\"entry_type\":\"single-entry\",\"valid_from\":\"2024-10-01\",\"valid_until\":\"2024-12-31\"},\"paris_trip\":{\"destination\":\"Paris\",\"duration\":\"one week\",\"status\":\"returned\",\"returned_on\":\"2024-11-05\",\"experience\":\"amazing\",\"croissants_opinion\":\"the croissants were unreal\"}},\"constraints\":[]}",
+                "latency_seconds": 6.735,
+                "usage": {
+                  "prompt_tokens": 1089,
+                  "total_tokens": 1376,
+                  "completion_tokens": 287,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "schengen_visa": {
+                    "status": "came through",
+                    "entry_type": "single-entry",
+                    "valid_from": "2024-10-01",
+                    "valid_until": "2024-12-31"
+                  },
+                  "paris_trip": {
+                    "destination": "Paris",
+                    "duration": "one week",
+                    "status": "returned",
+                    "returned_on": "2024-11-05",
+                    "experience": "amazing",
+                    "croissants_opinion": "the croissants were unreal"
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "schengen_visa": {
+                "status": "came through",
+                "entry_type": "single-entry",
+                "valid_from": "2024-10-01",
+                "valid_until": "2024-12-31"
+              },
+              "paris_trip": {
+                "destination": "Paris",
+                "duration": "one week",
+                "status": "returned",
+                "returned_on": "2024-11-05",
+                "experience": "amazing",
+                "croissants_opinion": "the croissants were unreal"
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'paris_trip': {'croissants_opinion': 'the croissants were unreal',\n                           'destination': 'Paris',\n                           'duration': 'one week',\n                           'experience': 'amazing',\n                           'returned_on': '2024-11-05',\n                           'status': 'returned'},\n            'schengen_visa': {'entry_type': 'single-entry',\n                              'status': 'came through',\n                              'valid_from': '2024-10-01',\n                              'valid_until': '2024-12-31'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/travel_03/02_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 205,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "6d42f4f705bb084cece5b036da00f1fa7b81ad16be7fbcb65105b9569027a33b"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "paris_trip": {
+                  "croissants_opinion": "the croissants were unreal",
+                  "destination": "Paris",
+                  "duration": "one week",
+                  "experience": "amazing",
+                  "returned_on": "2024-11-05",
+                  "status": "returned"
+                },
+                "schengen_visa": {
+                  "entry_type": "single-entry",
+                  "status": "came through",
+                  "valid_from": "2024-10-01",
+                  "valid_until": "2024-12-31"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "10",
+            "timestamp": "2024-12-01",
+            "user_text": "I'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?"
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-12-01\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\n[2024-11-05; session 6]\nJust got back from an amazing week in Paris. The croissants were unreal.\n\n[2024-12-01; session 10]\nI'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-12-01\",\"history\":[{\"session_date\":\"2024-09-20\",\"session_number\":3,\"facts\":[{\"type\":\"visa\",\"visa_type\":\"Schengen visa\",\"status\":\"came through\",\"entry_type\":\"single-entry\",\"valid_from\":\"2024-10-01\",\"valid_until\":\"2024-12-31\"}]},{\"session_date\":\"2024-11-05\",\"session_number\":6,\"facts\":[{\"type\":\"trip\",\"destination\":\"Paris\",\"duration\":\"one week\",\"status\":\"completed\",\"return_status\":\"just got back\",\"experience\":\"amazing\",\"food_preference_or_observation\":\"The croissants were unreal.\"}]},{\"session_date\":\"2024-12-01\",\"session_number\":10,\"facts\":[{\"type\":\"travel_plan\",\"destination\":\"Berlin\",\"occasion\":\"New Year's Eve\",\"status\":\"tentative\",\"date_range_start\":\"2024-12-28\",\"date_range_end\":\"2025-01-02\",\"wording\":\"Maybe December 28 to January 2\"}]}]},\"constraints\":[{\"id\":\"schengen_single_entry_used\",\"severity\":\"high\",\"type\":\"credential_exhausted\",\"message_template\":\"The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan.\",\"active_from\":\"2024-12-01\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null},{\"id\":\"schengen_validity_window\",\"severity\":\"high\",\"type\":\"plan_outside_validity_window\",\"message_template\":\"The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan.\",\"active_from\":\"2024-12-01\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null}]}",
+                "latency_seconds": 19.321,
+                "usage": {
+                  "prompt_tokens": 1123,
+                  "total_tokens": 2110,
+                  "completion_tokens": 987,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-12-01",
+                  "history": [
+                    {
+                      "session_date": "2024-09-20",
+                      "session_number": 3,
+                      "facts": [
+                        {
+                          "type": "visa",
+                          "visa_type": "Schengen visa",
+                          "status": "came through",
+                          "entry_type": "single-entry",
+                          "valid_from": "2024-10-01",
+                          "valid_until": "2024-12-31"
+                        }
+                      ]
+                    },
+                    {
+                      "session_date": "2024-11-05",
+                      "session_number": 6,
+                      "facts": [
+                        {
+                          "type": "trip",
+                          "destination": "Paris",
+                          "duration": "one week",
+                          "status": "completed",
+                          "return_status": "just got back",
+                          "experience": "amazing",
+                          "food_preference_or_observation": "The croissants were unreal."
+                        }
+                      ]
+                    },
+                    {
+                      "session_date": "2024-12-01",
+                      "session_number": 10,
+                      "facts": [
+                        {
+                          "type": "travel_plan",
+                          "destination": "Berlin",
+                          "occasion": "New Year's Eve",
+                          "status": "tentative",
+                          "date_range_start": "2024-12-28",
+                          "date_range_end": "2025-01-02",
+                          "wording": "Maybe December 28 to January 2"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "schengen_single_entry_used",
+                    "severity": "high",
+                    "type": "credential_exhausted",
+                    "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan.",
+                    "active_from": "2024-12-01",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  },
+                  {
+                    "id": "schengen_validity_window",
+                    "severity": "high",
+                    "type": "plan_outside_validity_window",
+                    "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan.",
+                    "active_from": "2024-12-01",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-12-01",
+              "history": [
+                {
+                  "session_date": "2024-09-20",
+                  "session_number": 3,
+                  "facts": [
+                    {
+                      "type": "visa",
+                      "visa_type": "Schengen visa",
+                      "status": "came through",
+                      "entry_type": "single-entry",
+                      "valid_from": "2024-10-01",
+                      "valid_until": "2024-12-31"
+                    }
+                  ]
+                },
+                {
+                  "session_date": "2024-11-05",
+                  "session_number": 6,
+                  "facts": [
+                    {
+                      "type": "trip",
+                      "destination": "Paris",
+                      "duration": "one week",
+                      "status": "completed",
+                      "return_status": "just got back",
+                      "experience": "amazing",
+                      "food_preference_or_observation": "The croissants were unreal."
+                    }
+                  ]
+                },
+                {
+                  "session_date": "2024-12-01",
+                  "session_number": 10,
+                  "facts": [
+                    {
+                      "type": "travel_plan",
+                      "destination": "Berlin",
+                      "occasion": "New Year's Eve",
+                      "status": "tentative",
+                      "date_range_start": "2024-12-28",
+                      "date_range_end": "2025-01-02",
+                      "wording": "Maybe December 28 to January 2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "schengen_single_entry_used",
+                "severity": "high",
+                "type": "credential_exhausted",
+                "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan.",
+                "active_from": "2024-12-01",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              },
+              {
+                "id": "schengen_validity_window",
+                "severity": "high",
+                "type": "plan_outside_validity_window",
+                "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan.",
+                "active_from": "2024-12-01",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-12-01',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'schengen_single_entry_used',\n                  'message_template': \"The proposed Berlin New Year's Eve trip from December 28, \"\n                                      '2024 to January 2, 2025 conflicts with your single-entry '\n                                      'Schengen visa because your completed week in Paris used the '\n                                      \"visa's one permitted entry. You cannot use that visa for \"\n                                      'Berlin; you need a new visa or a changed plan.',\n                  'severity': 'high',\n                  'type': 'credential_exhausted'},\n                 {'active_from': '2024-12-01',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'schengen_validity_window',\n                  'message_template': \"The proposed Berlin New Year's Eve trip from December 28, \"\n                                      \"2024 to January 2, 2025 conflicts with your Schengen visa's \"\n                                      'validity window of October 1 through December 31, 2024 '\n                                      'because January 1 and January 2, 2025 occur after the visa '\n                                      'expires. You need a visa valid for the full trip or a '\n                                      'changed plan.',\n                  'severity': 'high',\n                  'type': 'plan_outside_validity_window'}],\n 'memory': {'current_session_timestamp': '2024-12-01',\n            'history': [{'facts': [{'entry_type': 'single-entry',\n                                    'status': 'came through',\n                                    'type': 'visa',\n                                    'valid_from': '2024-10-01',\n                                    'valid_until': '2024-12-31',\n                                    'visa_type': 'Schengen visa'}],\n                         'session_date': '2024-09-20',\n                         'session_number': 3},\n                        {'facts': [{'destination': 'Paris',\n                                    'duration': 'one week',\n                                    'experience': 'amazing',\n                                    'food_preference_or_observation': 'The croissants were unreal.',\n                                    'return_status': 'just got back',\n                                    'status': 'completed',\n                                    'type': 'trip'}],\n                         'session_date': '2024-11-05',\n                         'session_number': 6},\n                        {'facts': [{'date_range_end': '2025-01-02',\n                                    'date_range_start': '2024-12-28',\n                                    'destination': 'Berlin',\n                                    'occasion': \"New Year's Eve\",\n                                    'status': 'tentative',\n                                    'type': 'travel_plan',\n                                    'wording': 'Maybe December 28 to January 2'}],\n                         'session_date': '2024-12-01',\n                         'session_number': 10}]}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/travel_03/03_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 291,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "1de146146ae3fd123d8dcd5921d9fb843b6315b00fb60ca90b67ef21622644c0"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-12-01",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "schengen_single_entry_used",
+                  "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan.",
+                  "severity": "high",
+                  "type": "credential_exhausted"
+                },
+                {
+                  "active_from": "2024-12-01",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "schengen_validity_window",
+                  "message_template": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan.",
+                  "severity": "high",
+                  "type": "plan_outside_validity_window"
+                }
+              ],
+              "memory": {
+                "current_session_timestamp": "2024-12-01",
+                "history": [
+                  {
+                    "facts": [
+                      {
+                        "entry_type": "single-entry",
+                        "status": "came through",
+                        "type": "visa",
+                        "valid_from": "2024-10-01",
+                        "valid_until": "2024-12-31",
+                        "visa_type": "Schengen visa"
+                      }
+                    ],
+                    "session_date": "2024-09-20",
+                    "session_number": 3
+                  },
+                  {
+                    "facts": [
+                      {
+                        "destination": "Paris",
+                        "duration": "one week",
+                        "experience": "amazing",
+                        "food_preference_or_observation": "The croissants were unreal.",
+                        "return_status": "just got back",
+                        "status": "completed",
+                        "type": "trip"
+                      }
+                    ],
+                    "session_date": "2024-11-05",
+                    "session_number": 6
+                  },
+                  {
+                    "facts": [
+                      {
+                        "date_range_end": "2025-01-02",
+                        "date_range_start": "2024-12-28",
+                        "destination": "Berlin",
+                        "occasion": "New Year's Eve",
+                        "status": "tentative",
+                        "type": "travel_plan",
+                        "wording": "Maybe December 28 to January 2"
+                      }
+                    ],
+                    "session_date": "2024-12-01",
+                    "session_number": 10
+                  }
+                ]
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "credential_exhausted",
+                "message": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your single-entry Schengen visa because your completed week in Paris used the visa's one permitted entry. You cannot use that visa for Berlin; you need a new visa or a changed plan."
+              },
+              {
+                "severity": "high",
+                "type": "plan_outside_validity_window",
+                "message": "The proposed Berlin New Year's Eve trip from December 28, 2024 to January 2, 2025 conflicts with your Schengen visa's validity window of October 1 through December 31, 2024 because January 1 and January 2, 2025 occur after the visa expires. You need a visa valid for the full trip or a changed plan."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

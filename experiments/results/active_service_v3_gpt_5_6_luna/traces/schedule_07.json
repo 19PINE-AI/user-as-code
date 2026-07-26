@@ -1,0 +1,419 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_07",
+  "category": "scheduling_conflicts",
+  "description": "Marathon training long run conflicts with friend's wedding",
+  "started_at": "2026-07-26T17:03:03.299331+00:00",
+  "completed_at": "2026-07-26T17:03:21.638465+00:00",
+  "sessions": [
+    {
+      "session_id": "2",
+      "timestamp": "2024-08-15",
+      "user_text": "My best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday."
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-09-20",
+      "user_text": "Starting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "20[- ]?mile",
+                    "text": "20-mile"
+                  }
+                ]
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "oct(?:ober)?\\s+26",
+                    "text": "October 26"
+                  }
+                ]
+              },
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "wedding",
+                    "text": "wedding"
+                  },
+                  {
+                    "pattern": "groomsman",
+                    "text": "groomsman"
+                  },
+                  {
+                    "pattern": "jake",
+                    "text": "Jake"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "2",
+            "timestamp": "2024-08-15",
+            "user_text": "My best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-08-15\n\nComplete user-authored history through this session:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_timestamp\":\"2024-08-15\",\"best_friend\":{\"name\":\"Jake\",\"event\":\"wedding\",\"wedding_date\":\"2024-10-26\",\"user_role\":\"groomsman\",\"attendance_requirement\":\"must be there the whole weekend\",\"schedule\":{\"rehearsal_dinner\":{\"date\":\"2024-10-25\",\"time\":\"Friday night\"},\"wedding\":{\"date\":\"2024-10-26\",\"time\":\"Saturday\"},\"brunch\":{\"date\":\"2024-10-27\",\"time\":\"Sunday\"}}}},\"constraints\":[]}",
+                "latency_seconds": 6.523,
+                "usage": {
+                  "prompt_tokens": 1073,
+                  "total_tokens": 1359,
+                  "completion_tokens": 286,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_timestamp": "2024-08-15",
+                  "best_friend": {
+                    "name": "Jake",
+                    "event": "wedding",
+                    "wedding_date": "2024-10-26",
+                    "user_role": "groomsman",
+                    "attendance_requirement": "must be there the whole weekend",
+                    "schedule": {
+                      "rehearsal_dinner": {
+                        "date": "2024-10-25",
+                        "time": "Friday night"
+                      },
+                      "wedding": {
+                        "date": "2024-10-26",
+                        "time": "Saturday"
+                      },
+                      "brunch": {
+                        "date": "2024-10-27",
+                        "time": "Sunday"
+                      }
+                    }
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_timestamp": "2024-08-15",
+              "best_friend": {
+                "name": "Jake",
+                "event": "wedding",
+                "wedding_date": "2024-10-26",
+                "user_role": "groomsman",
+                "attendance_requirement": "must be there the whole weekend",
+                "schedule": {
+                  "rehearsal_dinner": {
+                    "date": "2024-10-25",
+                    "time": "Friday night"
+                  },
+                  "wedding": {
+                    "date": "2024-10-26",
+                    "time": "Saturday"
+                  },
+                  "brunch": {
+                    "date": "2024-10-27",
+                    "time": "Sunday"
+                  }
+                }
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'best_friend': {'attendance_requirement': 'must be there the whole weekend',\n                            'event': 'wedding',\n                            'name': 'Jake',\n                            'schedule': {'brunch': {'date': '2024-10-27', 'time': 'Sunday'},\n                                         'rehearsal_dinner': {'date': '2024-10-25',\n                                                              'time': 'Friday night'},\n                                         'wedding': {'date': '2024-10-26', 'time': 'Saturday'}},\n                            'user_role': 'groomsman',\n                            'wedding_date': '2024-10-26'},\n            'current_session_timestamp': '2024-08-15'}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/schedule_07/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 215,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "999eb3633f8074cb96ac391615f52cfea5480ccf6ab788498de3d3fc9709a73c"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "best_friend": {
+                  "attendance_requirement": "must be there the whole weekend",
+                  "event": "wedding",
+                  "name": "Jake",
+                  "schedule": {
+                    "brunch": {
+                      "date": "2024-10-27",
+                      "time": "Sunday"
+                    },
+                    "rehearsal_dinner": {
+                      "date": "2024-10-25",
+                      "time": "Friday night"
+                    },
+                    "wedding": {
+                      "date": "2024-10-26",
+                      "time": "Saturday"
+                    }
+                  },
+                  "user_role": "groomsman",
+                  "wedding_date": "2024-10-26"
+                },
+                "current_session_timestamp": "2024-08-15"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-09-20",
+            "user_text": "Starting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-09-20\n\nComplete user-authored history through this session:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\n[2024-09-20; session 6]\nStarting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"current_session_date\":\"2024-09-20\",\"commitments\":[{\"person\":\"Jake\",\"event\":\"wedding\",\"role\":\"groomsman\",\"date\":\"2024-10-26\",\"weekday\":\"Saturday\",\"attendance_requirement\":\"be there the whole weekend\",\"rehearsal_dinner\":{\"date\":\"2024-10-25\",\"weekday\":\"Friday\",\"time\":\"night\"},\"wedding_ceremony_or_reception\":{\"date\":\"2024-10-26\",\"weekday\":\"Saturday\"},\"brunch\":{\"date\":\"2024-10-27\",\"weekday\":\"Sunday\",\"time\":\"brunch\"}},{\"activity\":\"marathon training plan\",\"goal\":\"December marathon\",\"start_date\":\"2024-09-20\",\"longest_training_run\":{\"distance_miles\":20,\"date\":\"2024-10-26\",\"weekday\":\"Saturday\",\"importance\":\"critical workout\",\"can_skip\":false}}]},\"constraints\":[{\"id\":\"wedding_marathon_run_conflict\",\"severity\":\"high\",\"type\":\"schedule_conflict\",\"message_template\":\"There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment.\",\"active_from\":\"2024-09-20\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null}]}",
+                "latency_seconds": 11.728,
+                "usage": {
+                  "prompt_tokens": 1123,
+                  "total_tokens": 1607,
+                  "completion_tokens": 484,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "current_session_date": "2024-09-20",
+                  "commitments": [
+                    {
+                      "person": "Jake",
+                      "event": "wedding",
+                      "role": "groomsman",
+                      "date": "2024-10-26",
+                      "weekday": "Saturday",
+                      "attendance_requirement": "be there the whole weekend",
+                      "rehearsal_dinner": {
+                        "date": "2024-10-25",
+                        "weekday": "Friday",
+                        "time": "night"
+                      },
+                      "wedding_ceremony_or_reception": {
+                        "date": "2024-10-26",
+                        "weekday": "Saturday"
+                      },
+                      "brunch": {
+                        "date": "2024-10-27",
+                        "weekday": "Sunday",
+                        "time": "brunch"
+                      }
+                    },
+                    {
+                      "activity": "marathon training plan",
+                      "goal": "December marathon",
+                      "start_date": "2024-09-20",
+                      "longest_training_run": {
+                        "distance_miles": 20,
+                        "date": "2024-10-26",
+                        "weekday": "Saturday",
+                        "importance": "critical workout",
+                        "can_skip": false
+                      }
+                    }
+                  ]
+                },
+                "constraints": [
+                  {
+                    "id": "wedding_marathon_run_conflict",
+                    "severity": "high",
+                    "type": "schedule_conflict",
+                    "message_template": "There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment.",
+                    "active_from": "2024-09-20",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "current_session_date": "2024-09-20",
+              "commitments": [
+                {
+                  "person": "Jake",
+                  "event": "wedding",
+                  "role": "groomsman",
+                  "date": "2024-10-26",
+                  "weekday": "Saturday",
+                  "attendance_requirement": "be there the whole weekend",
+                  "rehearsal_dinner": {
+                    "date": "2024-10-25",
+                    "weekday": "Friday",
+                    "time": "night"
+                  },
+                  "wedding_ceremony_or_reception": {
+                    "date": "2024-10-26",
+                    "weekday": "Saturday"
+                  },
+                  "brunch": {
+                    "date": "2024-10-27",
+                    "weekday": "Sunday",
+                    "time": "brunch"
+                  }
+                },
+                {
+                  "activity": "marathon training plan",
+                  "goal": "December marathon",
+                  "start_date": "2024-09-20",
+                  "longest_training_run": {
+                    "distance_miles": 20,
+                    "date": "2024-10-26",
+                    "weekday": "Saturday",
+                    "importance": "critical workout",
+                    "can_skip": false
+                  }
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "id": "wedding_marathon_run_conflict",
+                "severity": "high",
+                "type": "schedule_conflict",
+                "message_template": "There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment.",
+                "active_from": "2024-09-20",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-09-20',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'wedding_marathon_run_conflict',\n                  'message_template': \"There is a conflict between Jake's wedding weekend, which \"\n                                      'requires you to attend as a groomsman from the rehearsal '\n                                      'dinner on Friday October 25 through brunch on Sunday '\n                                      \"October 27, and your marathon training plan's critical \"\n                                      '20-mile longest training run scheduled for Saturday October '\n                                      '26. You cannot both be present for the full wedding weekend '\n                                      'and complete the 20-mile run as scheduled, so you must '\n                                      'resolve the conflict by changing the run or arranging an '\n                                      'alternative to part of the wedding commitment.',\n                  'severity': 'high',\n                  'type': 'schedule_conflict'}],\n 'memory': {'commitments': [{'attendance_requirement': 'be there the whole weekend',\n                             'brunch': {'date': '2024-10-27',\n                                        'time': 'brunch',\n                                        'weekday': 'Sunday'},\n                             'date': '2024-10-26',\n                             'event': 'wedding',\n                             'person': 'Jake',\n                             'rehearsal_dinner': {'date': '2024-10-25',\n                                                  'time': 'night',\n                                                  'weekday': 'Friday'},\n                             'role': 'groomsman',\n                             'wedding_ceremony_or_reception': {'date': '2024-10-26',\n                                                               'weekday': 'Saturday'},\n                             'weekday': 'Saturday'},\n                            {'activity': 'marathon training plan',\n                             'goal': 'December marathon',\n                             'longest_training_run': {'can_skip': False,\n                                                      'date': '2024-10-26',\n                                                      'distance_miles': 20,\n                                                      'importance': 'critical workout',\n                                                      'weekday': 'Saturday'},\n                             'start_date': '2024-09-20'}],\n            'current_session_date': '2024-09-20'}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/schedule_07/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 259,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "81048db3777b88feff8877f705a23be2a6ced50fa3fa8a48a19e17bd18d2e074"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-09-20",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "wedding_marathon_run_conflict",
+                  "message_template": "There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment.",
+                  "severity": "high",
+                  "type": "schedule_conflict"
+                }
+              ],
+              "memory": {
+                "commitments": [
+                  {
+                    "attendance_requirement": "be there the whole weekend",
+                    "brunch": {
+                      "date": "2024-10-27",
+                      "time": "brunch",
+                      "weekday": "Sunday"
+                    },
+                    "date": "2024-10-26",
+                    "event": "wedding",
+                    "person": "Jake",
+                    "rehearsal_dinner": {
+                      "date": "2024-10-25",
+                      "time": "night",
+                      "weekday": "Friday"
+                    },
+                    "role": "groomsman",
+                    "wedding_ceremony_or_reception": {
+                      "date": "2024-10-26",
+                      "weekday": "Saturday"
+                    },
+                    "weekday": "Saturday"
+                  },
+                  {
+                    "activity": "marathon training plan",
+                    "goal": "December marathon",
+                    "longest_training_run": {
+                      "can_skip": false,
+                      "date": "2024-10-26",
+                      "distance_miles": 20,
+                      "importance": "critical workout",
+                      "weekday": "Saturday"
+                    },
+                    "start_date": "2024-09-20"
+                  }
+                ],
+                "current_session_date": "2024-09-20"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "schedule_conflict",
+                "message": "There is a conflict between Jake's wedding weekend, which requires you to attend as a groomsman from the rehearsal dinner on Friday October 25 through brunch on Sunday October 27, and your marathon training plan's critical 20-mile longest training run scheduled for Saturday October 26. You cannot both be present for the full wedding weekend and complete the 20-mile run as scheduled, so you must resolve the conflict by changing the run or arranging an alternative to part of the wedding commitment."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "benchmark_protocol_sha256": "398bf58206385fe60f847620bd395e04ac8804250bc90967d65bcb286bb5e9a2",
+  "source_suite_sha256": "a9e77af758d8a7f18d0ba1ba0b387c87a9ba770e1fb7d46f05db8328ad2931dd",
+  "engine_id": "active-service-constraint-ir-v1",
+  "engine_sha256": "07319afc02b4b19979c34dbbd408a5c3e054537f6e6b2f8d5a6bcdc7ab53a372",
+  "runner_sha256": "8d45651eff1e47820dec84ff74231c6ee99c607313e7fdff1ed848e40e9ad424",
+  "sandbox_sha256": "aaa68e85acce43c9cb0402a972cbbc040ce59aba1b8f3f282309ca7ce767ee46",
+  "git_commit": "c0bd75d9b92841dbec66b6b35fa3e42d609c5cf6",
+  "model": {
+    "name": "gpt-5.6-luna",
+    "api": "Krill AI API",
+    "request_profile": "shared Krill client with the OpenAI SDK request identity",
+    "generation_parameters": "Krill provider defaults"
+  },
+  "selected_ids": [
+    "travel_03",
+    "travel_07",
+    "finance_01",
+    "finance_02",
+    "finance_03",
+    "finance_05",
+    "finance_06",
+    "schedule_01",
+    "schedule_02",
+    "schedule_03",
+    "schedule_04",
+    "schedule_06",
+    "schedule_07",
+    "schedule_08",
+    "deadline_03",
+    "deadline_05",
+    "deadline_07"
+  ],
+  "complete_regression_suite": true,
+  "started_at": "2026-07-26T16:59:03.600402+00:00",
+  "completed_at": "2026-07-26T17:05:10.920149+00:00",
+  "usage": {
+    "requests": 36,
+    "total_tokens": 54416,
+    "completion_tokens": 15125,
+    "prompt_tokens": 39291
+  },
+  "summary": {
+    "case_count": 17,
+    "by_system": {
+      "uac": {
+        "passed": 17,
+        "total": 17,
+        "recall": 1.0,
+        "wilson_95": [
+          0.815682,
+          1.0
+        ],
+        "by_category": {
+          "financial_authorization_conflicts": {
+            "passed": 5,
+            "total": 5,
+            "recall": 1.0
+          },
+          "scheduling_conflicts": {
+            "passed": 7,
+            "total": 7,
+            "recall": 1.0
+          },
+          "travel_document_validity": {
+            "passed": 2,
+            "total": 2,
+            "recall": 1.0
+          },
+          "warranty_deadline_expiration": {
+            "passed": 3,
+            "total": 3,
+            "recall": 1.0
+          }
+        }
+      }
+    },
+    "pairwise": {}
+  }
+}

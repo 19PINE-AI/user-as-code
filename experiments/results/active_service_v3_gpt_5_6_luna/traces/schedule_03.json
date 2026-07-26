@@ -1,0 +1,311 @@
+{
+  "system_id": "active-service-v3.0-regression",
+  "benchmark_protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_03",
+  "category": "scheduling_conflicts",
+  "description": "Child's school play conflicts with business trip",
+  "started_at": "2026-07-26T17:02:17.415127+00:00",
+  "completed_at": "2026-07-26T17:02:32.198185+00:00",
+  "sessions": [
+    {
+      "session_id": "2",
+      "timestamp": "2024-09-15",
+      "user_text": "So proud of Emma -- she got the lead role in her school play! The performance is December 12 at 6 PM. I promised her I'd be in the front row."
+    },
+    {
+      "session_id": "8",
+      "timestamp": "2024-11-25",
+      "user_text": "Boss wants me in New York for a client meeting. I'd fly out December 11 and come back December 13. Can you find me hotels near Midtown?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "emma",
+                    "text": "Emma"
+                  },
+                  {
+                    "pattern": "school play",
+                    "text": "school play"
+                  }
+                ]
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "dec(?:ember)?\\s+12",
+                    "text": "December 12"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "new york",
+                    "text": "New York"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  },
+                  {
+                    "pattern": "overlap",
+                    "text": "overlap"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "2",
+            "timestamp": "2024-09-15",
+            "user_text": "So proud of Emma -- she got the lead role in her school play! The performance is December 12 at 6 PM. I promised her I'd be in the front row."
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-09-15\n\nComplete user-authored history through this session:\n[2024-09-15; session 2]\nSo proud of Emma -- she got the lead role in her school play! The performance is December 12 at 6 PM. I promised her I'd be in the front row.\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"session_date\":\"2024-09-15\",\"Emma\":{\"achievement\":\"got the lead role in her school play\",\"performance\":{\"date\":\"2024-12-12\",\"time\":\"18:00\",\"commitment\":\"User promised Emma they would be in the front row\"}}},\"constraints\":[]}",
+                "latency_seconds": 5.121,
+                "usage": {
+                  "prompt_tokens": 1071,
+                  "total_tokens": 1279,
+                  "completion_tokens": 208,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "session_date": "2024-09-15",
+                  "Emma": {
+                    "achievement": "got the lead role in her school play",
+                    "performance": {
+                      "date": "2024-12-12",
+                      "time": "18:00",
+                      "commitment": "User promised Emma they would be in the front row"
+                    }
+                  }
+                },
+                "constraints": []
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "session_date": "2024-09-15",
+              "Emma": {
+                "achievement": "got the lead role in her school play",
+                "performance": {
+                  "date": "2024-12-12",
+                  "time": "18:00",
+                  "commitment": "User promised Emma they would be in the front row"
+                }
+              }
+            },
+            "constraints": []
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [],\n 'memory': {'Emma': {'achievement': 'got the lead role in her school play',\n                     'performance': {'commitment': 'User promised Emma they would be in the front '\n                                                   'row',\n                                     'date': '2024-12-12',\n                                     'time': '18:00'}},\n            'session_date': '2024-09-15'}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/schedule_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 195,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "27f9acc5a9cae46dcfc36d667e31a7ae1b93495245c4674d3e2af7a47069350d"
+          },
+          "execution": {
+            "state": {
+              "constraints": [],
+              "memory": {
+                "Emma": {
+                  "achievement": "got the lead role in her school play",
+                  "performance": {
+                    "commitment": "User promised Emma they would be in the front row",
+                    "date": "2024-12-12",
+                    "time": "18:00"
+                  }
+                },
+                "session_date": "2024-09-15"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "8",
+            "timestamp": "2024-11-25",
+            "user_text": "Boss wants me in New York for a client meeting. I'd fly out December 11 and come back December 13. Can you find me hotels near Midtown?"
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "system_prompt": "You maintain persistent memory and explicit constraints for a personal assistant.\n\nReturn ONLY one JSON object with exactly two top-level keys: state and constraints.\n\nSTATE\n- state is a JSON object containing every durable fact in the complete user-authored history.\n- Preserve exact names, people, organizations, accounts, amounts, dates, times, commitments, limits, cancellations, preferences, resource availability, credential properties, and unresolved deadlines.\n- Treat the user's stated calendar date and weekday as one authored fact; do not create an alert merely because an external calendar could disagree.\n\nCONSTRAINTS\n- constraints is a JSON list. Each item must have exactly these keys:\n  id, severity, type, message_template, active_from, active_until, deadline,\n  deadline_anchor, deadline_offset_days.\n- id and type are short snake_case strings. severity is info, warning, high, or critical.\n- All date fields are ISO YYYY-MM-DD strings or null. deadline_offset_days is an integer or null.\n- For a direct conflict, active_from is the session date when both sides are first known; active_until is normally null; deadline, deadline_anchor, and deadline_offset_days are null. Exhausted capacity or a completed use is state, not an alert by itself; create a constraint only after a new proposed action attempts to use that exhausted capacity.\n- For an unresolved deadline whose exact date the user states, set deadline to that date. Set active_from, active_until, deadline_anchor, and deadline_offset_days to null.\n- For a deadline derived from a user-stated date and duration, do not calculate the result yourself. Set deadline to null, put the source date in deadline_anchor, and put the signed calendar-day offset in deadline_offset_days (for example, a 30-day window from a purchase uses 30; notice required 60 days before an expiry uses -60). Set active_from and active_until to null.\n- Trusted code derives deadline activation seven calendar days before every deadline and suppresses it after the deadline.\n- It is valid and useful to store a future deadline constraint before it becomes active; trusted code suppresses it until active_from.\n\nWHEN TO CREATE A CONSTRAINT\n- Create one for a concrete conflict between user-stated facts: incompatible events or resources, a proposal over an explicit limit, an action after cancellation/closure, a proposal contrary to an explicit preference, exhausted stated usage, a plan outside a stated validity window, or an unresolved user-stated deadline.\n- Semantic relationships stated by the user count. For example, a completed use consumes a stated single-use credential; an event scheduled during a trip conflicts with the user's availability.\n- Never invent external medical, legal, tax, immigration, financial, travel, or policy rules.\n- Do not create an alert from a lone fact, a future plan that conflicts with nothing, a generic request, or a deadline more than seven days away. Store such facts in state instead. A constraint with a future active_from is dormant, not an alert.\n- Do not treat the current session itself as a violation. It must conflict with or make urgent something else in the accumulated history.\n- Re-evaluate unresolved deadlines after every session even when the newest user message is unrelated to the deadline.\n\nMESSAGE QUALITY\n- Each message must stand alone without access to state.\n- Name both sides of a conflict and the nature of the conflict. Every direct incompatibility message must explicitly use the word \"conflict\"; do not rely only on vague phrases such as \"needs a resolution.\"\n- Include all identifying evidence needed to act: relevant people, event or service names, account or credential, exact dates/times, amounts/limits, prior action or preference, and the grounded consequence or resolution.\n- Repeat the user's concrete nouns and ordinary action verbs instead of replacing them with abstract synonyms. For example, if the credential is a visa, say that the user cannot enter or needs a new visa, not merely that separate authorization is required.\n- State comparisons explicitly: say exceeds, is above, overlaps, occurs after cancellation, or lies outside the stated window rather than merely placing two values or facts next to each other.\n- For every deadline message, name the subject and user-stated action, and use the literal placeholders {deadline} and {days_remaining}. The countdown placeholder must be followed immediately by its unit, as in \"{days_remaining} days remaining.\" Trusted code replaces the placeholders with the exact derived deadline and live count; never hard-code a calculated deadline in the message.\n- Prefer a complete two- or three-sentence alert over a vague or compressed warning.\n\nBefore returning JSON, silently audit that (1) all history facts are represented, (2) every direct actionable relationship is encoded, (3) no alert can fire before its evidence exists, and (4) every message includes both evidence and consequence. Do not return Markdown or commentary.",
+              "user_prompt": "Current session timestamp: 2024-11-25\n\nComplete user-authored history through this session:\n[2024-09-15; session 2]\nSo proud of Emma -- she got the lead role in her school play! The performance is December 12 at 6 PM. I promised her I'd be in the front row.\n\n[2024-11-25; session 8]\nBoss wants me in New York for a client meeting. I'd fly out December 11 and come back December 13. Can you find me hotels near Midtown?\n\nProduce the replacement memory-and-constraint JSON now.",
+              "generation": {
+                "text": "{\"state\":{\"emma\":{\"relationship\":\"daughter or child\",\"achievement\":\"got the lead role in her school play\",\"performance_date\":\"2024-12-12\",\"performance_time\":\"6:00 PM\",\"commitment\":\"user promised Emma they would be in the front row\"},\"new_york_client_meeting\":{\"requested_by\":\"boss\",\"purpose\":\"client meeting\",\"travel_outbound_date\":\"2024-12-11\",\"travel_return_date\":\"2024-12-13\",\"accommodation_preference\":\"hotel near Midtown\"}}, \"constraints\":[{\"id\":\"new_york_trip_emma_play_conflict\",\"severity\":\"high\",\"type\":\"schedule_conflict\",\"message_template\":\"There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them.\",\"active_from\":\"2024-11-25\",\"active_until\":null,\"deadline\":null,\"deadline_anchor\":null,\"deadline_offset_days\":null}]}",
+                "latency_seconds": 9.575,
+                "usage": {
+                  "prompt_tokens": 1115,
+                  "total_tokens": 1568,
+                  "completion_tokens": 453,
+                  "requests": 1
+                }
+              },
+              "ir": {
+                "state": {
+                  "emma": {
+                    "relationship": "daughter or child",
+                    "achievement": "got the lead role in her school play",
+                    "performance_date": "2024-12-12",
+                    "performance_time": "6:00 PM",
+                    "commitment": "user promised Emma they would be in the front row"
+                  },
+                  "new_york_client_meeting": {
+                    "requested_by": "boss",
+                    "purpose": "client meeting",
+                    "travel_outbound_date": "2024-12-11",
+                    "travel_return_date": "2024-12-13",
+                    "accommodation_preference": "hotel near Midtown"
+                  }
+                },
+                "constraints": [
+                  {
+                    "id": "new_york_trip_emma_play_conflict",
+                    "severity": "high",
+                    "type": "schedule_conflict",
+                    "message_template": "There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them.",
+                    "active_from": "2024-11-25",
+                    "active_until": null,
+                    "deadline": null,
+                    "deadline_anchor": null,
+                    "deadline_offset_days": null
+                  }
+                ]
+              }
+            }
+          ],
+          "ir": {
+            "state": {
+              "emma": {
+                "relationship": "daughter or child",
+                "achievement": "got the lead role in her school play",
+                "performance_date": "2024-12-12",
+                "performance_time": "6:00 PM",
+                "commitment": "user promised Emma they would be in the front row"
+              },
+              "new_york_client_meeting": {
+                "requested_by": "boss",
+                "purpose": "client meeting",
+                "travel_outbound_date": "2024-12-11",
+                "travel_return_date": "2024-12-13",
+                "accommodation_preference": "hotel near Midtown"
+              }
+            },
+            "constraints": [
+              {
+                "id": "new_york_trip_emma_play_conflict",
+                "severity": "high",
+                "type": "schedule_conflict",
+                "message_template": "There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them.",
+                "active_from": "2024-11-25",
+                "active_until": null,
+                "deadline": null,
+                "deadline_anchor": null,
+                "deadline_offset_days": null
+              }
+            ]
+          },
+          "source": "from datetime import date\n\nSTATE = {'constraints': [{'active_from': '2024-11-25',\n                  'active_until': None,\n                  'deadline': None,\n                  'deadline_anchor': None,\n                  'deadline_offset_days': None,\n                  'id': 'new_york_trip_emma_play_conflict',\n                  'message_template': 'There is a conflict between your New York trip for your '\n                                      \"boss's client meeting, with travel from December 11 through \"\n                                      \"December 13, and Emma's school play performance on December \"\n                                      '12 at 6:00 PM, where you promised to be in the front row. '\n                                      'The trip overlaps the performance, so you cannot keep both '\n                                      'the New York travel schedule and your promise to attend the '\n                                      'performance without changing one of them.',\n                  'severity': 'high',\n                  'type': 'schedule_conflict'}],\n 'memory': {'emma': {'achievement': 'got the lead role in her school play',\n                     'commitment': 'user promised Emma they would be in the front row',\n                     'performance_date': '2024-12-12',\n                     'performance_time': '6:00 PM',\n                     'relationship': 'daughter or child'},\n            'new_york_client_meeting': {'accommodation_preference': 'hotel near Midtown',\n                                        'purpose': 'client meeting',\n                                        'requested_by': 'boss',\n                                        'travel_outbound_date': '2024-12-11',\n                                        'travel_return_date': '2024-12-13'}}}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n    for constraint in STATE[\"constraints\"]:\n        active_from = date.fromisoformat(constraint[\"active_from\"])\n        active_until_text = constraint[\"active_until\"]\n        active_until = date.fromisoformat(active_until_text) if active_until_text else None\n        if current < active_from or (active_until is not None and current > active_until):\n            continue\n        message = constraint[\"message_template\"]\n        deadline_text = constraint[\"deadline\"]\n        if deadline_text:\n            remaining = (date.fromisoformat(deadline_text) - current).days\n            message = message.replace(\"{days_remaining}\", str(remaining))\n            message = message.replace(\"{deadline}\", deadline_text)\n        alerts.append({\n            \"severity\": constraint[\"severity\"],\n            \"type\": constraint[\"type\"],\n            \"message\": message,\n        })\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v3_gpt_5_6_luna/programs/schedule_03/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 224,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "bff0278606a57c30018c1261467e339b82f743d8e4b4c32816f6e4f338dd0b52"
+          },
+          "execution": {
+            "state": {
+              "constraints": [
+                {
+                  "active_from": "2024-11-25",
+                  "active_until": null,
+                  "deadline": null,
+                  "deadline_anchor": null,
+                  "deadline_offset_days": null,
+                  "id": "new_york_trip_emma_play_conflict",
+                  "message_template": "There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them.",
+                  "severity": "high",
+                  "type": "schedule_conflict"
+                }
+              ],
+              "memory": {
+                "emma": {
+                  "achievement": "got the lead role in her school play",
+                  "commitment": "user promised Emma they would be in the front row",
+                  "performance_date": "2024-12-12",
+                  "performance_time": "6:00 PM",
+                  "relationship": "daughter or child"
+                },
+                "new_york_client_meeting": {
+                  "accommodation_preference": "hotel near Midtown",
+                  "purpose": "client meeting",
+                  "requested_by": "boss",
+                  "travel_outbound_date": "2024-12-11",
+                  "travel_return_date": "2024-12-13"
+                }
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "schedule_conflict",
+                "message": "There is a conflict between your New York trip for your boss's client meeting, with travel from December 11 through December 13, and Emma's school play performance on December 12 at 6:00 PM, where you promised to be in the front row. The trip overlaps the performance, so you cannot keep both the New York travel schedule and your promise to attend the performance without changing one of them."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
