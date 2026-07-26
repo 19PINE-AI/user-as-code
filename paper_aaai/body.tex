@@ -13,7 +13,8 @@ UaC does not claim that Python alone improves reasoning: on clean, already struc
 \begin{itemize}[leftmargin=*]
 \item \textbf{An LLM-generated executable memory view} whose schemas and typed state are generated rather than fixed by a human. The representation supports attribute access and complete-set computation with ordinary Python.
 \item \textbf{A durable-source/write-view architecture} that retains append-only facts and raw conversation separately from the generated code view. The three answer-time channels can therefore recover evidence that the bounded structuring input or generated schema omits.
-\item \textbf{Evaluation across recall and analytical inference:} full 1{,}986-question LOCOMO suites and 100 deterministically scored analytical cases. UaC has the highest observed persistent-system judge accuracy with Luna/Gemini (78.8\%/80.6\%), with metric-dependent token-F1/refusal tradeoffs, and reaches 100\% analytical accuracy.
+\item \textbf{Evaluation across recall and aggregate inference:} full 1{,}986-question LOCOMO suites and 100 deterministically scored aggregate cases. UaC has the highest observed persistent-system judge accuracy with Luna/Gemini (78.8\%/80.6\%), with metric-dependent token-F1/refusal tradeoffs, and reaches 100\% aggregate accuracy.
+\item \textbf{A cue-free executable Active Service protocol} that validates code and alert timing after every session; on 17 Luna cases, UaC passes 4 versus 10 for Full Context and 12 for retrieval.
 \end{itemize}
 
 \section{Related Work}
@@ -234,6 +235,34 @@ The results (Table~\ref{tab:analytical}, Figures~\ref{fig:aggregation-example} a
 
 The divide is between representations a code tool can enumerate (UaC and FC+REPL) and systems limited to retrieved subsets in this harness (Mem0 and MemMachine). The former remain accurate as $N$ grows; the latter do not. This synthetic benchmark deliberately isolates read-side representation and tool access: its inputs are already schema-clean and therefore do not test UaC's conversation-to-structure conversion. UaC matches the JSON+REPL reference here, establishing the value of an enumerable interface rather than an advantage of Python syntax itself.
 
+\subsection{Active Service}
+\label{sec:active-service}
+
+Persistent memory can also support \emph{active service}: detecting when a new plan conflicts with an earlier user constraint without an explicit reminder request. We preregister 17 of 40 standard scenarios whose alerts follow directly from user-stated dates, financial limits or cancellations, calendar/resource conflicts, and deadlines. The other 23 require external rules, contain ambiguous arithmetic or subjective thresholds, or explicitly request a reminder. A separate 20-case hard suite has unreconciled gold assumptions and is excluded. Thus Table~\ref{tab:active-service} is a curated 17-case evaluation, not the deprecated 40- or 60-case pilot.
+
+\textbf{Cue-free execution protocol.} Only user-authored text is retained; assistant continuations and evaluation metadata are hidden. After each session, UaC regenerates a module with JSON-serializable \texttt{STATE} and \texttt{check\_constraints(current\_time)}. An AST validator rejects file, network, process, dynamic-code, reflection, nondeterministic-clock, and non-allowlisted import access; accepted code runs in a resource-limited isolated subprocess. A pass requires every intermediate module to validate and execute, no pre-trigger alert, and a trigger alert matching every frozen regex concept group. There is no LLM judge, partial credit, repair, or override.
+
+Full Context receives all pre-trigger sessions; retrieval receives deterministic lexical BM25 top-1. Both answer the same trigger once. We use one GPT-5.6 Luna completion through the Krill AI API per update or response. A replay validator reconstructs prompts and retrieval, re-executes all 36 persisted programs, recomputes scores and paired tests, and rejects transport errors; all 70 calls completed.
+
+\begin{table}[t]
+\centering
+\caption{Active Service strict recall on 17 cue-free cases with GPT-5.6 Luna. Intervals are two-sided Wilson 95\% CIs.}
+\label{tab:active-service}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrc@{}}
+\toprule
+System & Passed & Recall & 95\% CI \\
+\midrule
+UaC & 4/17 & 23.5\% & [9.6, 47.3] \\
+Full Context & 10/17 & 58.8\% & [36.0, 78.4] \\
+Top-1 retrieval & 12/17 & 70.6\% & [46.9, 86.7] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Of UaC's 13 misses, five are validation/runtime failures, one is a premature alert, and seven are executable but rubric-incomplete. UaC versus Full Context has 2 UaC-only and 8 Full-Context-only passes (two-sided exact McNemar $p{=}.109$); versus retrieval it has 1 and 9 ($p{=}.021$). This does not establish a retrieval advantage: 15 cases have one pre-trigger session, so those baseline prompts are identical but independently sampled; only two exercise selection. With wide intervals and small $n$, the result is narrower: this UaC implementation is not yet reliable under strict timing and execution criteria, and generated-code reliability is a material bottleneck.
+
 \subsection{Retrieval-Channel Ablation}
 \label{sec:channel-ablation}
 
@@ -291,13 +320,13 @@ Modular loading preserves accuracy while reducing prompt tokens 23.8$\times$ and
 
 \section{Discussion}
 
-UaC changes the access interface rather than uniformly improving every recall metric. Fact vectors and raw archives remain effective for surface details, while typed state enables complete-set computation. We therefore report full-LOCOMO token F1, same-backbone judge accuracy, and adversarial refusal separately rather than collapsing them into one score. Judge comparisons are meaningful within a model panel; comparisons across the Luna and Gemini panels also change the judge and should not be interpreted as an isolated backbone effect. The channel ablation shows that structured state changes conventional QA only slightly in this sample, whereas the analytical benchmark demonstrates the value of a code-readable, enumerable representation. Retrieval mechanisms remain complementary.
+UaC changes the access interface rather than uniformly improving recall. We report LOCOMO token F1, within-panel same-backbone judge accuracy, and adversarial refusal separately; cross-panel judge comparisons also change the judge. The channel ablation shows that structured state changes conventional QA only slightly, whereas the aggregate benchmark demonstrates the value of an enumerable representation. Retrieval remains complementary. Active Service further requires every generated view to remain executable and correctly timed, a reliability not implied by aggregate accuracy.
 
-The approach has four main limitations. First, evaluated Phase~2 structuring reads only the first 30{,}000 characters of the serialized facts, so the typed state is not a complete view of long LOCOMO histories; fact and archive retrieval partly backstop this limitation, but hierarchical or incremental structuring is needed. Second, generated Python may be incomplete or incorrect and requires validation plus sandboxed execution. Third, the analytical benchmark is synthetic and starts from schema-clean records, so it does not measure conversation-to-structure errors. Finally, our controlled baseline implementations simplify some published retrieval stacks. The full LOCOMO judge is also the answer backbone within each panel; an earlier cross-family audit covers only the legacy 600-question subset (the first 60 QAs per conversation) and does not remove this limitation for the full runs. Larger real-world evaluations, independent full-scale judging, and native baseline reproductions are needed.
+Five limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, so typed state is incomplete on long LOCOMO histories; hierarchical or incremental structuring is needed. Second, generated Python requires validation and sandboxing, and five Active Service cases fail at this boundary. Third, the aggregate suite starts from synthetic, schema-clean records and omits conversation-to-structure errors. Fourth, Active Service has only 17 cases, 15 with equivalent baseline inputs; larger self-contained multi-session suites are needed. Finally, controlled baselines simplify some published stacks, and the full LOCOMO answer backbone also judges within each panel; a cross-family audit covers only the legacy 600-question subset. Native reproductions and independent full-scale judging remain future work.
 
 \section{Conclusion}
 
-User as Code represents a generated view of persistent user memory as typed state while retaining append-only facts and raw conversation as separate evidence channels. Full LOCOMO shows metric-specific recall tradeoffs, and the corrected analytical benchmark shows that both typed-state and raw-record REPL interfaces can answer all 100 aggregate queries exactly. The result is evidence for enumerable memory interfaces: how an agent records a user determines not only what it can retrieve, but what it can compute.
+User as Code represents persistent memory as generated typed state backed by append-only facts and raw conversation. Full LOCOMO shows metric-specific recall tradeoffs, while typed-state and raw-record REPL interfaces answer all 100 aggregate queries exactly. Active Service bounds that result: UaC passes only 4 of 17 strict cases and needs stronger generation reliability. How an agent records a user determines not only what it can retrieve and compute, but which constraints it can safely act upon.
 
 \textbf{AI assistance disclosure.} Generative AI tools were used for language editing, code assistance, and manuscript formatting; the authors verified all research claims, analyses, and final text.
 
