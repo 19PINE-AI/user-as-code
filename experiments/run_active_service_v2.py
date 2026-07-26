@@ -29,7 +29,7 @@ from active_service_sandbox import ALLOWED_IMPORTS
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PROTOCOL_PATH = ROOT / "evaluation" / "active_service_v2_protocol.json"
-DEFAULT_OUTPUT_DIR = ROOT / "experiments" / "results" / "active_service_v2_gemini3_flash_preview"
+DEFAULT_OUTPUT_DIR = ROOT / "experiments" / "results" / "active_service_v2_gpt56_luna"
 SANDBOX_PATH = Path(__file__).resolve().with_name("active_service_sandbox.py")
 
 SYSTEMS = ("uac", "full_context", "retrieval")
@@ -487,20 +487,18 @@ def score_candidates(candidates: list[str], rubric: dict) -> dict:
     }
 
 
-class GeminiGenerator:
+class OpenAIModelGenerator:
     def __init__(self, settings: ModelSettings, max_retries: int = 5):
         try:
-            from google import genai
-            from google.genai import types
+            from openai import OpenAI
         except ImportError as exc:
             raise RuntimeError(
-                "google-genai is required; install requirements.txt or use the project environment"
+                "openai is required; install requirements.txt or use the project environment"
             ) from exc
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            raise RuntimeError("GEMINI_API_KEY is not set")
-        self.client = genai.Client(api_key=api_key)
-        self.types = types
+            raise RuntimeError("OPENAI_API_KEY is not set")
+        self.client = OpenAI(api_key=api_key, max_retries=0)
         self.settings = settings
         self.max_retries = max_retries
 
@@ -509,32 +507,32 @@ class GeminiGenerator:
         last_error: Exception | None = None
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.client.models.generate_content(
+                response = self.client.chat.completions.create(
                     model=self.settings.name,
-                    contents=user_prompt,
-                    config=self.types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=self.settings.temperature,
-                        seed=self.settings.seed,
-                        candidate_count=1,
-                        max_output_tokens=self.settings.max_output_tokens,
-                        response_mime_type="text/plain",
-                    ),
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    temperature=self.settings.temperature,
+                    seed=self.settings.seed,
+                    n=1,
+                    max_completion_tokens=self.settings.max_output_tokens,
                 )
-                text = response.text
+                if not response.choices:
+                    raise RuntimeError("model returned no completion choices")
+                text = response.choices[0].message.content
                 if not isinstance(text, str) or not text.strip():
                     raise RuntimeError("model returned empty text")
-                usage_metadata = getattr(response, "usage_metadata", None)
+                usage_metadata = getattr(response, "usage", None)
                 usage = {}
-                for field in (
-                    "prompt_token_count",
-                    "candidates_token_count",
-                    "thoughts_token_count",
-                    "total_token_count",
-                ):
+                for field in ("prompt_tokens", "completion_tokens", "total_tokens"):
                     value = getattr(usage_metadata, field, None) if usage_metadata else None
                     if value is not None:
                         usage[field] = int(value)
+                details = getattr(usage_metadata, "completion_tokens_details", None)
+                reasoning_tokens = getattr(details, "reasoning_tokens", None) if details else None
+                if reasoning_tokens is not None:
+                    usage["reasoning_tokens"] = int(reasoning_tokens)
                 return {
                     "text": text.strip(),
                     "attempts": attempt,
@@ -556,7 +554,7 @@ class GeminiGenerator:
                 time.sleep(min(2 ** attempt, 30))
         assert last_error is not None
         safe_message = str(last_error)
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = os.environ.get("OPENAI_API_KEY")
         if api_key:
             safe_message = safe_message.replace(api_key, "<redacted>")
         raise RuntimeError(f"model request failed: {safe_message[:1000]}") from last_error
@@ -566,7 +564,7 @@ def run_uac(
     scenario_id: str,
     sessions: list[dict],
     rubric: dict,
-    generator: GeminiGenerator,
+    generator: OpenAIModelGenerator,
     programs_dir: Path,
 ) -> dict:
     updates = []
@@ -645,7 +643,7 @@ def run_baseline(
     system: str,
     sessions: list[dict],
     rubric: dict,
-    generator: GeminiGenerator,
+    generator: OpenAIModelGenerator,
 ) -> dict:
     history = sessions[:-1]
     trigger = sessions[-1]
@@ -684,7 +682,7 @@ def run_baseline(
 def run_case(
     scenario: dict,
     rubric: dict,
-    generator: GeminiGenerator,
+    generator: OpenAIModelGenerator,
     systems: list[str],
     programs_dir: Path,
 ) -> dict:
@@ -857,7 +855,7 @@ def main() -> None:
         seed=int(model_payload["seed"]),
         max_output_tokens=int(model_payload["max_output_tokens"]),
     )
-    generator = GeminiGenerator(settings)
+    generator = OpenAIModelGenerator(settings)
     output_dir = args.output_dir.resolve()
     traces_dir = output_dir / "traces"
     programs_dir = output_dir / "programs"

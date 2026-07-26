@@ -77,8 +77,15 @@ all-groups rule: there is no partial-credit threshold, LLM judge, or manual
 override. UaC additionally fails if any pre-trigger alert is emitted. Errors
 are misses. Aggregate recall is accompanied by a two-sided 95% Wilson interval.
 
-The canonical run uses one completion per update/response with Gemini 3 Flash
-Preview, temperature 0, seed 20260726, and at most 4,096 output tokens. These
+The canonical run uses one completion per update/response with GPT-5.6 Luna,
+temperature 0, seed 20260726, and at most 4,096 output tokens. These
 settings and the exact runner/scorer commit are written to the result manifest.
 Smoke tests may validate transport and trace completeness, but neither the
 eligibility set nor scorer may be changed after inspecting model outputs.
+
+The initially preregistered direct Gemini route returned `API_KEY_INVALID` for
+every smoke request and produced no completion. Before any model output was
+observed, a transport-only amendment changed the declared backbone to GPT-5.6
+Luna through the authenticated OpenAI API. The case set, prompts, program
+contract, retrieval rule, and scorer were unchanged; the amendment is also
+recorded in the machine-readable protocol.
