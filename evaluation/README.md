@@ -30,3 +30,11 @@ Before this can become a reportable evaluation, a replacement protocol must:
 
 Until those conditions are met, result JSONs and legacy figures bearing the
 Active Service label are deprecated pilot artifacts.
+
+The frozen replacement protocol is documented in
+[`ACTIVE_SERVICE_V2.md`](ACTIVE_SERVICE_V2.md) and
+`active_service_v2_protocol.json`. It preregisters an 18-case subset with
+user-only histories, cue-free triggers, executable UaC constraints, matched
+baselines, isolated traces, and deterministic scoring. Its outputs are
+publication-eligible only after the complete frozen run passes the integrity
+checks described there.
