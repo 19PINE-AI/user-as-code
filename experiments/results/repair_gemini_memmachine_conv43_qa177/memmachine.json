@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "benchmark": "LOCOMO",
+  "selection": {
+    "description": "all 1,986 annotations across all 10 conversations",
+    "categories": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "answer_bearing_questions": 1540,
+    "adversarial_questions": 446,
+    "conv_start": 4,
+    "conv_end": 5,
+    "max_questions_per_conv": null,
+    "max_sessions_per_conv": null,
+    "qa_index": 177
+  },
+  "system": "memmachine",
+  "provider": "krill",
+  "base_url": "https://api.krill-ai.net/v1",
+  "model": "gemini-3-flash-preview",
+  "user_agent": "GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)",
+  "dataset": "benchmarks/locomo/data/locomo10.json",
+  "dataset_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "package_versions": {
+    "openai": "1.97.1",
+    "mem0ai": "1.0.5",
+    "agentic-memory": "0.0.1",
+    "chromadb": "1.5.7",
+    "sentence-transformers": "3.4.1"
+  },
+  "started_at": "2026-07-25T18:41:08.167688+00:00",
+  "details": {
+    "conv-43": [
+      {
+        "status": "ok",
+        "qa_id": "conv-43:177",
+        "qa_idx": 177,
+        "question": "Which city did John recommend to Tim in January 2024?",
+        "prompt_question": "Which city did John recommend to Tim in January 2024?",
+        "gold": "Barcelona",
+        "adversarial_answer": null,
+        "prediction": "No information available",
+        "scored_prediction": "No information available",
+        "category": 4,
+        "official_score": 0.0,
+        "judge_correct": false,
+        "judge_reason": "WRONG. The gold answer provides the specific city (Barcelona), whereas the predicted answer incorrectly states that no information is available.",
+        "answer_seconds": 345.473,
+        "judge_seconds": 2.66
+      }
+    ]
+  },
+  "aggregate": {
+    "n_expected": 1,
+    "n_completed": 1,
+    "coverage": 1.0,
+    "official_locomo_score": 0.0,
+    "answer_bearing": {
+      "n": 1,
+      "official_token_f1": 0.0,
+      "judge_accuracy": 0.0
+    },
+    "adversarial": {
+      "n": 0,
+      "refusal_accuracy": null
+    },
+    "per_category": {
+      "4": {
+        "n": 1,
+        "official_score": 0.0,
+        "judge_accuracy": 0.0
+      }
+    }
+  },
+  "shared_krill_usage": {
+    "prompt_tokens": 8783,
+    "total_tokens": 10469,
+    "completion_tokens": 1686,
+    "requests": 2
+  },
+  "updated_at": "2026-07-25T18:47:06.301522+00:00"
+}

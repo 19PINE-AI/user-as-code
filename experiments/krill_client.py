@@ -61,6 +61,11 @@ def _retryable(exc: Exception) -> bool:
     status = getattr(exc, "status_code", None)
     if status == 429 or (isinstance(status, int) and status >= 500):
         return True
+    if isinstance(exc, RuntimeError) and str(exc) in {
+        "Krill returned no completion choices",
+        "Krill returned an empty text completion",
+    }:
+        return True
     return type(exc).__name__ in {"APIConnectionError", "APITimeoutError"}
 
 

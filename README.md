@@ -28,7 +28,7 @@ checkpointed into structured typed code.
 | [`paper.tex`](paper.tex), `body*.tex`, [`reference.bib`](reference.bib), [`Makefile`](Makefile) | LaTeX sources for the paper (compiles with `arxiv.sty` + `plainnat`) |
 | [`figures/`](figures/) | Paper figures (PDF) and the scripts that generate them |
 | [`prototype/`](prototype/) | **Reference UaC implementation** — a worked example user (`jessica_thompson`) as typed domains + executable constraints + tests |
-| [`experiments/`](experiments/) | Full experiment harness, the UaC pipeline (`user_as_code_v5.py`), baseline reimplementations, and committed `results/`. See [`experiments/README.md`](experiments/README.md) |
+| [`experiments/`](experiments/) | Full experiment harness, the UaC pipeline (`user_as_code_v5.py`), baseline reimplementations, generated `results/`, and strict validators. See [`experiments/README.md`](experiments/README.md) |
 | [`evaluation/`](evaluation/) | The **Active Service benchmark** scenario definitions (60 scenarios, 5 categories). See [`evaluation/README.md`](evaluation/README.md) |
 | [`benchmarks/`](benchmarks/) | Fetch script + instructions for the third-party datasets (LOCOMO, LongMemEval). Raw data is **not** redistributed. See [`benchmarks/README.md`](benchmarks/README.md) |
 | [`web/`](web/) | React companion site that visualizes every graded test case. See [`web/README.md`](web/README.md) |
@@ -60,26 +60,45 @@ return alerts), and `tests/`.
 ### Reproducing the experiments
 
 ```bash
-# 1. install deps
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# 1. install the pinned full-LOCOMO environment
+python -m venv .venv-locomo
+.venv-locomo/bin/pip install -r experiments/requirements-locomo-full.txt
 
 # 2. fetch the benchmark datasets (LOCOMO downloads directly; LongMemEval is author-distributed)
 ./benchmarks/fetch_benchmarks.sh
 
-# 3. set API keys
-export GEMINI_API_KEY=...        # main pipeline + judge (Gemini 3 Flash)
-export OPENROUTER_API_KEY=...    # cross-family judge; Mem0/A-MEM write path
+# 3. configure the Krill endpoint and API key (do not commit the key)
+export KRILL_API_KEY=...
+export KRILL_BASE_URL=https://api.krill-ai.net/v1
 
-# 4. run an experiment (see experiments/README.md for the full script -> result map)
-cd experiments
-python run_locomo_10conv.py      # LOCOMO 600-QA comparison
+# 4. run all seven systems under both full-LOCOMO backbones
+systems=(full_context uac_v5 memmachine hindsight evermemos a_mem mem0)
+for system in "${systems[@]}"; do
+  KRILL_MODEL=gpt-5.6-luna \
+    .venv-locomo/bin/python experiments/run_locomo_full.py "$system" \
+      --run-name full_locomo_gpt56_luna
+done
+for system in "${systems[@]}"; do
+  KRILL_MODEL=gemini-3-flash-preview \
+    .venv-locomo/bin/python experiments/run_locomo_full.py "$system" \
+      --run-name full_locomo_gemini3_flash_preview
+done
+
+# 5. certify all 14 artifacts; partial output is not paper-ready
+.venv-locomo/bin/python experiments/summarize_locomo_full.py
 ```
 
-Every per-run output we report is **committed under [`experiments/results/`](experiments/results/)**,
-so you can inspect the paper's numbers without re-running anything. The
-[`experiments/README.md`](experiments/README.md) maps each script to the paper table/figure it
-produces.
+The two full suites use `gpt-5.6-luna` and `gemini-3-flash-preview` through
+`https://api.krill-ai.net/v1`. The reported Gemini run sends the exact User-Agent
+`GeminiCLI/0.28.0/gemini-3-flash-preview (darwin; arm64; terminal)`. Runs write
+inspectable per-question outputs under [`experiments/results/`](experiments/results/),
+and the strict summarizer must print 14 rows plus `FINAL VALIDATION PASSED`
+before any aggregate is reported. See the
+[`experiments/README.md`](experiments/README.md) for scoring denominators,
+provider-fallback disclosures, parallel execution, repair procedures, and the
+full script-to-result map. Some older experiments use direct Gemini or
+cross-family provider keys; they are documented separately there and are not
+the full-LOCOMO reproduction path.
 
 ### Running the companion website
 
@@ -92,19 +111,24 @@ npm run dev      # http://localhost:5173
 
 ## Headline results
 
-| Capability | UaC | Best retrieval baseline | Why |
-|------------|-----|-------------------------|-----|
-| **Factual recall** (LOCOMO, 600 QA) | 78.8% | within 1pt of a full-context upper bound | competitive with the strongest prior systems |
-| **Analytical inference** (aggregate queries) | 99% | 6–43% | answer is a one-line computation over typed state, not a search over text |
-| **Active Service** (unsolicited alerts) | 100% standard / 85% hard | n/a | constraints execute deterministically on state change — retrieval cannot initiate |
+| Capability | Evaluation | UaC | Interpretation |
+|------------|------------|-----|----------------|
+| **Factual recall and refusal** | Full LOCOMO, all 1,986 questions; validated GPT-5.6 Luna / Gemini 3 Flash Preview suites | 39.4% / 46.9% token F1 and 78.8% / 80.6% judge accuracy on 1,540 answer-bearing questions; 64.3% / 95.7% refusal accuracy on 446 adversarial questions | lexical overlap, semantic correctness, and refusal behavior are reported separately within each backbone panel |
+| **Analytical inference** | 100 aggregate queries | 99% exact match | answer is a one-line computation over typed state, not a search over text |
+| **Active Service** | 40 standard + 20 hard scenarios | 100% standard / 85% hard observed detection | constraints execute on state change; rates and Wilson intervals are descriptive |
 
-See the paper for the full tables, ablations, cost analysis, and cross-judge/cross-LLM
-robustness checks.
+All fourteen full-LOCOMO artifacts pass the strict two-suite validator. See the
+paper and experiment guide for the complete two-backbone table,
+reimplementation caveats, provider-fallback disclosures, ablations, and cost
+analysis.
 
 ## Reproducibility notes
 
-- **Committed:** all experiment scripts, the per-run result JSONs, the synthetic analytical
+- **Version-controlled source:** experiment and validation scripts, the synthetic analytical
   benchmark, the Active Service scenarios, and the reference prototype.
+- **Generated results:** per-run JSON artifacts are written under `experiments/results/`.
+  A paper-facing full LOCOMO artifact is valid only after strict validation of
+  coverage, provenance, stored scores, judge fields, and aggregates.
 - **Not committed (regenerable / third-party):** the vector-index cache
   (`experiments/chroma_db/`), the raw benchmark datasets (`benchmarks/*/data/`, fetched via
   the script), and a few large LongMemEval-derived dumps (rebuilt by the pipeline). See the

@@ -183,16 +183,13 @@
 \maketitle
 
 \begin{abstract}
-An agent that remembers 100 trips should answer not only where a user traveled, but how often they visited Europe. Textual memories accessed through top-$k$ retrieval can recover individual trips but cannot reliably enumerate all of them, while conventional structured stores require a domain model to be defined and maintained. We introduce \textbf{User as Code} (UaC), a two-phase architecture that appends facts from each session and periodically structures the complete log as typed Python state with LLM-generated schemas and executable constraints. UaC achieves 78.8\% on a 600-question LOCOMO subset spanning all 10 conversations, within 1.0 percentage point of Full Context. Its advantage appears when representation matters: on 100 aggregate queries it reaches 99\% accuracy, versus 43\% for MemMachine and 6\% for Mem0. Executable constraints also enable memory-triggered assistance without a user query; UaC detects 100\% of standard and 85\% of hard alerts in a new 60-scenario Active Service benchmark. These results show that self-evolving executable memory preserves conventional recall while enabling analytical and proactive capabilities that top-$k$ retrieval cannot reliably provide.
+An agent that remembers 100 trips should answer not only where a user traveled, but how often they visited Europe. Textual memories accessed through top-$k$ retrieval can recover individual trips but cannot reliably enumerate all of them, while conventional structured stores require a domain model to be defined and maintained. We introduce \textbf{User as Code} (UaC), which appends session facts and periodically structures the complete log as typed Python state with LLM-generated schemas and executable constraints. On full 1{,}986-question LOCOMO suites, UaC records the highest observed same-backbone judge accuracy among six persistent-memory systems with GPT-5.6 Luna/Gemini~3 Flash Preview (78.8\%/80.6\% on 1{,}540 answer-bearing questions). Token F1 on those questions (39.4\%/46.9\%) and refusal accuracy on 446 adversarial questions (64.3\%/95.7\%) expose metric-specific tradeoffs. On 100 aggregate queries UaC reaches 99\% accuracy, versus 43\% for MemMachine and 6\% for Mem0. It also shows 100\% standard and 85\% hard alert detection in a new 60-scenario Active Service benchmark. Self-evolving executable memory thus maintains strong judge-rated recall while enabling analytical and proactive capabilities that top-$k$ retrieval cannot reliably provide.
 \end{abstract}
 
 % Uncomment the following to link to your code, datasets, an extended version or similar.
 % You must keep this block between (not within) the abstract and the main body of the paper.
 % Make sure that you do not de-anonymize yourself with these links.
-% \begin{links}
-%     \link{Code}{https://github.com/19PINE-AI/user-as-code}
-%     \link{Website}{https://01.me/research/user-as-code}
-% \end{links}
+% Project links are omitted for anonymous review.
 
 \input{body}
 

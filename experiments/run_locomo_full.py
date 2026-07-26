@@ -144,6 +144,23 @@ def _package_version(distribution: str) -> str | None:
         return None
 
 
+def _qa_call_with_retries(label: str, operation, attempts: int = 3):
+    """Retry a failed QA-stage operation without rebuilding memory state."""
+    for attempt in range(attempts):
+        try:
+            return operation()
+        except Exception as exc:
+            if attempt + 1 >= attempts:
+                raise
+            wait = min(5 * (attempt + 1), 20)
+            _log(
+                f"  {label} retry {attempt + 1}/{attempts} "
+                f"({type(exc).__name__}, wait {wait}s)"
+            )
+            time.sleep(wait)
+    raise RuntimeError(f"{label} failed without an exception")
+
+
 def _selected_qas(
     conv: dict, limit: int | None, qa_index: int | None = None
 ) -> list[tuple[int, dict]]:
@@ -326,9 +343,15 @@ def main() -> None:
 
             started = time.monotonic()
             try:
-                prediction = system.answer(prompt_question)
-                if prediction.lower().startswith("error:"):
-                    raise RuntimeError(prediction)
+                def answer_once():
+                    candidate = system.answer(prompt_question)
+                    if candidate.lower().startswith("error:"):
+                        raise RuntimeError(candidate)
+                    return candidate
+
+                prediction = _qa_call_with_retries(
+                    f"answer {conv_id}:{qa_idx}", answer_once
+                )
                 answer_seconds = time.monotonic() - started
 
                 scored_prediction = prediction
@@ -342,12 +365,18 @@ def main() -> None:
                 judge_seconds = None
                 if category in {1, 2, 3, 4}:
                     judge_started = time.monotonic()
-                    judge_correct, judge_reason = judge_answer(
-                        question, prediction, str(qa["answer"])
+                    def judge_once():
+                        outcome = judge_answer(
+                            question, prediction, str(qa["answer"])
+                        )
+                        if outcome[1].startswith("Judge error:"):
+                            raise RuntimeError(outcome[1])
+                        return outcome
+
+                    judge_correct, judge_reason = _qa_call_with_retries(
+                        f"judge {conv_id}:{qa_idx}", judge_once
                     )
                     judge_seconds = time.monotonic() - judge_started
-                    if judge_reason.startswith("Judge error:"):
-                        raise RuntimeError(judge_reason)
 
                 record = {
                     "status": "ok",

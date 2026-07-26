@@ -79,7 +79,7 @@ def _tokenize(s: str) -> list[str]:
 
 
 def _gemini_call(prompt: str, system_instruction: Optional[str] = None,
-                 thinking_budget: int = 1024, max_retries: int = 4) -> str:
+                 thinking_budget: int = 1024, max_retries: int = 6) -> str:
     return krill_call(
         prompt,
         system_instruction=system_instruction,

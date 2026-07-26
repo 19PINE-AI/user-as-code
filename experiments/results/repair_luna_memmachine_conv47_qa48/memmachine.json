@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "benchmark": "LOCOMO",
+  "selection": {
+    "description": "all 1,986 annotations across all 10 conversations",
+    "categories": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "answer_bearing_questions": 1540,
+    "adversarial_questions": 446,
+    "conv_start": 6,
+    "conv_end": 7,
+    "max_questions_per_conv": null,
+    "max_sessions_per_conv": null,
+    "qa_index": 48
+  },
+  "system": "memmachine",
+  "provider": "krill",
+  "base_url": "https://api.krill-ai.net/v1",
+  "model": "gpt-5.6-luna",
+  "user_agent": null,
+  "dataset": "benchmarks/locomo/data/locomo10.json",
+  "dataset_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "package_versions": {
+    "openai": "1.97.1",
+    "mem0ai": "1.0.5",
+    "agentic-memory": "0.0.1",
+    "chromadb": "1.5.7",
+    "sentence-transformers": "3.4.1"
+  },
+  "started_at": "2026-07-25T18:13:22.043709+00:00",
+  "details": {
+    "conv-47": [
+      {
+        "status": "ok",
+        "qa_id": "conv-47:48",
+        "qa_idx": 48,
+        "question": "When did James, Samantha and John go to the baseball game together?",
+        "prompt_question": "When did James, Samantha and John go to the baseball game together?",
+        "gold": "September 11, 2022",
+        "adversarial_answer": null,
+        "prediction": "September 11, 2022",
+        "scored_prediction": "September 11, 2022",
+        "category": 2,
+        "official_score": 1.0,
+        "judge_correct": true,
+        "judge_reason": "CORRECT — The predicted answer exactly matches the gold answer: September 11, 2022.",
+        "answer_seconds": 29.998,
+        "judge_seconds": 1.755
+      }
+    ]
+  },
+  "aggregate": {
+    "n_expected": 1,
+    "n_completed": 1,
+    "coverage": 1.0,
+    "official_locomo_score": 1.0,
+    "answer_bearing": {
+      "n": 1,
+      "official_token_f1": 1.0,
+      "judge_accuracy": 1.0
+    },
+    "adversarial": {
+      "n": 0,
+      "refusal_accuracy": null
+    },
+    "per_category": {
+      "2": {
+        "n": 1,
+        "official_score": 1.0,
+        "judge_accuracy": 1.0
+      }
+    }
+  },
+  "shared_krill_usage": {
+    "requests": 2,
+    "total_tokens": 7392,
+    "prompt_tokens": 7318,
+    "completion_tokens": 74
+  },
+  "updated_at": "2026-07-25T18:14:03.936313+00:00"
+}
