@@ -98,6 +98,15 @@ def atomic_write_json(path: Path, value: object) -> None:
     os.replace(temporary, path)
 
 
+def trace_path(path: Path) -> str:
+    """Store repository paths relatively and external smoke paths absolutely."""
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
+
+
 def git_commit() -> str:
     completed = subprocess.run(
         ["git", "rev-parse", "HEAD"],
@@ -553,7 +562,7 @@ def run_uac(
             source_path = programs_dir / scenario_id / f"{index + 1:02d}_{stage}.py"
             source_path.parent.mkdir(parents=True, exist_ok=True)
             source_path.write_text(source, encoding="utf-8")
-            update["source_path"] = str(source_path.relative_to(ROOT))
+            update["source_path"] = trace_path(source_path)
             validation = validate_generated_source(source)
             update["validation"] = validation
         except Exception as exc:

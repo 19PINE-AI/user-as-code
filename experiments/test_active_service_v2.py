@@ -136,6 +136,13 @@ def check_constraints(current_time):
         fenced = f"Here is the module:\n```python\n{self.SAFE_SOURCE}```"
         self.assertEqual(self.SAFE_SOURCE.strip(), v2.extract_python_source(fenced).strip())
 
+    def test_trace_path_supports_external_smoke_directory(self) -> None:
+        repository_path = v2.ROOT / "experiments" / "candidate.py"
+        self.assertEqual("experiments/candidate.py", v2.trace_path(repository_path))
+        with tempfile.TemporaryDirectory() as directory:
+            external_path = Path(directory) / "candidate.py"
+            self.assertEqual(str(external_path.resolve()), v2.trace_path(external_path))
+
     def test_unsafe_import_is_rejected(self) -> None:
         unsafe = "import os\nSTATE = {}\ndef check_constraints(current_time):\n return []\n"
         with self.assertRaisesRegex(v2.GeneratedCodeError, "import not allowed"):
