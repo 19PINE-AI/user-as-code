@@ -36,7 +36,7 @@ Generated code has improved arithmetic and logical reasoning in PAL and Program-
 \label{fig:architecture}
 \end{figure*}
 
-\textbf{Two pipelines.} The architecture has two halves, and the rest of this section is organized around them. \emph{Extraction} (Section~\ref{sec:extraction}) converts raw multi-session conversation into code, in two phases---Memorize, then Structure. \emph{Retrieval and use} (Section~\ref{sec:retrieval-use}) then answers questions and drives proactive service over that code. We first show what the resulting code looks like (Section~\ref{sec:code-example}), then detail each pipeline in turn; cross-cutting design principles follow in Section~\ref{sec:principles}.
+The architecture has two halves, and the rest of this section is organized around them. \emph{Extraction} (Section~\ref{sec:extraction}) converts raw multi-session conversation into code, in two phases---Memorize, then Structure. \emph{Retrieval and use} (Section~\ref{sec:retrieval-use}) then answers questions and drives proactive service over that code. We first show what the resulting code looks like (Section~\ref{sec:code-example}), then detail each pipeline in turn; cross-cutting design principles follow in Section~\ref{sec:principles}.
 
 \subsection{What ``User as Code'' Looks Like}
 \label{sec:code-example}
@@ -266,6 +266,25 @@ A third capability tier sits between recall and proactive alerting: \emph{aggreg
 
 \textbf{Systems.} Five systems, identical cases, Gemini~3 Flash throughout: Full~Context (in-head reasoning over raw JSON), Full~Context+REPL (same data plus \texttt{python}/\texttt{read\_file} tools), UaC (records structured into typed Python, exposed via REPL), MemMachine (top-20 sentence retrieval with contextual expansion), Mem0 (flat fact extraction, top-20).
 
+\begin{table}[t]
+\centering
+\caption{Exact-match analytical accuracy (\%) on 100 cases. FC+REPL executes over raw records; UaC executes over typed state.}
+\label{tab:analytical}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{System} & \textbf{All} & $N{=}20$ & $N{=}50$ & $N{=}100$ & $N{=}200$ & $N{=}500$ \\
+\midrule
+FC + Python REPL & 100.0 & 100 & 100 & 100 & 100 & 100 \\
+UaC + Python REPL & 99.0 & 100 & 100 & 100 & 100 & 95 \\
+Full Context & 94.0 & 100 & 90 & 100 & 90 & 90 \\
+MemMachine & 43.0 & 100 & 55 & 20 & 15 & 25 \\
+Mem0 & 6.0 & 5 & 10 & 0 & 0 & 15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \begin{figure}[t]
 \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
 # N=100 benchmark case: count trips in H1 2024
@@ -386,7 +405,23 @@ UaC (no pre-computed alerts) & 52.5\% (21/40) & [37.5, 67.1] \\
 \end{table*}
 \fi
 
-The Active Service evaluation (Table~\ref{tab:active-hard}) tests proactive alerting across 40 scenarios in 5 categories: travel document validity, drug interactions, financial authorization conflicts, scheduling conflicts, and warranty/deadline expirations. Each scenario seeds facts across 2--4 sessions; the system must generate unsolicited alerts. The live mem0ai~1.0.5 library is the primary baseline; simulation rows are an idealized upper bound for ``what flat-fact retrieval could achieve under perfect recall''. With $n{=}40$ we report 95\% Wilson CIs to describe uncertainty in the observed rates, not to make statistical-significance claims. UaC with the constraint pipeline detects all 40 standard alerts. Without pre-computed alerts it detects 21/40 (52.5\%), an observed difference of 47.5pp.
+The Active Service evaluation (Table~\ref{tab:active-hard}, Figure~\ref{fig:active-service-example}) tests proactive alerting across 40 scenarios in 5 categories: travel document validity, drug interactions, financial authorization conflicts, scheduling conflicts, and warranty/deadline expirations. Each scenario seeds facts across 2--4 sessions; the system must generate unsolicited alerts. The live mem0ai~1.0.5 library is the primary baseline; simulation rows are an idealized upper bound for ``what flat-fact retrieval could achieve under perfect recall''. With $n{=}40$ we report 95\% Wilson CIs to describe uncertainty in the observed rates, not to make statistical-significance claims. UaC with the constraint pipeline detects all 40 standard alerts. Without pre-computed alerts it detects 21/40 (52.5\%), an observed difference of 47.5pp.
+
+\begin{figure}[t]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+# finance_02: generated state after session 12
+limit = my_card.per_transaction_limit  # $3,000
+quote = team_offsite.venue_quote       # $4,200
+excess = quote - limit
+if excess > 0:
+    ACTIVE_ALERTS.append(
+        f"${quote:,.0f} exceeds the card limit "
+        f"by ${excess:,.0f}; get VP approval.")
+# -> WARNING: $4,200 exceeds limit by $1,200.
+\end{lstlisting}
+\caption{A representative standard Active Service case (\texttt{finance\_02}). A \$3{,}000 card limit from session~1 and a \$4{,}200 quote from session~12 enter the stored generated state. After the update, the constraint writes the \$1{,}200 warning to \texttt{ACTIVE\_ALERTS} before booking; the user never asks about the limit.}
+\label{fig:active-service-example}
+\end{figure}
 
 To probe harder problems, we author 20 \textbf{hard scenarios} requiring multi-step date arithmetic (business days, leap years, timezones), compound multi-domain constraints (4--5 domains), precise numerical thresholds (tax brackets, compound interest, DTI), and temporally ambiguous facts.
 

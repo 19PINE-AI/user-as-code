@@ -49,20 +49,3 @@ Mem0             & 32 & 23 &  7 & 33 & 36 & 18 & 23.8 \\
 \raggedright KU = knowledge update ($n=78$), MS = multi-session (133), SA = single-assistant (56), SP = single-preference (30), SU = single-user (70), TR = temporal reasoning (133).\par
 \end{minipage}
 \end{table*}
-
-\begin{table*}[!ht]
-\centering
-\caption{Exact-match analytical-inference accuracy on 100 cases across 10 record types. FC+REPL executes over raw records; UaC executes over typed state.}
-\label{tab:analytical}
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
-\textbf{System} & \textbf{Overall} & $N{=}20$ & $N{=}50$ & $N{=}100$ & $N{=}200$ & $N{=}500$ \\
-\midrule
-Full Context + Python REPL & 100.0\% & 100\% & 100\% & 100\% & 100\% & 100\% \\
-UaC (structured + REPL) & 99.0\% & 100\% & 100\% & 100\% & 100\% & 95\% \\
-Full Context (no tool) & 94.0\% & 100\% & 90\% & 100\% & 90\% & 90\% \\
-MemMachine & 43.0\% & 100\% & 55\% & 20\% & 15\% & 25\% \\
-Mem0 & 6.0\% & 5\% & 10\% & 0\% & 0\% & 15\% \\
-\bottomrule
-\end{tabular}
-\end{table*}
