@@ -77,15 +77,21 @@ all-groups rule: there is no partial-credit threshold, LLM judge, or manual
 override. UaC additionally fails if any pre-trigger alert is emitted. Errors
 are misses. Aggregate recall is accompanied by a two-sided 95% Wilson interval.
 
-The canonical run uses one completion per update/response with GPT-5.6 Luna,
-temperature 0, seed 20260726, and at most 4,096 output tokens. These
-settings and the exact runner/scorer commit are written to the result manifest.
+The canonical evaluation runs one completion per update/response under both
+GPT-5.6 Luna and Gemini 3 Flash Preview through the same shared Krill AI client
+used by the completed LOCOMO experiments. The client selects its established
+model-specific request profile: the OpenAI SDK identity for Luna and the
+model-aware Gemini CLI identity for Gemini. Krill controls the remaining
+generation defaults; no unsupported seed, temperature, output cap, or Gemini
+thinking budget is claimed. The model/API names and exact runner/scorer commit
+are written to each result manifest.
 Smoke tests may validate transport and trace completeness, but neither the
 eligibility set nor scorer may be changed after inspecting model outputs.
 
-The initially preregistered direct Gemini route returned `API_KEY_INVALID` for
-every smoke request and produced no completion. Before any model output was
-observed, a transport-only amendment changed the declared backbone to GPT-5.6
-Luna through the authenticated OpenAI API. The case set, prompts, program
-contract, retrieval rule, and scorer were unchanged; the amendment is also
-recorded in the machine-readable protocol.
+Initial smoke attempts incorrectly used direct Gemini and OpenAI credentials;
+they returned authentication or quota errors and produced no scenario
+completion. Before any scenario output was observed, the transport declaration
+was amended to reuse the repository's proven Krill integration and its two
+established backbones. The case set, prompts, program contract, retrieval rule,
+and scorer were unchanged. This amendment is recorded in the machine-readable
+protocol.

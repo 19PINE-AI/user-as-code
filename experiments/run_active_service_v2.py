@@ -25,11 +25,12 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from active_service_sandbox import ALLOWED_IMPORTS
+from krill_client import krill_call, usage_snapshot
 
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PROTOCOL_PATH = ROOT / "evaluation" / "active_service_v2_protocol.json"
-DEFAULT_OUTPUT_DIR = ROOT / "experiments" / "results" / "active_service_v2_gpt56_luna"
+DEFAULT_OUTPUT_ROOT = ROOT / "experiments" / "results"
 SANDBOX_PATH = Path(__file__).resolve().with_name("active_service_sandbox.py")
 
 SYSTEMS = ("uac", "full_context", "retrieval")
@@ -73,9 +74,6 @@ class GeneratedCodeError(RuntimeError):
 @dataclass(frozen=True)
 class ModelSettings:
     name: str
-    temperature: float
-    seed: int
-    max_output_tokens: int
 
 
 def utc_now() -> str:
@@ -116,6 +114,12 @@ def load_protocol(path: Path = DEFAULT_PROTOCOL_PATH) -> dict:
     protocol = json.loads(path.read_text(encoding="utf-8"))
     if protocol.get("protocol_id") != "active-service-v2.0":
         raise ProtocolError("unsupported protocol_id")
+    models = protocol.get("models")
+    if not isinstance(models, list) or not models:
+        raise ProtocolError("protocol must define at least one model")
+    model_names = [str(model.get("name", "")) for model in models]
+    if any(not name for name in model_names) or len(model_names) != len(set(model_names)):
+        raise ProtocolError("protocol model names must be non-empty and unique")
 
     source = protocol.get("source_suite", {})
     source_path = ROOT / str(source.get("path", ""))
@@ -487,84 +491,38 @@ def score_candidates(candidates: list[str], rubric: dict) -> dict:
     }
 
 
-class OpenAIModelGenerator:
-    def __init__(self, settings: ModelSettings, max_retries: int = 5):
-        try:
-            from openai import OpenAI
-        except ImportError as exc:
-            raise RuntimeError(
-                "openai is required; install requirements.txt or use the project environment"
-            ) from exc
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is not set")
-        self.client = OpenAI(api_key=api_key, max_retries=0)
+class KrillModelGenerator:
+    def __init__(self, settings: ModelSettings, max_retries: int = 6):
         self.settings = settings
         self.max_retries = max_retries
 
     def generate(self, system_prompt: str, user_prompt: str) -> dict:
         started = time.monotonic()
-        last_error: Exception | None = None
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.settings.name,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    temperature=self.settings.temperature,
-                    seed=self.settings.seed,
-                    n=1,
-                    max_completion_tokens=self.settings.max_output_tokens,
-                )
-                if not response.choices:
-                    raise RuntimeError("model returned no completion choices")
-                text = response.choices[0].message.content
-                if not isinstance(text, str) or not text.strip():
-                    raise RuntimeError("model returned empty text")
-                usage_metadata = getattr(response, "usage", None)
-                usage = {}
-                for field in ("prompt_tokens", "completion_tokens", "total_tokens"):
-                    value = getattr(usage_metadata, field, None) if usage_metadata else None
-                    if value is not None:
-                        usage[field] = int(value)
-                details = getattr(usage_metadata, "completion_tokens_details", None)
-                reasoning_tokens = getattr(details, "reasoning_tokens", None) if details else None
-                if reasoning_tokens is not None:
-                    usage["reasoning_tokens"] = int(reasoning_tokens)
-                return {
-                    "text": text.strip(),
-                    "attempts": attempt,
-                    "latency_seconds": round(time.monotonic() - started, 3),
-                    "usage": usage,
-                }
-            except Exception as exc:  # API exception types vary across SDK versions.
-                last_error = exc
-                status = getattr(exc, "status_code", getattr(exc, "code", None))
-                retryable = status == 429 or (isinstance(status, int) and status >= 500)
-                retryable |= type(exc).__name__ in {
-                    "APIError",
-                    "ServerError",
-                    "ServiceUnavailable",
-                    "DeadlineExceeded",
-                }
-                if not retryable or attempt >= self.max_retries:
-                    break
-                time.sleep(min(2 ** attempt, 30))
-        assert last_error is not None
-        safe_message = str(last_error)
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if api_key:
-            safe_message = safe_message.replace(api_key, "<redacted>")
-        raise RuntimeError(f"model request failed: {safe_message[:1000]}") from last_error
+        before = usage_snapshot()
+        text = krill_call(
+            user_prompt,
+            system_instruction=system_prompt,
+            model=self.settings.name,
+            max_retries=self.max_retries,
+        )
+        after = usage_snapshot()
+        usage = {
+            key: int(after.get(key, 0)) - int(before.get(key, 0))
+            for key in set(before) | set(after)
+            if int(after.get(key, 0)) - int(before.get(key, 0))
+        }
+        return {
+            "text": text,
+            "latency_seconds": round(time.monotonic() - started, 3),
+            "usage": usage,
+        }
 
 
 def run_uac(
     scenario_id: str,
     sessions: list[dict],
     rubric: dict,
-    generator: OpenAIModelGenerator,
+    generator: KrillModelGenerator,
     programs_dir: Path,
 ) -> dict:
     updates = []
@@ -643,7 +601,7 @@ def run_baseline(
     system: str,
     sessions: list[dict],
     rubric: dict,
-    generator: OpenAIModelGenerator,
+    generator: KrillModelGenerator,
 ) -> dict:
     history = sessions[:-1]
     trigger = sessions[-1]
@@ -682,7 +640,7 @@ def run_baseline(
 def run_case(
     scenario: dict,
     rubric: dict,
-    generator: OpenAIModelGenerator,
+    generator: KrillModelGenerator,
     systems: list[str],
     programs_dir: Path,
 ) -> dict:
@@ -810,7 +768,8 @@ def usage_totals(traces: list[dict]) -> dict[str, int]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--protocol", type=Path, default=DEFAULT_PROTOCOL_PATH)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--model", help="one model name frozen in the protocol")
+    parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--case", action="append", dest="case_ids", default=[])
     parser.add_argument("--limit", type=int)
     parser.add_argument("--systems", nargs="+", choices=SYSTEMS, default=list(SYSTEMS))
@@ -848,15 +807,21 @@ def main() -> None:
     if args.validate_only:
         return
 
-    model_payload = protocol["model"]
-    settings = ModelSettings(
-        name=str(model_payload["name"]),
-        temperature=float(model_payload["temperature"]),
-        seed=int(model_payload["seed"]),
-        max_output_tokens=int(model_payload["max_output_tokens"]),
+    model_map = {str(model["name"]): model for model in protocol["models"]}
+    model_name = args.model or next(iter(model_map))
+    if model_name not in model_map:
+        raise ProtocolError(
+            f"model {model_name!r} is not frozen in the protocol; choose {sorted(model_map)}"
+        )
+    model_payload = model_map[model_name]
+    settings = ModelSettings(name=model_name)
+    generator = KrillModelGenerator(settings)
+    slug = re.sub(r"[^a-z0-9]+", "_", model_name.lower()).strip("_")
+    output_dir = (
+        args.output_dir.resolve()
+        if args.output_dir
+        else DEFAULT_OUTPUT_ROOT / f"active_service_v2_{slug}"
     )
-    generator = OpenAIModelGenerator(settings)
-    output_dir = args.output_dir.resolve()
     traces_dir = output_dir / "traces"
     programs_dir = output_dir / "programs"
     traces_dir.mkdir(parents=True, exist_ok=True)

@@ -31,6 +31,15 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(set(self.scenarios), eligible | excluded)
         self.assertEqual(eligible, set(self.protocol["rubrics"]))
 
+    def test_frozen_krill_model_panels(self) -> None:
+        self.assertEqual(
+            ["gpt-5.6-luna", "gemini-3-flash-preview"],
+            [model["name"] for model in self.protocol["models"]],
+        )
+        self.assertTrue(
+            all(model["api"] == "Krill AI API" for model in self.protocol["models"])
+        )
+
     def test_user_only_extraction_never_leaks_assistant_continuations(self) -> None:
         for scenario_id in self.protocol["eligible_ids"]:
             sessions = v2.scenario_sessions(self.scenarios[scenario_id])

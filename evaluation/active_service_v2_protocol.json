@@ -1,32 +1,39 @@
 {
   "protocol_id": "active-service-v2.0",
-  "status": "frozen-before-successful-model-runs",
+  "status": "frozen-before-scenario-model-runs",
   "source_suite": {
     "path": "evaluation/active_service_scenarios.json",
     "sha256": "a9e77af758d8a7f18d0ba1ba0b387c87a9ba770e1fb7d46f05db8328ad2931dd",
     "total_scenarios": 40
   },
-  "model": {
-    "name": "gpt-5.6-luna",
-    "api": "OpenAI API",
-    "interface": "chat completions",
-    "temperature": 0.0,
-    "seed": 20260726,
-    "max_output_tokens": 4096
-  },
+  "models": [
+    {
+      "name": "gpt-5.6-luna",
+      "api": "Krill AI API",
+      "request_profile": "shared Krill client with the OpenAI SDK request identity",
+      "generation_parameters": "Krill provider defaults"
+    },
+    {
+      "name": "gemini-3-flash-preview",
+      "api": "Krill AI API",
+      "request_profile": "shared Krill client with its model-aware Gemini CLI request identity",
+      "generation_parameters": "Krill provider defaults"
+    }
+  ],
   "pre_run_amendment": {
     "date": "2026-07-26",
-    "scope": "model transport and declared backbone only",
-    "reason": "The preregistered direct Gemini credential returned API_KEY_INVALID for every smoke request. No model completion was produced or inspected. GPT-5.6 Luna was confirmed available through the authenticated OpenAI API before the first successful run.",
-    "unchanged": [
-      "eligible and excluded cases",
-      "user-only trigger protocol",
-      "system and update prompts",
-      "generated-code contract and validator",
-      "deterministic retrieval rule",
-      "rubrics and aggregate scoring"
-    ]
+    "scope": "transport, declared backbones, and provider-controlled generation parameters only",
+    "reason": "Initial smoke attempts incorrectly used direct Gemini and OpenAI credentials; those requests returned authentication or quota errors and produced no scenario completion. Before any scenario output was observed, the user clarified that the established Krill AI integration must be used. The canonical evaluation therefore reuses the exact shared Krill client and the two model IDs already used by the successful full-LOCOMO runs. Krill's interface does not expose the previously proposed seed, temperature, or output cap, so provider defaults are recorded instead.",
+    "successful_transport_check": "A non-scenario READY probe succeeded for gpt-5.6-luna through the shared Krill client. Gemini requests retain the existing retry policy for transient provider failures."
   },
+  "amendment_invariants": [
+    "eligible and excluded cases",
+    "user-only trigger protocol",
+    "system and update prompts",
+    "generated-code contract and validator",
+    "deterministic retrieval rule",
+    "rubrics and aggregate scoring"
+  ],
   "interaction": {
     "history_source": "user-authored text only",
     "trigger_source": "actual user-authored text in the designated trigger session",
@@ -46,7 +53,8 @@
     ],
     "errors": "count as misses",
     "confidence_interval": "two-sided 95% Wilson score interval",
-    "multiple_runs_or_manual_overrides": false
+    "multiple_runs_or_manual_overrides": false,
+    "model_panels": "the complete 18-case suite is run once under each frozen Krill model"
   },
   "eligible_ids": [
     "travel_03",
