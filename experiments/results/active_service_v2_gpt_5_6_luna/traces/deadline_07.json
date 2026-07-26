@@ -1,0 +1,376 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_07",
+  "category": "warranty_deadline_expiration",
+  "description": "Home inspection contingency deadline about to expire during house purchase",
+  "started_at": "2026-07-26T15:07:02.402173+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-10-25",
+      "user_text": "Our offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out."
+    },
+    {
+      "session_id": "5",
+      "timestamp": "2024-10-30",
+      "user_text": "The home inspector can't come until November 7. Is that too late? What if he finds something?"
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-11-06",
+      "user_text": "So stressed about this house purchase. What are some good relaxation techniques?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The 15-day home inspection contingency period ends on 2024-11-09. The inspection and response are not documented as complete; if they are not completed within that period, the stated right to back out is waived. The inspector cannot come before 2024-11-07, leaving only the remaining portion of the contingency period."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 2,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "inspection",
+                    "text": "inspection"
+                  },
+                  {
+                    "pattern": "contingency",
+                    "text": "contingency"
+                  }
+                ]
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-09",
+                    "text": "2024-11-09"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": false,
+                "matches": []
+              },
+              "action": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-10-25",
+            "user_text": "Our offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-25\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "import datetime\n\nSTATE = {\n    \"home_purchase\": {\n        \"offer_accepted\": True,\n        \"purchase_agreement\": {\n            \"inspection_contingency\": {\n                \"start_date\": \"2024-10-25\",\n                \"duration_days\": 15,\n                \"required_actions\": [\n                    \"complete the home inspection\",\n                    \"respond within the contingency period\"\n                ],\n                \"consequence_if_not_completed_and_responded\": \"waive the right to back out\"\n            }\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    current = datetime.date.fromisoformat(current_time)\n    contingency = STATE[\"home_purchase\"][\"purchase_agreement\"][\"inspection_contingency\"]\n    start = datetime.date.fromisoformat(contingency[\"start_date\"])\n    deadline = start + datetime.timedelta(days=contingency[\"duration_days\"])\n    days_remaining = (deadline - current).days\n\n    if 0 <= days_remaining <= 7:\n        return [{\n            \"severity\": \"warning\",\n            \"type\": \"deadline\",\n            \"message\": (\n                \"The 15-day home inspection contingency period ends on \"\n                f\"{deadline.isoformat()}. The inspection must be completed and \"\n                \"a response provided by then to preserve the right to back out.\"\n            )\n        }]\n\n    return []",
+            "latency_seconds": 16.288,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 374,
+              "total_tokens": 1163,
+              "completion_tokens": 789
+            }
+          },
+          "source": "import datetime\n\nSTATE = {\n    \"home_purchase\": {\n        \"offer_accepted\": True,\n        \"purchase_agreement\": {\n            \"inspection_contingency\": {\n                \"start_date\": \"2024-10-25\",\n                \"duration_days\": 15,\n                \"required_actions\": [\n                    \"complete the home inspection\",\n                    \"respond within the contingency period\"\n                ],\n                \"consequence_if_not_completed_and_responded\": \"waive the right to back out\"\n            }\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    current = datetime.date.fromisoformat(current_time)\n    contingency = STATE[\"home_purchase\"][\"purchase_agreement\"][\"inspection_contingency\"]\n    start = datetime.date.fromisoformat(contingency[\"start_date\"])\n    deadline = start + datetime.timedelta(days=contingency[\"duration_days\"])\n    days_remaining = (deadline - current).days\n\n    if 0 <= days_remaining <= 7:\n        return [{\n            \"severity\": \"warning\",\n            \"type\": \"deadline\",\n            \"message\": (\n                \"The 15-day home inspection contingency period ends on \"\n                f\"{deadline.isoformat()}. The inspection must be completed and \"\n                \"a response provided by then to preserve the right to back out.\"\n            )\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_07/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 128,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "0e5770088c0e76b6387ee645561c9c2d41a8ccd842fcfb37e1a16f2fd40b4f1e"
+          },
+          "execution": {
+            "state": {
+              "home_purchase": {
+                "offer_accepted": true,
+                "purchase_agreement": {
+                  "inspection_contingency": {
+                    "start_date": "2024-10-25",
+                    "duration_days": 15,
+                    "required_actions": [
+                      "complete the home inspection",
+                      "respond within the contingency period"
+                    ],
+                    "consequence_if_not_completed_and_responded": "waive the right to back out"
+                  }
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-10-30",
+            "user_text": "The home inspector can't come until November 7. Is that too late? What if he finds something?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-30\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\n[2024-10-30; session 5]\nThe home inspector can't come until November 7. Is that too late? What if he finds something?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"house_offer\": {\n        \"status\": \"accepted\",\n        \"accepted_date\": \"2024-10-25\"\n    },\n    \"home_inspection_contingency\": {\n        \"duration_days\": 15,\n        \"start_date\": \"2024-10-25\",\n        \"deadline_date\": \"2024-11-09\",\n        \"required_actions\": [\n            \"complete the home inspection\",\n            \"respond within the contingency period\"\n        ],\n        \"consequence_if_not_completed_in_period\": \"waive the right to back out\"\n    },\n    \"home_inspection\": {\n        \"inspector_available_date\": \"2024-11-07\",\n        \"status\": \"not yet completed\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    contingency = STATE[\"home_inspection_contingency\"]\n    inspection = STATE[\"home_inspection\"]\n    deadline = date.fromisoformat(contingency[\"deadline_date\"])\n    inspection_date = date.fromisoformat(inspection[\"inspector_available_date\"])\n\n    if inspection_date > deadline:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"date_conflict\",\n            \"message\": (\n                \"The available home inspection date \"\n                f\"({inspection_date.isoformat()}) is after the inspection contingency \"\n                f\"deadline ({deadline.isoformat()}).\"\n            )\n        })\n\n    days_until_deadline = (deadline - current).days\n    if 0 <= days_until_deadline <= 7:\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"deadline_approaching\",\n            \"message\": (\n                f\"The home inspection contingency deadline is \"\n                f\"{deadline.isoformat()}, {days_until_deadline} day(s) away. \"\n                \"The inspection and response must be completed within the stated period.\"\n            )\n        })\n\n    return alerts",
+            "latency_seconds": 27.939,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 407,
+              "total_tokens": 1851,
+              "completion_tokens": 1444
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"house_offer\": {\n        \"status\": \"accepted\",\n        \"accepted_date\": \"2024-10-25\"\n    },\n    \"home_inspection_contingency\": {\n        \"duration_days\": 15,\n        \"start_date\": \"2024-10-25\",\n        \"deadline_date\": \"2024-11-09\",\n        \"required_actions\": [\n            \"complete the home inspection\",\n            \"respond within the contingency period\"\n        ],\n        \"consequence_if_not_completed_in_period\": \"waive the right to back out\"\n    },\n    \"home_inspection\": {\n        \"inspector_available_date\": \"2024-11-07\",\n        \"status\": \"not yet completed\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    contingency = STATE[\"home_inspection_contingency\"]\n    inspection = STATE[\"home_inspection\"]\n    deadline = date.fromisoformat(contingency[\"deadline_date\"])\n    inspection_date = date.fromisoformat(inspection[\"inspector_available_date\"])\n\n    if inspection_date > deadline:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"date_conflict\",\n            \"message\": (\n                \"The available home inspection date \"\n                f\"({inspection_date.isoformat()}) is after the inspection contingency \"\n                f\"deadline ({deadline.isoformat()}).\"\n            )\n        })\n\n    days_until_deadline = (deadline - current).days\n    if 0 <= days_until_deadline <= 7:\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"deadline_approaching\",\n            \"message\": (\n                f\"The home inspection contingency deadline is \"\n                f\"{deadline.isoformat()}, {days_until_deadline} day(s) away. \"\n                \"The inspection and response must be completed within the stated period.\"\n            )\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_07/02_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 177,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "0722c1411a63db05144ba8fae4a20f794aa2dcabf8f00a67e91d2d1d849ec6be"
+          },
+          "execution": {
+            "state": {
+              "house_offer": {
+                "status": "accepted",
+                "accepted_date": "2024-10-25"
+              },
+              "home_inspection_contingency": {
+                "duration_days": 15,
+                "start_date": "2024-10-25",
+                "deadline_date": "2024-11-09",
+                "required_actions": [
+                  "complete the home inspection",
+                  "respond within the contingency period"
+                ],
+                "consequence_if_not_completed_in_period": "waive the right to back out"
+              },
+              "home_inspection": {
+                "inspector_available_date": "2024-11-07",
+                "status": "not yet completed"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-11-06",
+            "user_text": "So stressed about this house purchase. What are some good relaxation techniques?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-06\n\nComplete user-authored history through this session:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\n[2024-10-30; session 5]\nThe home inspector can't come until November 7. Is that too late? What if he finds something?\n\n[2024-11-06; session 6]\nSo stressed about this house purchase. What are some good relaxation techniques?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "import datetime\n\nSTATE = {\n    \"house_purchase\": {\n        \"offer_accepted\": True,\n        \"offer_accepted_date\": \"2024-10-25\",\n        \"purchase_agreement\": {\n            \"home_inspection_contingency\": {\n                \"duration_days\": 15,\n                \"start_date\": \"2024-10-25\",\n                \"requirement\": \"Inspection must be completed and a response provided within the contingency period.\",\n                \"consequence_if_not_completed_and_responded_in_time\": \"The right to back out is waived.\"\n            }\n        },\n        \"inspection\": {\n            \"inspector_available_no_earlier_than\": \"2024-11-07\",\n            \"completion_status_as_of\": \"2024-10-30\",\n            \"completion_status\": \"not completed\"\n        }\n    },\n    \"user_state\": {\n        \"reported_stress_about_house_purchase\": True,\n        \"reported_date\": \"2024-11-06\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = datetime.date.fromisoformat(current_time)\n    contingency = STATE[\"house_purchase\"][\"purchase_agreement\"][\"home_inspection_contingency\"]\n    start = datetime.date.fromisoformat(contingency[\"start_date\"])\n    deadline = start + datetime.timedelta(days=contingency[\"duration_days\"])\n    alerts = []\n\n    if current <= deadline and deadline - current <= datetime.timedelta(days=7):\n        inspector_date = datetime.date.fromisoformat(\n            STATE[\"house_purchase\"][\"inspection\"][\"inspector_available_no_earlier_than\"]\n        )\n        message = (\n            f\"The 15-day home inspection contingency period ends on {deadline.isoformat()}. \"\n            \"The inspection and response are not documented as complete; if they are not \"\n            \"completed within that period, the stated right to back out is waived.\"\n        )\n        if current >= datetime.date.fromisoformat(\"2024-10-30\"):\n            message += (\n                f\" The inspector cannot come before {inspector_date.isoformat()}, \"\n                \"leaving only the remaining portion of the contingency period.\"\n            )\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"deadline\",\n            \"message\": message\n        })\n\n    return alerts",
+            "latency_seconds": 38.325,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 433,
+              "total_tokens": 2451,
+              "completion_tokens": 2018
+            }
+          },
+          "source": "import datetime\n\nSTATE = {\n    \"house_purchase\": {\n        \"offer_accepted\": True,\n        \"offer_accepted_date\": \"2024-10-25\",\n        \"purchase_agreement\": {\n            \"home_inspection_contingency\": {\n                \"duration_days\": 15,\n                \"start_date\": \"2024-10-25\",\n                \"requirement\": \"Inspection must be completed and a response provided within the contingency period.\",\n                \"consequence_if_not_completed_and_responded_in_time\": \"The right to back out is waived.\"\n            }\n        },\n        \"inspection\": {\n            \"inspector_available_no_earlier_than\": \"2024-11-07\",\n            \"completion_status_as_of\": \"2024-10-30\",\n            \"completion_status\": \"not completed\"\n        }\n    },\n    \"user_state\": {\n        \"reported_stress_about_house_purchase\": True,\n        \"reported_date\": \"2024-11-06\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = datetime.date.fromisoformat(current_time)\n    contingency = STATE[\"house_purchase\"][\"purchase_agreement\"][\"home_inspection_contingency\"]\n    start = datetime.date.fromisoformat(contingency[\"start_date\"])\n    deadline = start + datetime.timedelta(days=contingency[\"duration_days\"])\n    alerts = []\n\n    if current <= deadline and deadline - current <= datetime.timedelta(days=7):\n        inspector_date = datetime.date.fromisoformat(\n            STATE[\"house_purchase\"][\"inspection\"][\"inspector_available_no_earlier_than\"]\n        )\n        message = (\n            f\"The 15-day home inspection contingency period ends on {deadline.isoformat()}. \"\n            \"The inspection and response are not documented as complete; if they are not \"\n            \"completed within that period, the stated right to back out is waived.\"\n        )\n        if current >= datetime.date.fromisoformat(\"2024-10-30\"):\n            message += (\n                f\" The inspector cannot come before {inspector_date.isoformat()}, \"\n                \"leaving only the remaining portion of the contingency period.\"\n            )\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"deadline\",\n            \"message\": message\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_07/03_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 206,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "ad3a73efec6113dfd24b36a3614bcd9f9a29c8785fccd42f0ea9860136365bd7"
+          },
+          "execution": {
+            "state": {
+              "house_purchase": {
+                "offer_accepted": true,
+                "offer_accepted_date": "2024-10-25",
+                "purchase_agreement": {
+                  "home_inspection_contingency": {
+                    "duration_days": 15,
+                    "start_date": "2024-10-25",
+                    "requirement": "Inspection must be completed and a response provided within the contingency period.",
+                    "consequence_if_not_completed_and_responded_in_time": "The right to back out is waived."
+                  }
+                },
+                "inspection": {
+                  "inspector_available_no_earlier_than": "2024-11-07",
+                  "completion_status_as_of": "2024-10-30",
+                  "completion_status": "not completed"
+                }
+              },
+              "user_state": {
+                "reported_stress_about_house_purchase": true,
+                "reported_date": "2024-11-06"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "deadline",
+                "message": "The 15-day home inspection contingency period ends on 2024-11-09. The inspection and response are not documented as complete; if they are not completed within that period, the stated right to back out is waived. The inspector cannot come before 2024-11-07, leaving only the remaining portion of the contingency period."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "4",
+        "5"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\n[2024-10-30; session 5]\nThe home inspector can't come until November 7. Is that too late? What if he finds something?\n\nCurrent session (2024-11-06):\nSo stressed about this house purchase. What are some good relaxation techniques?",
+      "generation": {
+        "text": "That’s a lot to carry—especially with the inspection happening close to your contingency deadline. For tonight, try techniques that calm your body first:\n\n1. **Physiological sigh:** Inhale through your nose, take a second small inhale, then slowly exhale through your mouth. Repeat 5–10 times.\n2. **Grounding exercise:** Name **5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste**.\n3. **Progressive muscle relaxation:** Tense and release each muscle group—from your shoulders and jaw down to your feet.\n4. **Set a “worry appointment”:** Write down your concerns and give yourself 15 minutes to address them. When worries return, remind yourself, “I’ll handle that during my worry time.”\n5. **Prepare, then stop:** Make a short list of questions for the inspector and any documents or contacts you need. After that, take a walk, shower, watch something comforting, or do another activity that occupies your attention.\n6. **Protect sleep:** Avoid excessive caffeine, alcohol, and late-night internet searches about home defects. Try slow breathing or a body-scan meditation in bed.\n\nSince the timing matters, it may also ease your mind to **contact your agent today** and confirm the exact inspection-contingency deadline and what written response is required if the inspector finds a problem. Knowing the plan can reduce uncertainty.",
+        "latency_seconds": 9.412,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 189,
+          "total_tokens": 610,
+          "completion_tokens": 421
+        }
+      },
+      "response": "That’s a lot to carry—especially with the inspection happening close to your contingency deadline. For tonight, try techniques that calm your body first:\n\n1. **Physiological sigh:** Inhale through your nose, take a second small inhale, then slowly exhale through your mouth. Repeat 5–10 times.\n2. **Grounding exercise:** Name **5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste**.\n3. **Progressive muscle relaxation:** Tense and release each muscle group—from your shoulders and jaw down to your feet.\n4. **Set a “worry appointment”:** Write down your concerns and give yourself 15 minutes to address them. When worries return, remind yourself, “I’ll handle that during my worry time.”\n5. **Prepare, then stop:** Make a short list of questions for the inspector and any documents or contacts you need. After that, take a walk, shower, watch something comforting, or do another activity that occupies your attention.\n6. **Protect sleep:** Avoid excessive caffeine, alcohol, and late-night internet searches about home defects. Try slow breathing or a body-scan meditation in bed.\n\nSince the timing matters, it may also ease your mind to **contact your agent today** and confirm the exact inspection-contingency deadline and what written response is required if the inspector finds a problem. Knowing the plan can reduce uncertainty.",
+      "score": {
+        "passed": false,
+        "matched_groups": 2,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "inspection",
+                "text": "inspection"
+              },
+              {
+                "pattern": "contingency",
+                "text": "contingency"
+              }
+            ]
+          },
+          "deadline": {
+            "passed": false,
+            "matches": []
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "deadline",
+                "text": "deadline"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "4",
+          "score": 1.18724124609,
+          "source_index": 0
+        },
+        {
+          "session_id": "5",
+          "score": 0.832769486402,
+          "source_index": 1
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-25; session 4]\nOur offer on the house was accepted! The purchase agreement gives us a 15-day home inspection contingency, starting from today, October 25. If we don't get the inspection done and respond within that period, we waive the right to back out.\n\nCurrent session (2024-11-06):\nSo stressed about this house purchase. What are some good relaxation techniques?",
+      "generation": {
+        "text": "That sounds really stressful—buying a home combines a major financial decision with a tight deadline. A few techniques that may help:\n\n- **Try paced breathing:** Inhale for 4 counts, exhale for 6, and repeat for 2–3 minutes. Longer exhales can help settle your nervous system.\n- **Ground yourself:** Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste.\n- **Release physical tension:** Slowly tense and relax your shoulders, jaw, hands, stomach, and legs—one muscle group at a time.\n- **Take a short reset walk:** Even 10 minutes without checking emails or listings can reduce the stress response.\n- **Make a “next steps” list:** Write down only the immediate actions—such as reviewing the inspection report, listing questions, and contacting your agent—rather than trying to solve everything at once.\n- **Set a worry period:** Give yourself 15 minutes to write down concerns, then deliberately shift to something calming.\n- **Use supportive self-talk:** “I don’t have to decide everything this minute. I can gather information and make one step at a time.”\n\nBecause your inspection contingency period may be close to ending, one practical stress-reducer would be to **confirm today with your agent exactly when the deadline expires and what written response is required**. Once that’s handled, give yourself permission to step away for the evening.",
+        "latency_seconds": 9.618,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 156,
+          "total_tokens": 583,
+          "completion_tokens": 427
+        }
+      },
+      "response": "That sounds really stressful—buying a home combines a major financial decision with a tight deadline. A few techniques that may help:\n\n- **Try paced breathing:** Inhale for 4 counts, exhale for 6, and repeat for 2–3 minutes. Longer exhales can help settle your nervous system.\n- **Ground yourself:** Name 5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste.\n- **Release physical tension:** Slowly tense and relax your shoulders, jaw, hands, stomach, and legs—one muscle group at a time.\n- **Take a short reset walk:** Even 10 minutes without checking emails or listings can reduce the stress response.\n- **Make a “next steps” list:** Write down only the immediate actions—such as reviewing the inspection report, listing questions, and contacting your agent—rather than trying to solve everything at once.\n- **Set a worry period:** Give yourself 15 minutes to write down concerns, then deliberately shift to something calming.\n- **Use supportive self-talk:** “I don’t have to decide everything this minute. I can gather information and make one step at a time.”\n\nBecause your inspection contingency period may be close to ending, one practical stress-reducer would be to **confirm today with your agent exactly when the deadline expires and what written response is required**. Once that’s handled, give yourself permission to step away for the evening.",
+      "score": {
+        "passed": false,
+        "matched_groups": 2,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "inspection",
+                "text": "inspection"
+              },
+              {
+                "pattern": "contingency",
+                "text": "contingency"
+              }
+            ]
+          },
+          "deadline": {
+            "passed": false,
+            "matches": []
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "deadline",
+                "text": "deadline"
+              },
+              {
+                "pattern": "expir",
+                "text": "expir"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    }
+  },
+  "completed_at": "2026-07-26T15:08:44.120540+00:00"
+}

@@ -1,0 +1,168 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "protocol_sha256": "398bf58206385fe60f847620bd395e04ac8804250bc90967d65bcb286bb5e9a2",
+  "source_suite_sha256": "a9e77af758d8a7f18d0ba1ba0b387c87a9ba770e1fb7d46f05db8328ad2931dd",
+  "runner_sha256": "a9dcf032dfa4b826e2b69a797e9525c8823754d603d10185fe32871e289d994d",
+  "sandbox_sha256": "aaa68e85acce43c9cb0402a972cbbc040ce59aba1b8f3f282309ca7ce767ee46",
+  "git_commit": "99a9ee60d9c635323fa531e1941daea8191bd6f1",
+  "model": {
+    "name": "gpt-5.6-luna",
+    "api": "Krill AI API",
+    "request_profile": "shared Krill client with the OpenAI SDK request identity",
+    "generation_parameters": "Krill provider defaults"
+  },
+  "systems": [
+    "uac",
+    "full_context",
+    "retrieval"
+  ],
+  "selected_ids": [
+    "travel_03",
+    "travel_07",
+    "finance_01",
+    "finance_02",
+    "finance_03",
+    "finance_05",
+    "finance_06",
+    "schedule_01",
+    "schedule_02",
+    "schedule_03",
+    "schedule_04",
+    "schedule_06",
+    "schedule_07",
+    "schedule_08",
+    "deadline_03",
+    "deadline_05",
+    "deadline_07"
+  ],
+  "complete_frozen_suite": true,
+  "started_at": "2026-07-26T14:55:52.058510+00:00",
+  "completed_at": "2026-07-26T15:08:44.176900+00:00",
+  "usage": {
+    "requests": 70,
+    "prompt_tokens": 18986,
+    "completion_tokens": 34445,
+    "total_tokens": 53431
+  },
+  "summary": {
+    "case_count": 17,
+    "by_system": {
+      "uac": {
+        "passed": 4,
+        "total": 17,
+        "recall": 0.235294,
+        "wilson_95": [
+          0.09555,
+          0.472618
+        ],
+        "by_category": {
+          "financial_authorization_conflicts": {
+            "passed": 1,
+            "total": 5,
+            "recall": 0.2
+          },
+          "scheduling_conflicts": {
+            "passed": 2,
+            "total": 7,
+            "recall": 0.285714
+          },
+          "travel_document_validity": {
+            "passed": 0,
+            "total": 2,
+            "recall": 0.0
+          },
+          "warranty_deadline_expiration": {
+            "passed": 1,
+            "total": 3,
+            "recall": 0.333333
+          }
+        }
+      },
+      "full_context": {
+        "passed": 10,
+        "total": 17,
+        "recall": 0.588235,
+        "wilson_95": [
+          0.360054,
+          0.783889
+        ],
+        "by_category": {
+          "financial_authorization_conflicts": {
+            "passed": 3,
+            "total": 5,
+            "recall": 0.6
+          },
+          "scheduling_conflicts": {
+            "passed": 6,
+            "total": 7,
+            "recall": 0.857143
+          },
+          "travel_document_validity": {
+            "passed": 1,
+            "total": 2,
+            "recall": 0.5
+          },
+          "warranty_deadline_expiration": {
+            "passed": 0,
+            "total": 3,
+            "recall": 0.0
+          }
+        }
+      },
+      "retrieval": {
+        "passed": 12,
+        "total": 17,
+        "recall": 0.705882,
+        "wilson_95": [
+          0.468669,
+          0.8672
+        ],
+        "by_category": {
+          "financial_authorization_conflicts": {
+            "passed": 4,
+            "total": 5,
+            "recall": 0.8
+          },
+          "scheduling_conflicts": {
+            "passed": 7,
+            "total": 7,
+            "recall": 1.0
+          },
+          "travel_document_validity": {
+            "passed": 1,
+            "total": 2,
+            "recall": 0.5
+          },
+          "warranty_deadline_expiration": {
+            "passed": 0,
+            "total": 3,
+            "recall": 0.0
+          }
+        }
+      }
+    },
+    "pairwise": {
+      "uac_vs_full_context": {
+        "both_pass": 2,
+        "left_only_pass": 2,
+        "right_only_pass": 8,
+        "neither_pass": 5,
+        "exact_mcnemar_p": 0.109375
+      },
+      "uac_vs_retrieval": {
+        "both_pass": 3,
+        "left_only_pass": 1,
+        "right_only_pass": 9,
+        "neither_pass": 4,
+        "exact_mcnemar_p": 0.02148438
+      },
+      "full_context_vs_retrieval": {
+        "both_pass": 10,
+        "left_only_pass": 0,
+        "right_only_pass": 2,
+        "neither_pass": 5,
+        "exact_mcnemar_p": 0.5
+      }
+    }
+  }
+}

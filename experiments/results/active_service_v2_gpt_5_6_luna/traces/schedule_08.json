@@ -1,0 +1,343 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_08",
+  "category": "scheduling_conflicts",
+  "description": "Moving day overlaps with a booked vacation rental guest arriving",
+  "started_at": "2026-07-26T15:04:52.616151+00:00",
+  "sessions": [
+    {
+      "session_id": "1",
+      "timestamp": "2024-09-01",
+      "user_text": "We listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting."
+    },
+    {
+      "session_id": "4",
+      "timestamp": "2024-10-10",
+      "user_text": "Big news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The Airbnb guest stay from 2024-11-15 through 2024-11-20 overlaps the movers' dates of 2024-11-14 through 2024-11-15 on 2024-11-15."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "airbnb",
+                    "text": "Airbnb"
+                  },
+                  {
+                    "pattern": "guest",
+                    "text": "guest"
+                  }
+                ]
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-15",
+                    "text": "2024-11-15"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "mover",
+                    "text": "mover"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "overlap",
+                    "text": "overlap"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "1",
+            "timestamp": "2024-09-01",
+            "user_text": "We listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-01\n\nComplete user-authored history through this session:\n[2024-09-01; session 1]\nWe listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"airbnb\": {\n        \"spare_bedroom_listed\": True,\n        \"reservations\": [\n            {\n                \"guest_arrival\": \"2024-11-15\",\n                \"guest_departure\": \"2024-11-20\"\n            }\n        ]\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 10.011,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 353,
+              "total_tokens": 606,
+              "completion_tokens": 253
+            }
+          },
+          "source": "STATE = {\n    \"airbnb\": {\n        \"spare_bedroom_listed\": True,\n        \"reservations\": [\n            {\n                \"guest_arrival\": \"2024-11-15\",\n                \"guest_departure\": \"2024-11-20\"\n            }\n        ]\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_08/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 23,
+            "imports": [],
+            "source_sha256": "c23d29b3f0a4871f98a9dcd378dfe3c99b8fb3fae247a898492b5dc5a7936be6"
+          },
+          "execution": {
+            "state": {
+              "airbnb": {
+                "spare_bedroom_listed": true,
+                "reservations": [
+                  {
+                    "guest_arrival": "2024-11-15",
+                    "guest_departure": "2024-11-20"
+                  }
+                ]
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-10-10",
+            "user_text": "Big news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-10\n\nComplete user-authored history through this session:\n[2024-09-01; session 1]\nWe listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting.\n\n[2024-10-10; session 4]\nBig news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"airbnb\": {\n        \"listing_created\": \"2024-09-01\",\n        \"booking\": {\n            \"arrival\": \"2024-11-15\",\n            \"departure\": \"2024-11-20\",\n            \"status\": \"booked\"\n        }\n    },\n    \"new_house\": {\n        \"closing_date\": \"2024-11-10\",\n        \"movers\": {\n            \"start_date\": \"2024-11-14\",\n            \"end_date\": \"2024-11-15\"\n        }\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    closing = date.fromisoformat(STATE[\"new_house\"][\"closing_date\"])\n    days_until_closing = (closing - current).days\n    if 0 <= days_until_closing <= 7:\n        alerts.append({\n            \"severity\": \"info\",\n            \"type\": \"deadline_approaching\",\n            \"message\": \"House closing is on 2024-11-10, which is within seven days.\"\n        })\n\n    guest_arrival = date.fromisoformat(STATE[\"airbnb\"][\"booking\"][\"arrival\"])\n    guest_departure = date.fromisoformat(STATE[\"airbnb\"][\"booking\"][\"departure\"])\n    movers_start = date.fromisoformat(STATE[\"new_house\"][\"movers\"][\"start_date\"])\n    movers_end = date.fromisoformat(STATE[\"new_house\"][\"movers\"][\"end_date\"])\n\n    overlap_start = max(guest_arrival, movers_start)\n    overlap_end = min(guest_departure, movers_end)\n\n    if overlap_start <= overlap_end and current <= overlap_end:\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"schedule_conflict\",\n            \"message\": \"The Airbnb guest stay from 2024-11-15 through 2024-11-20 overlaps the movers' dates of 2024-11-14 through 2024-11-15 on 2024-11-15.\"\n        })\n\n    return alerts",
+            "latency_seconds": 25.077,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 393,
+              "total_tokens": 1690,
+              "completion_tokens": 1297
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"airbnb\": {\n        \"listing_created\": \"2024-09-01\",\n        \"booking\": {\n            \"arrival\": \"2024-11-15\",\n            \"departure\": \"2024-11-20\",\n            \"status\": \"booked\"\n        }\n    },\n    \"new_house\": {\n        \"closing_date\": \"2024-11-10\",\n        \"movers\": {\n            \"start_date\": \"2024-11-14\",\n            \"end_date\": \"2024-11-15\"\n        }\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    closing = date.fromisoformat(STATE[\"new_house\"][\"closing_date\"])\n    days_until_closing = (closing - current).days\n    if 0 <= days_until_closing <= 7:\n        alerts.append({\n            \"severity\": \"info\",\n            \"type\": \"deadline_approaching\",\n            \"message\": \"House closing is on 2024-11-10, which is within seven days.\"\n        })\n\n    guest_arrival = date.fromisoformat(STATE[\"airbnb\"][\"booking\"][\"arrival\"])\n    guest_departure = date.fromisoformat(STATE[\"airbnb\"][\"booking\"][\"departure\"])\n    movers_start = date.fromisoformat(STATE[\"new_house\"][\"movers\"][\"start_date\"])\n    movers_end = date.fromisoformat(STATE[\"new_house\"][\"movers\"][\"end_date\"])\n\n    overlap_start = max(guest_arrival, movers_start)\n    overlap_end = min(guest_departure, movers_end)\n\n    if overlap_start <= overlap_end and current <= overlap_end:\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"schedule_conflict\",\n            \"message\": \"The Airbnb guest stay from 2024-11-15 through 2024-11-20 overlaps the movers' dates of 2024-11-14 through 2024-11-15 on 2024-11-15.\"\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_08/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 222,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "ccf3b4203872a97670232e9df002e5415c3e779471836aef0ade322bf268495c"
+          },
+          "execution": {
+            "state": {
+              "airbnb": {
+                "listing_created": "2024-09-01",
+                "booking": {
+                  "arrival": "2024-11-15",
+                  "departure": "2024-11-20",
+                  "status": "booked"
+                }
+              },
+              "new_house": {
+                "closing_date": "2024-11-10",
+                "movers": {
+                  "start_date": "2024-11-14",
+                  "end_date": "2024-11-15"
+                }
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "schedule_conflict",
+                "message": "The Airbnb guest stay from 2024-11-15 through 2024-11-20 overlaps the movers' dates of 2024-11-14 through 2024-11-15 on 2024-11-15."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "1"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-01; session 1]\nWe listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting.\n\nCurrent session (2024-10-10):\nBig news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything.",
+      "generation": {
+        "text": "Congratulations on the new house! That’s exciting—but your Airbnb guest is scheduled for November 15–20, while your movers arrive November 14–15. You’ll want to address that overlap as soon as possible:\n\n- Contact the guest promptly and explain the move-related conflict.\n- Offer to cancel and provide a full refund, or help them find comparable nearby lodging—ideally covering any price difference if appropriate.\n- Check Airbnb’s cancellation and host-support policies before canceling.\n- Make sure your current home is fully ready for the guest if you proceed, since moving activity could affect cleanliness, access, parking, and privacy.",
+        "latency_seconds": 4.991,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 149,
+          "total_tokens": 326,
+          "completion_tokens": 177
+        }
+      },
+      "response": "Congratulations on the new house! That’s exciting—but your Airbnb guest is scheduled for November 15–20, while your movers arrive November 14–15. You’ll want to address that overlap as soon as possible:\n\n- Contact the guest promptly and explain the move-related conflict.\n- Offer to cancel and provide a full refund, or help them find comparable nearby lodging—ideally covering any price difference if appropriate.\n- Check Airbnb’s cancellation and host-support policies before canceling.\n- Make sure your current home is fully ready for the guest if you proceed, since moving activity could affect cleanliness, access, parking, and privacy.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "airbnb",
+                "text": "Airbnb"
+              },
+              {
+                "pattern": "guest",
+                "text": "guest"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+15",
+                "text": "November 15"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "mover",
+                "text": "mover"
+              },
+              {
+                "pattern": "moving",
+                "text": "moving"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "overlap",
+                "text": "overlap"
+              },
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              },
+              {
+                "pattern": "cancel",
+                "text": "cancel"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "1"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "1",
+          "score": 1.546291139428,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-01; session 1]\nWe listed our spare bedroom on Airbnb! Got our first booking -- a guest arriving November 15 and staying through November 20. So exciting.\n\nCurrent session (2024-10-10):\nBig news -- we bought a new house! Closing is November 10 and the movers are coming November 14-15 to move everything.",
+      "generation": {
+        "text": "Congratulations on the new house! That’s exciting—but there’s an important timing conflict: your Airbnb guest is scheduled for **November 15–20**, while your movers are coming **November 14–15**.\n\nIf the Airbnb is in your current home, you’ll likely need to contact the guest promptly and either:\n\n- arrange alternative accommodations, if possible;\n- adjust the reservation dates; or\n- cancel the reservation through Airbnb and explain the relocation situation.\n\nIt would also be worth confirming whether the guest can still access the room safely and privately during the move.",
+        "latency_seconds": 4.732,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 149,
+          "total_tokens": 333,
+          "completion_tokens": 184
+        }
+      },
+      "response": "Congratulations on the new house! That’s exciting—but there’s an important timing conflict: your Airbnb guest is scheduled for **November 15–20**, while your movers are coming **November 14–15**.\n\nIf the Airbnb is in your current home, you’ll likely need to contact the guest promptly and either:\n\n- arrange alternative accommodations, if possible;\n- adjust the reservation dates; or\n- cancel the reservation through Airbnb and explain the relocation situation.\n\nIt would also be worth confirming whether the guest can still access the room safely and privately during the move.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "airbnb",
+                "text": "Airbnb"
+              },
+              {
+                "pattern": "guest",
+                "text": "guest"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+15",
+                "text": "November 15"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "mover",
+                "text": "mover"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              },
+              {
+                "pattern": "cancel",
+                "text": "cancel"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:05:37.511893+00:00"
+}

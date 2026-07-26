@@ -1,0 +1,340 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_05",
+  "category": "financial_authorization_conflicts",
+  "description": "Payment scheduled after the user mentioned closing that bank account",
+  "started_at": "2026-07-26T14:59:12.610669+00:00",
+  "sessions": [
+    {
+      "session_id": "6",
+      "timestamp": "2024-09-18",
+      "user_text": "I'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees."
+    },
+    {
+      "session_id": "9",
+      "timestamp": "2024-10-02",
+      "user_text": "Can you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 1,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "Rent autopay of $1,500.00 is scheduled from wells_fargo_checking, which was planned for closure before the recurring payment date."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 1,
+            "required_groups": 4,
+            "groups": {
+              "account": {
+                "passed": false,
+                "matches": []
+              },
+              "payment": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "autopay",
+                    "text": "autopay"
+                  }
+                ]
+              },
+              "state": {
+                "passed": false,
+                "matches": []
+              },
+              "consequence": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-09-18",
+            "user_text": "I'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-18\n\nComplete user-authored history through this session:\n[2024-09-18; session 6]\nI'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"accounts\": {\n        \"wells_fargo_checking\": {\n            \"status\": \"open\",\n            \"planned_action\": \"close\",\n            \"planned_window_start\": \"2024-09-23\",\n            \"planned_window_end\": \"2024-09-29\",\n            \"destination_for_moved_funds\": \"Schwab\"\n        },\n        \"schwab\": {\n            \"status\": \"new\",\n            \"role\": \"replacement_account\"\n        }\n    },\n    \"commitments\": [\n        {\n            \"action\": \"move everything from Wells Fargo checking to Schwab\",\n            \"window_start\": \"2024-09-23\",\n            \"window_end\": \"2024-09-29\"\n        },\n        {\n            \"action\": \"close Wells Fargo checking account\",\n            \"window_start\": \"2024-09-23\",\n            \"window_end\": \"2024-09-29\"\n        }\n    ],\n    \"preferences\": {\n        \"dislikes\": [\n            {\n                \"subject\": \"Wells Fargo fees\"\n            }\n        ]\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    closure_start = date.fromisoformat(\n        STATE[\"accounts\"][\"wells_fargo_checking\"][\"planned_window_start\"]\n    )\n    closure_end = date.fromisoformat(\n        STATE[\"accounts\"][\"wells_fargo_checking\"][\"planned_window_end\"]\n    )\n\n    if closure_start <= current <= closure_end:\n        alerts.append({\n            \"severity\": \"reminder\",\n            \"type\": \"deadline\",\n            \"message\": \"The planned window to move everything from Wells Fargo checking to Schwab and close the Wells Fargo checking account is underway.\"\n        })\n    elif current < closure_start and closure_start - current <= timedelta(days=7):\n        alerts.append({\n            \"severity\": \"reminder\",\n            \"type\": \"deadline\",\n            \"message\": \"The planned window to move everything from Wells Fargo checking to Schwab and close the Wells Fargo checking account begins within seven days.\"\n        })\n\n    return alerts",
+            "latency_seconds": 19.292,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 349,
+              "total_tokens": 1308,
+              "completion_tokens": 959
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"accounts\": {\n        \"wells_fargo_checking\": {\n            \"status\": \"open\",\n            \"planned_action\": \"close\",\n            \"planned_window_start\": \"2024-09-23\",\n            \"planned_window_end\": \"2024-09-29\",\n            \"destination_for_moved_funds\": \"Schwab\"\n        },\n        \"schwab\": {\n            \"status\": \"new\",\n            \"role\": \"replacement_account\"\n        }\n    },\n    \"commitments\": [\n        {\n            \"action\": \"move everything from Wells Fargo checking to Schwab\",\n            \"window_start\": \"2024-09-23\",\n            \"window_end\": \"2024-09-29\"\n        },\n        {\n            \"action\": \"close Wells Fargo checking account\",\n            \"window_start\": \"2024-09-23\",\n            \"window_end\": \"2024-09-29\"\n        }\n    ],\n    \"preferences\": {\n        \"dislikes\": [\n            {\n                \"subject\": \"Wells Fargo fees\"\n            }\n        ]\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    closure_start = date.fromisoformat(\n        STATE[\"accounts\"][\"wells_fargo_checking\"][\"planned_window_start\"]\n    )\n    closure_end = date.fromisoformat(\n        STATE[\"accounts\"][\"wells_fargo_checking\"][\"planned_window_end\"]\n    )\n\n    if closure_start <= current <= closure_end:\n        alerts.append({\n            \"severity\": \"reminder\",\n            \"type\": \"deadline\",\n            \"message\": \"The planned window to move everything from Wells Fargo checking to Schwab and close the Wells Fargo checking account is underway.\"\n        })\n    elif current < closure_start and closure_start - current <= timedelta(days=7):\n        alerts.append({\n            \"severity\": \"reminder\",\n            \"type\": \"deadline\",\n            \"message\": \"The planned window to move everything from Wells Fargo checking to Schwab and close the Wells Fargo checking account begins within seven days.\"\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_05/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 170,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "3de484a34cb5aeeef681c3f505fef93978cf8135d264d9f11ef88825daefd4bc"
+          },
+          "execution": {
+            "state": {
+              "accounts": {
+                "wells_fargo_checking": {
+                  "status": "open",
+                  "planned_action": "close",
+                  "planned_window_start": "2024-09-23",
+                  "planned_window_end": "2024-09-29",
+                  "destination_for_moved_funds": "Schwab"
+                },
+                "schwab": {
+                  "status": "new",
+                  "role": "replacement_account"
+                }
+              },
+              "commitments": [
+                {
+                  "action": "move everything from Wells Fargo checking to Schwab",
+                  "window_start": "2024-09-23",
+                  "window_end": "2024-09-29"
+                },
+                {
+                  "action": "close Wells Fargo checking account",
+                  "window_start": "2024-09-23",
+                  "window_end": "2024-09-29"
+                }
+              ],
+              "preferences": {
+                "dislikes": [
+                  {
+                    "subject": "Wells Fargo fees"
+                  }
+                ]
+              }
+            },
+            "alerts": [
+              {
+                "severity": "reminder",
+                "type": "deadline",
+                "message": "The planned window to move everything from Wells Fargo checking to Schwab and close the Wells Fargo checking account begins within seven days."
+              }
+            ]
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "9",
+            "timestamp": "2024-10-02",
+            "user_text": "Can you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-02\n\nComplete user-authored history through this session:\n[2024-09-18; session 6]\nI'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees.\n\n[2024-10-02; session 9]\nCan you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"accounts\": {\n        \"wells_fargo_checking\": {\n            \"status\": \"planned_for_closure\",\n            \"closure_statement_date\": \"2024-09-18\",\n            \"planned_closure_window\": {\n                \"start\": \"2024-09-23\",\n                \"end\": \"2024-09-29\"\n            }\n        },\n        \"schwab\": {\n            \"role\": \"replacement_account\",\n            \"transfer_intent\": \"move_everything_from_wells_fargo\"\n        }\n    },\n    \"recurring_payments\": [\n        {\n            \"name\": \"rent\",\n            \"amount\": 1500,\n            \"currency\": \"USD\",\n            \"autopay_account\": \"wells_fargo_checking\",\n            \"due_day_of_month\": 1\n        }\n    ],\n    \"preferences\": {\n        \"avoid_wells_fargo_fees\": True\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    for payment in STATE[\"recurring_payments\"]:\n        account = STATE[\"accounts\"].get(payment[\"autopay_account\"], {})\n        closure_end = account.get(\"planned_closure_window\", {}).get(\"end\")\n\n        if (\n            account.get(\"status\") == \"planned_for_closure\"\n            and closure_end\n            and current > date.fromisoformat(closure_end)\n            and payment[\"due_day_of_month\"] == 1\n        ):\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"payment_account_conflict\",\n                \"message\": (\n                    f'{payment[\"name\"].capitalize()} autopay of '\n                    f'${payment[\"amount\"]:,.2f} is scheduled from '\n                    f'{payment[\"autopay_account\"]}, which was planned for closure '\n                    f'before the recurring payment date.'\n                )\n            })\n\n    return alerts if current >= date(2024, 10, 1) else []",
+            "latency_seconds": 18.647,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 399,
+              "total_tokens": 1337,
+              "completion_tokens": 938
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"accounts\": {\n        \"wells_fargo_checking\": {\n            \"status\": \"planned_for_closure\",\n            \"closure_statement_date\": \"2024-09-18\",\n            \"planned_closure_window\": {\n                \"start\": \"2024-09-23\",\n                \"end\": \"2024-09-29\"\n            }\n        },\n        \"schwab\": {\n            \"role\": \"replacement_account\",\n            \"transfer_intent\": \"move_everything_from_wells_fargo\"\n        }\n    },\n    \"recurring_payments\": [\n        {\n            \"name\": \"rent\",\n            \"amount\": 1500,\n            \"currency\": \"USD\",\n            \"autopay_account\": \"wells_fargo_checking\",\n            \"due_day_of_month\": 1\n        }\n    ],\n    \"preferences\": {\n        \"avoid_wells_fargo_fees\": True\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    for payment in STATE[\"recurring_payments\"]:\n        account = STATE[\"accounts\"].get(payment[\"autopay_account\"], {})\n        closure_end = account.get(\"planned_closure_window\", {}).get(\"end\")\n\n        if (\n            account.get(\"status\") == \"planned_for_closure\"\n            and closure_end\n            and current > date.fromisoformat(closure_end)\n            and payment[\"due_day_of_month\"] == 1\n        ):\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"payment_account_conflict\",\n                \"message\": (\n                    f'{payment[\"name\"].capitalize()} autopay of '\n                    f'${payment[\"amount\"]:,.2f} is scheduled from '\n                    f'{payment[\"autopay_account\"]}, which was planned for closure '\n                    f'before the recurring payment date.'\n                )\n            })\n\n    return alerts if current >= date(2024, 10, 1) else []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_05/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 191,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "70307edd16d8b55f7b4dafb8dacc051e631bfa3ffb6d4e7894fa2caca3e6ead0"
+          },
+          "execution": {
+            "state": {
+              "accounts": {
+                "wells_fargo_checking": {
+                  "status": "planned_for_closure",
+                  "closure_statement_date": "2024-09-18",
+                  "planned_closure_window": {
+                    "start": "2024-09-23",
+                    "end": "2024-09-29"
+                  }
+                },
+                "schwab": {
+                  "role": "replacement_account",
+                  "transfer_intent": "move_everything_from_wells_fargo"
+                }
+              },
+              "recurring_payments": [
+                {
+                  "name": "rent",
+                  "amount": 1500,
+                  "currency": "USD",
+                  "autopay_account": "wells_fargo_checking",
+                  "due_day_of_month": 1
+                }
+              ],
+              "preferences": {
+                "avoid_wells_fargo_fees": true
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "payment_account_conflict",
+                "message": "Rent autopay of $1,500.00 is scheduled from wells_fargo_checking, which was planned for closure before the recurring payment date."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "6"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-18; session 6]\nI'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees.\n\nCurrent session (2024-10-02):\nCan you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month.",
+      "generation": {
+        "text": "Your recurring payment on record is:\n\n- **Rent:** $1,500\n- **Due:** 1st of each month\n- **Autopay account:** Wells Fargo checking\n\nSince you planned to close that account, make sure to update the rent autopay to your Schwab account before the next payment.",
+        "latency_seconds": 4.977,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 155,
+          "total_tokens": 295,
+          "completion_tokens": 140
+        }
+      },
+      "response": "Your recurring payment on record is:\n\n- **Rent:** $1,500\n- **Due:** 1st of each month\n- **Autopay account:** Wells Fargo checking\n\nSince you planned to close that account, make sure to update the rent autopay to your Schwab account before the next payment.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "account": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "wells fargo",
+                "text": "Wells Fargo"
+              }
+            ]
+          },
+          "payment": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "autopay",
+                "text": "Autopay"
+              }
+            ]
+          },
+          "state": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "clos(?:e|ed|ing)",
+                "text": "close"
+              }
+            ]
+          },
+          "consequence": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "schwab",
+                "text": "Schwab"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "6"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "6",
+          "score": 1.94185398905,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-18; session 6]\nI'm closing my Wells Fargo checking account next week. Moving everything to my new Schwab account. Fed up with their fees.\n\nCurrent session (2024-10-02):\nCan you remind me about my recurring payments? I set up a $1,500 rent payment on autopay from my Wells Fargo account, due on the 1st of each month.",
+      "generation": {
+        "text": "Your recurring payment is:\n\n- **$1,500 rent**\n- **Due:** 1st of each month\n- **Autopay account:** Wells Fargo checking\n\nSince today is **October 2** and you’re closing the Wells Fargo account next week, check whether October’s payment processed successfully. You should also update the autopay instructions to your Schwab account before the **November 1** payment, and confirm the change with your landlord or payment provider.",
+        "latency_seconds": 4.858,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 155,
+          "total_tokens": 333,
+          "completion_tokens": 178
+        }
+      },
+      "response": "Your recurring payment is:\n\n- **$1,500 rent**\n- **Due:** 1st of each month\n- **Autopay account:** Wells Fargo checking\n\nSince today is **October 2** and you’re closing the Wells Fargo account next week, check whether October’s payment processed successfully. You should also update the autopay instructions to your Schwab account before the **November 1** payment, and confirm the change with your landlord or payment provider.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "account": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "wells fargo",
+                "text": "Wells Fargo"
+              }
+            ]
+          },
+          "payment": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "autopay",
+                "text": "Autopay"
+              }
+            ]
+          },
+          "state": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "clos(?:e|ed|ing)",
+                "text": "closing"
+              }
+            ]
+          },
+          "consequence": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "schwab",
+                "text": "Schwab"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:00:00.454181+00:00"
+}

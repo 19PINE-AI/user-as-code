@@ -1,0 +1,312 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_01",
+  "category": "scheduling_conflicts",
+  "description": "Flight departure during a previously mentioned meeting",
+  "started_at": "2026-07-26T15:00:41.031143+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-09-10",
+      "user_text": "I have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM."
+    },
+    {
+      "session_id": "10",
+      "timestamp": "2025-01-14",
+      "user_text": "Found a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The proposed Chicago flight departs Tuesday, January 21 at 2:30 PM, overlapping the Tuesday board meeting from 2:00 PM to about 4:00 PM, which you said you absolutely cannot miss."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "board meeting",
+                    "text": "board meeting"
+                  }
+                ]
+              },
+              "time": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2(?::00)?\\s*(?:p\\.?m\\.?)",
+                    "text": "2:00 PM"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "flight",
+                    "text": "flight"
+                  },
+                  {
+                    "pattern": "chicago",
+                    "text": "Chicago"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "overlap",
+                    "text": "overlap"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-09-10",
+            "user_text": "I have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-10\n\nComplete user-authored history through this session:\n[2024-09-10; session 3]\nI have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"commitments\": {\n        \"board_meeting\": {\n            \"recurrence\": \"every Tuesday\",\n            \"start_time\": \"14:00\",\n            \"end_time\": \"about 16:00\",\n            \"cannot_miss\": True\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []",
+            "latency_seconds": 10.28,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 349,
+              "total_tokens": 786,
+              "completion_tokens": 437
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"commitments\": {\n        \"board_meeting\": {\n            \"recurrence\": \"every Tuesday\",\n            \"start_time\": \"14:00\",\n            \"end_time\": \"about 16:00\",\n            \"cannot_miss\": True\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_01/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 33,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "3dfb55ea7145edde07a7a69231830e1bff4470b80db46676b6fe2f4e84f85e8a"
+          },
+          "execution": {
+            "state": {
+              "commitments": {
+                "board_meeting": {
+                  "recurrence": "every Tuesday",
+                  "start_time": "14:00",
+                  "end_time": "about 16:00",
+                  "cannot_miss": true
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "10",
+            "timestamp": "2025-01-14",
+            "user_text": "Found a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2025-01-14\n\nComplete user-authored history through this session:\n[2024-09-10; session 3]\nI have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM.\n\n[2025-01-14; session 10]\nFound a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"board_meeting\": {\n        \"recurrence\": \"every Tuesday\",\n        \"start_time\": \"14:00\",\n        \"end_time\": \"16:00\",\n        \"importance\": \"absolutely cannot miss\"\n    },\n    \"proposed_flight\": {\n        \"destination\": \"Chicago\",\n        \"departure_date\": \"2025-01-21\",\n        \"departure_time\": \"14:30\",\n        \"status\": \"not booked\"\n    }\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    flight_date = date.fromisoformat(STATE[\"proposed_flight\"][\"departure_date\"])\n\n    if (\n        STATE[\"proposed_flight\"][\"status\"] == \"not booked\"\n        and current_date <= flight_date\n        and flight_date.weekday() == 1\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": \"The proposed Chicago flight departs Tuesday, January 21 at 2:30 PM, overlapping the Tuesday board meeting from 2:00 PM to about 4:00 PM, which you said you absolutely cannot miss.\"\n        }]\n\n    return []",
+            "latency_seconds": 14.607,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 387,
+              "total_tokens": 1087,
+              "completion_tokens": 700
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"board_meeting\": {\n        \"recurrence\": \"every Tuesday\",\n        \"start_time\": \"14:00\",\n        \"end_time\": \"16:00\",\n        \"importance\": \"absolutely cannot miss\"\n    },\n    \"proposed_flight\": {\n        \"destination\": \"Chicago\",\n        \"departure_date\": \"2025-01-21\",\n        \"departure_time\": \"14:30\",\n        \"status\": \"not booked\"\n    }\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    flight_date = date.fromisoformat(STATE[\"proposed_flight\"][\"departure_date\"])\n\n    if (\n        STATE[\"proposed_flight\"][\"status\"] == \"not booked\"\n        and current_date <= flight_date\n        and flight_date.weekday() == 1\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": \"The proposed Chicago flight departs Tuesday, January 21 at 2:30 PM, overlapping the Tuesday board meeting from 2:00 PM to about 4:00 PM, which you said you absolutely cannot miss.\"\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_01/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 97,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "6447ccb270f7562ecd981a26379e961fa2d3e777582be09452419bf42d6d0767"
+          },
+          "execution": {
+            "state": {
+              "board_meeting": {
+                "recurrence": "every Tuesday",
+                "start_time": "14:00",
+                "end_time": "16:00",
+                "importance": "absolutely cannot miss"
+              },
+              "proposed_flight": {
+                "destination": "Chicago",
+                "departure_date": "2025-01-21",
+                "departure_time": "14:30",
+                "status": "not booked"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "conflict",
+                "message": "The proposed Chicago flight departs Tuesday, January 21 at 2:30 PM, overlapping the Tuesday board meeting from 2:00 PM to about 4:00 PM, which you said you absolutely cannot miss."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-10; session 3]\nI have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM.\n\nCurrent session (2025-01-14):\nFound a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?",
+      "generation": {
+        "text": "I wouldn’t book that flight as-is—it overlaps with your board meeting, which runs until about 4 PM, and you’d also need time to get to the airport and board.\n\nLook for a later flight on January 21, or consider departing another day unless the meeting can be rescheduled.",
+        "latency_seconds": 3.548,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 143,
+          "total_tokens": 255,
+          "completion_tokens": 112
+        }
+      },
+      "response": "I wouldn’t book that flight as-is—it overlaps with your board meeting, which runs until about 4 PM, and you’d also need time to get to the airport and board.\n\nLook for a later flight on January 21, or consider departing another day unless the meeting can be rescheduled.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "board meeting",
+                "text": "board meeting"
+              }
+            ]
+          },
+          "time": {
+            "passed": false,
+            "matches": []
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "flight",
+                "text": "flight"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "overlap",
+                "text": "overlap"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "3",
+          "score": 2.229536061501,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-10; session 3]\nI have a board meeting every Tuesday at 2 PM that I absolutely cannot miss. It runs until about 4 PM.\n\nCurrent session (2025-01-14):\nFound a great fare to Chicago! Departing Tuesday January 21st at 2:30 PM. Should I book it?",
+      "generation": {
+        "text": "I wouldn’t book it as-is—the 2:30 PM Tuesday departure conflicts with your 2–4 PM board meeting, and you’d also need to arrive at the airport well beforehand. Look for a later flight or a different day, unless the meeting can be officially rescheduled.",
+        "latency_seconds": 3.51,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 143,
+          "total_tokens": 247,
+          "completion_tokens": 104
+        }
+      },
+      "response": "I wouldn’t book it as-is—the 2:30 PM Tuesday departure conflicts with your 2–4 PM board meeting, and you’d also need to arrive at the airport well beforehand. Look for a later flight or a different day, unless the meeting can be officially rescheduled.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "board meeting",
+                "text": "board meeting"
+              }
+            ]
+          },
+          "time": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "2\\s*[-–]\\s*4",
+                "text": "2–4"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "flight",
+                "text": "flight"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:01:13.050459+00:00"
+}

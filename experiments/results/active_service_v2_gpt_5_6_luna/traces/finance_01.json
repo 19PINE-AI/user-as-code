@@ -1,0 +1,312 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_01",
+  "category": "financial_authorization_conflicts",
+  "description": "Two family members give conflicting wire transfer instructions",
+  "started_at": "2026-07-26T14:57:27.627209+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-09-05",
+      "user_text": "My mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation."
+    },
+    {
+      "session_id": "4",
+      "timestamp": "2024-09-06",
+      "user_text": "Hey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The requested $5,000 transfer from the family trust account to Chase account ending in 4477 conflicts with the instruction that no money leave the trust account during September 2024."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "amount": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?5[, ]?000",
+                    "text": "$5,000"
+                  }
+                ]
+              },
+              "account": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "family trust",
+                    "text": "family trust"
+                  }
+                ]
+              },
+              "parties": {
+                "passed": false,
+                "matches": []
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  },
+                  {
+                    "pattern": "no money (?:should )?(?:leave|move)",
+                    "text": "no money leave"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-09-05",
+            "user_text": "My mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-05\n\nComplete user-authored history through this session:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"current_session_date\": \"2024-09-05\",\n    \"financial_requests\": [\n        {\n            \"request_date\": \"2024-09-05\",\n            \"requester\": \"user's mom\",\n            \"action\": \"wire\",\n            \"amount_usd\": 5000,\n            \"source_account\": \"family trust account\",\n            \"destination_account_last_four\": \"4477\",\n            \"destination_institution\": \"Chase\",\n            \"purpose\": \"kitchen renovation\",\n            \"status\": \"requested\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 8.214,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 360,
+              "total_tokens": 614,
+              "completion_tokens": 254
+            }
+          },
+          "source": "STATE = {\n    \"current_session_date\": \"2024-09-05\",\n    \"financial_requests\": [\n        {\n            \"request_date\": \"2024-09-05\",\n            \"requester\": \"user's mom\",\n            \"action\": \"wire\",\n            \"amount_usd\": 5000,\n            \"source_account\": \"family trust account\",\n            \"destination_account_last_four\": \"4477\",\n            \"destination_institution\": \"Chase\",\n            \"purpose\": \"kitchen renovation\",\n            \"status\": \"requested\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_01/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 35,
+            "imports": [],
+            "source_sha256": "abd8be55c9b3a9bcf10d1b44058cf6879b11232339ee8ba38e159ddf3e32fe3b"
+          },
+          "execution": {
+            "state": {
+              "current_session_date": "2024-09-05",
+              "financial_requests": [
+                {
+                  "request_date": "2024-09-05",
+                  "requester": "user's mom",
+                  "action": "wire",
+                  "amount_usd": 5000,
+                  "source_account": "family trust account",
+                  "destination_account_last_four": "4477",
+                  "destination_institution": "Chase",
+                  "purpose": "kitchen renovation",
+                  "status": "requested"
+                }
+              ]
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-09-06",
+            "user_text": "Hey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-06\n\nComplete user-authored history through this session:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\n[2024-09-06; session 4]\nHey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"trust_account\": {\n        \"restriction\": {\n            \"prohibited_action\": \"money leaving the family trust account\",\n            \"start_date\": \"2024-09-01\",\n            \"end_date\": \"2024-09-30\",\n            \"source\": \"dad\",\n            \"wording\": \"under no circumstances should any money leave the family trust account this month\"\n        }\n    },\n    \"transfer_request\": {\n        \"requested_by\": \"mom\",\n        \"amount\": 5000,\n        \"currency\": \"USD\",\n        \"purpose\": \"kitchen renovation\",\n        \"destination_account_last4\": \"4477\",\n        \"destination_bank\": \"Chase\",\n        \"source_account\": \"family trust account\",\n        \"request_date\": \"2024-09-05\",\n        \"status\": \"requested\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    restriction_start = date.fromisoformat(\n        STATE[\"trust_account\"][\"restriction\"][\"start_date\"]\n    )\n    restriction_end = date.fromisoformat(\n        STATE[\"trust_account\"][\"restriction\"][\"end_date\"]\n    )\n\n    if restriction_start <= current <= restriction_end:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": (\n                \"The requested $5,000 transfer from the family trust account to \"\n                \"Chase account ending in 4477 conflicts with the instruction that \"\n                \"no money leave the trust account during September 2024.\"\n            )\n        }]\n\n    return []",
+            "latency_seconds": 13.604,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 402,
+              "total_tokens": 1041,
+              "completion_tokens": 639
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"trust_account\": {\n        \"restriction\": {\n            \"prohibited_action\": \"money leaving the family trust account\",\n            \"start_date\": \"2024-09-01\",\n            \"end_date\": \"2024-09-30\",\n            \"source\": \"dad\",\n            \"wording\": \"under no circumstances should any money leave the family trust account this month\"\n        }\n    },\n    \"transfer_request\": {\n        \"requested_by\": \"mom\",\n        \"amount\": 5000,\n        \"currency\": \"USD\",\n        \"purpose\": \"kitchen renovation\",\n        \"destination_account_last4\": \"4477\",\n        \"destination_bank\": \"Chase\",\n        \"source_account\": \"family trust account\",\n        \"request_date\": \"2024-09-05\",\n        \"status\": \"requested\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    restriction_start = date.fromisoformat(\n        STATE[\"trust_account\"][\"restriction\"][\"start_date\"]\n    )\n    restriction_end = date.fromisoformat(\n        STATE[\"trust_account\"][\"restriction\"][\"end_date\"]\n    )\n\n    if restriction_start <= current <= restriction_end:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": (\n                \"The requested $5,000 transfer from the family trust account to \"\n                \"Chase account ending in 4477 conflicts with the instruction that \"\n                \"no money leave the trust account during September 2024.\"\n            )\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_01/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 115,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "24d6c1da903c569199fa6522df4583506579235f2c2f294351112b27d1faebe0"
+          },
+          "execution": {
+            "state": {
+              "trust_account": {
+                "restriction": {
+                  "prohibited_action": "money leaving the family trust account",
+                  "start_date": "2024-09-01",
+                  "end_date": "2024-09-30",
+                  "source": "dad",
+                  "wording": "under no circumstances should any money leave the family trust account this month"
+                }
+              },
+              "transfer_request": {
+                "requested_by": "mom",
+                "amount": 5000,
+                "currency": "USD",
+                "purpose": "kitchen renovation",
+                "destination_account_last4": "4477",
+                "destination_bank": "Chase",
+                "source_account": "family trust account",
+                "request_date": "2024-09-05",
+                "status": "requested"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "conflict",
+                "message": "The requested $5,000 transfer from the family trust account to Chase account ending in 4477 conflicts with the instruction that no money leave the trust account during September 2024."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\nCurrent session (2024-09-06):\nHey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant.",
+      "generation": {
+        "text": "Do not transfer any money from the family trust account right now. Your dad’s instruction conflicts with your mom’s earlier request, so pause the payment until the trust’s authorized trustee or accountant confirms in writing that the transfer is permitted.\n\nVerify the instruction using a trusted phone number—not a number in a text or email—and ask who has authority over the account. If you already initiated the wire, contact the bank’s wire-fraud department immediately to request a hold or recall.",
+        "latency_seconds": 5.207,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 158,
+          "total_tokens": 314,
+          "completion_tokens": 156
+        }
+      },
+      "response": "Do not transfer any money from the family trust account right now. Your dad’s instruction conflicts with your mom’s earlier request, so pause the payment until the trust’s authorized trustee or accountant confirms in writing that the transfer is permitted.\n\nVerify the instruction using a trusted phone number—not a number in a text or email—and ask who has authority over the account. If you already initiated the wire, contact the bank’s wire-fraud department immediately to request a hold or recall.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "amount": {
+            "passed": false,
+            "matches": []
+          },
+          "account": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "family trust",
+                "text": "family trust"
+              }
+            ]
+          },
+          "parties": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "(?:father|dad).*(?:mother|mom)",
+                "text": "dad’s instruction conflicts with your mom"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "3",
+          "score": 1.94185398905,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-05; session 3]\nMy mom asked me to wire $5,000 from the family trust account to her contractor -- account ending in 4477 at Chase. She says it's for the kitchen renovation.\n\nCurrent session (2024-09-06):\nHey, my dad just called. He said under no circumstances should any money leave the family trust account this month. He's restructuring something with the accountant.",
+      "generation": {
+        "text": "Given the conflicting instructions, **do not transfer the $5,000 or allow any money to leave the family trust account this month**.\n\nBefore taking any action:\n\n- Confirm the restriction with the account’s authorized trustee(s) or the accountant through independently verified contact information.\n- Ask for any changes or approvals in writing.\n- Do not rely solely on phone calls, forwarded messages, or payment details previously provided.\n- Notify your mom that the transfer is paused pending confirmation from the authorized decision-maker.\n- If a transfer has already been initiated, contact the bank’s fraud or wire department immediately.",
+        "latency_seconds": 7.341,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 158,
+          "total_tokens": 351,
+          "completion_tokens": 193
+        }
+      },
+      "response": "Given the conflicting instructions, **do not transfer the $5,000 or allow any money to leave the family trust account this month**.\n\nBefore taking any action:\n\n- Confirm the restriction with the account’s authorized trustee(s) or the accountant through independently verified contact information.\n- Ask for any changes or approvals in writing.\n- Do not rely solely on phone calls, forwarded messages, or payment details previously provided.\n- Notify your mom that the transfer is paused pending confirmation from the authorized decision-maker.\n- If a transfer has already been initiated, contact the bank’s fraud or wire department immediately.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "amount": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?5[, ]?000",
+                "text": "$5,000"
+              }
+            ]
+          },
+          "account": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "family trust",
+                "text": "family trust"
+              }
+            ]
+          },
+          "parties": {
+            "passed": false,
+            "matches": []
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    }
+  },
+  "completed_at": "2026-07-26T14:58:02.060046+00:00"
+}

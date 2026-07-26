@@ -1,0 +1,328 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_03",
+  "category": "financial_authorization_conflicts",
+  "description": "Recurring payment to a service the user cancelled",
+  "started_at": "2026-07-26T14:58:27.040153+00:00",
+  "sessions": [
+    {
+      "session_id": "5",
+      "timestamp": "2024-08-22",
+      "user_text": "I cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15."
+    },
+    {
+      "session_id": "13",
+      "timestamp": "2025-01-20",
+      "user_text": "Looking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "Adobe charged $59.99 on 2025-01-15 after the Creative Cloud cancellation became effective on 2024-09-15."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "service": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "adobe",
+                    "text": "Adobe"
+                  }
+                ]
+              },
+              "prior_action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "cancel",
+                    "text": "cancel"
+                  }
+                ]
+              },
+              "charge": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2025-01-15",
+                    "text": "2025-01-15"
+                  },
+                  {
+                    "pattern": "\\$?59\\.99",
+                    "text": "$59.99"
+                  }
+                ]
+              },
+              "violation": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-08-22",
+            "user_text": "I cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-08-22\n\nComplete user-authored history through this session:\n[2024-08-22; session 5]\nI cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"subscriptions\": {\n        \"adobe_creative_cloud\": {\n            \"status\": \"cancelled\",\n            \"cancelled_on\": \"2024-08-22\",\n            \"effective_end_of_billing_cycle\": \"2024-09-15\"\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    effective_date = date.fromisoformat(\n        STATE[\"subscriptions\"][\"adobe_creative_cloud\"][\"effective_end_of_billing_cycle\"]\n    )\n    days_until_effective = (effective_date - current).days\n\n    if 0 <= days_until_effective <= 7:\n        return [{\n            \"severity\": \"info\",\n            \"type\": \"deadline\",\n            \"message\": (\n                \"Adobe Creative Cloud cancellation takes effect at the end of \"\n                \"the billing cycle on 2024-09-15.\"\n            )\n        }]\n\n    return []",
+            "latency_seconds": 14.908,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 356,
+              "total_tokens": 1073,
+              "completion_tokens": 717
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"subscriptions\": {\n        \"adobe_creative_cloud\": {\n            \"status\": \"cancelled\",\n            \"cancelled_on\": \"2024-08-22\",\n            \"effective_end_of_billing_cycle\": \"2024-09-15\"\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    effective_date = date.fromisoformat(\n        STATE[\"subscriptions\"][\"adobe_creative_cloud\"][\"effective_end_of_billing_cycle\"]\n    )\n    days_until_effective = (effective_date - current).days\n\n    if 0 <= days_until_effective <= 7:\n        return [{\n            \"severity\": \"info\",\n            \"type\": \"deadline\",\n            \"message\": (\n                \"Adobe Creative Cloud cancellation takes effect at the end of \"\n                \"the billing cycle on 2024-09-15.\"\n            )\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 81,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "37132faac3e2068db252ee9ab679ce85dc56ee9e2e5167df52f0150e10ae15ad"
+          },
+          "execution": {
+            "state": {
+              "subscriptions": {
+                "adobe_creative_cloud": {
+                  "status": "cancelled",
+                  "cancelled_on": "2024-08-22",
+                  "effective_end_of_billing_cycle": "2024-09-15"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "13",
+            "timestamp": "2025-01-20",
+            "user_text": "Looking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2025-01-20\n\nComplete user-authored history through this session:\n[2024-08-22; session 5]\nI cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15.\n\n[2025-01-20; session 13]\nLooking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"subscriptions\": {\n        \"Adobe Creative Cloud\": {\n            \"cancelled_on\": \"2024-08-22\",\n            \"cancellation_effective_on\": \"2024-09-15\",\n            \"reason\": \"price increases\"\n        }\n    },\n    \"charges\": [\n        {\n            \"merchant\": \"Adobe\",\n            \"amount\": 59.99,\n            \"date\": \"2025-01-15\",\n            \"statement_context\": \"credit card statement\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    adobe = STATE[\"subscriptions\"][\"Adobe Creative Cloud\"]\n    for charge in STATE[\"charges\"]:\n        charge_date = date.fromisoformat(charge[\"date\"])\n        effective_date = date.fromisoformat(adobe[\"cancellation_effective_on\"])\n\n        if (\n            charge[\"merchant\"] == \"Adobe\"\n            and charge_date <= current\n            and charge_date > effective_date\n        ):\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"post_cancellation_charge\",\n                \"message\": (\n                    f\"Adobe charged ${charge['amount']:.2f} on {charge['date']} \"\n                    f\"after the Creative Cloud cancellation became effective on \"\n                    f\"{adobe['cancellation_effective_on']}.\"\n                )\n            })\n\n    return alerts",
+            "latency_seconds": 14.602,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 402,
+              "total_tokens": 998,
+              "completion_tokens": 596
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"subscriptions\": {\n        \"Adobe Creative Cloud\": {\n            \"cancelled_on\": \"2024-08-22\",\n            \"cancellation_effective_on\": \"2024-09-15\",\n            \"reason\": \"price increases\"\n        }\n    },\n    \"charges\": [\n        {\n            \"merchant\": \"Adobe\",\n            \"amount\": 59.99,\n            \"date\": \"2025-01-15\",\n            \"statement_context\": \"credit card statement\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    adobe = STATE[\"subscriptions\"][\"Adobe Creative Cloud\"]\n    for charge in STATE[\"charges\"]:\n        charge_date = date.fromisoformat(charge[\"date\"])\n        effective_date = date.fromisoformat(adobe[\"cancellation_effective_on\"])\n\n        if (\n            charge[\"merchant\"] == \"Adobe\"\n            and charge_date <= current\n            and charge_date > effective_date\n        ):\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"post_cancellation_charge\",\n                \"message\": (\n                    f\"Adobe charged ${charge['amount']:.2f} on {charge['date']} \"\n                    f\"after the Creative Cloud cancellation became effective on \"\n                    f\"{adobe['cancellation_effective_on']}.\"\n                )\n            })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_03/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 155,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "73605a01d04e0859f101b604cff54c7bcac412c9336cb5dd21f876f88598fcb6"
+          },
+          "execution": {
+            "state": {
+              "subscriptions": {
+                "Adobe Creative Cloud": {
+                  "cancelled_on": "2024-08-22",
+                  "cancellation_effective_on": "2024-09-15",
+                  "reason": "price increases"
+                }
+              },
+              "charges": [
+                {
+                  "merchant": "Adobe",
+                  "amount": 59.99,
+                  "date": "2025-01-15",
+                  "statement_context": "credit card statement"
+                }
+              ]
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "post_cancellation_charge",
+                "message": "Adobe charged $59.99 on 2025-01-15 after the Creative Cloud cancellation became effective on 2024-09-15."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-22; session 5]\nI cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15.\n\nCurrent session (2025-01-20):\nLooking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?",
+      "generation": {
+        "text": "A $59.99 Adobe charge on January 15 shouldn’t normally happen if your Creative Cloud subscription was successfully cancelled effective September 15. It may indicate:\n\n- The cancellation didn’t fully go through or was later reversed.\n- A different Adobe plan or Adobe account is still active.\n- The charge is for another Adobe service, such as Acrobat.\n- Someone else used the card or account.\n\nCheck these first:\n\n1. Sign in at **account.adobe.com** and review **Plans**, **Billing history**, and the Adobe account email associated with the charge.\n2. Look for your September cancellation confirmation email or cancellation reference number.\n3. Contact Adobe Support and request an explanation and refund, providing the January 15 transaction details and your cancellation evidence.\n4. If Adobe cannot identify or reverse the charge, dispute it with your credit-card issuer and consider replacing the card if it appears unauthorized.\n\nSince your cancellation was supposed to end September 15, Adobe should be able to explain why anything was billed four months later.",
+        "latency_seconds": 7.859,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 158,
+          "total_tokens": 482,
+          "completion_tokens": 324
+        }
+      },
+      "response": "A $59.99 Adobe charge on January 15 shouldn’t normally happen if your Creative Cloud subscription was successfully cancelled effective September 15. It may indicate:\n\n- The cancellation didn’t fully go through or was later reversed.\n- A different Adobe plan or Adobe account is still active.\n- The charge is for another Adobe service, such as Acrobat.\n- Someone else used the card or account.\n\nCheck these first:\n\n1. Sign in at **account.adobe.com** and review **Plans**, **Billing history**, and the Adobe account email associated with the charge.\n2. Look for your September cancellation confirmation email or cancellation reference number.\n3. Contact Adobe Support and request an explanation and refund, providing the January 15 transaction details and your cancellation evidence.\n4. If Adobe cannot identify or reverse the charge, dispute it with your credit-card issuer and consider replacing the card if it appears unauthorized.\n\nSince your cancellation was supposed to end September 15, Adobe should be able to explain why anything was billed four months later.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "service": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "adobe",
+                "text": "Adobe"
+              }
+            ]
+          },
+          "prior_action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "cancel",
+                "text": "cancel"
+              }
+            ]
+          },
+          "charge": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "jan(?:uary)?\\s+15",
+                "text": "January 15"
+              },
+              {
+                "pattern": "\\$?59\\.99",
+                "text": "$59.99"
+              }
+            ]
+          },
+          "violation": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dispute",
+                "text": "dispute"
+              },
+              {
+                "pattern": "contact adobe",
+                "text": "Contact Adobe"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "5",
+          "score": 1.726092434711,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-22; session 5]\nI cancelled my Adobe Creative Cloud subscription today. So done with their price increases. The cancellation is effective at the end of this billing cycle, September 15.\n\nCurrent session (2025-01-20):\nLooking at my credit card statement and I see a $59.99 charge from Adobe on January 15. That's weird. Wasn't I supposed to have cancelled that?",
+      "generation": {
+        "text": "A January 15 charge suggests that Adobe’s billing did not remain fully canceled, but the exact reason isn’t clear from the statement alone. Possible explanations include:\n\n- The cancellation didn’t complete or wasn’t confirmed.\n- A different Adobe account or plan remained active.\n- The subscription was restarted or changed after September.\n- Adobe charged a remaining annual-plan obligation—though a charge four months later would be unusual.\n- The charge is unauthorized or from another Adobe service.\n\nCheck these first:\n\n1. Sign in at **account.adobe.com** and review **Plans**, **Billing history**, and the current plan status.\n2. Search your email for the August cancellation confirmation and any later Adobe renewal or plan-change notices.\n3. Verify whether the January $59.99 charge is marked “Adobe” and matches the card/account you canceled.\n4. Contact Adobe support and ask them to explain the January 15 transaction and refund it if the subscription was canceled effective September 15.\n5. If Adobe can’t justify it, dispute the charge with your credit-card issuer and consider replacing the card if further charges appear.\n\nKeep the cancellation confirmation and your August cancellation date handy when contacting Adobe.",
+        "latency_seconds": 8.129,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 158,
+          "total_tokens": 528,
+          "completion_tokens": 370
+        }
+      },
+      "response": "A January 15 charge suggests that Adobe’s billing did not remain fully canceled, but the exact reason isn’t clear from the statement alone. Possible explanations include:\n\n- The cancellation didn’t complete or wasn’t confirmed.\n- A different Adobe account or plan remained active.\n- The subscription was restarted or changed after September.\n- Adobe charged a remaining annual-plan obligation—though a charge four months later would be unusual.\n- The charge is unauthorized or from another Adobe service.\n\nCheck these first:\n\n1. Sign in at **account.adobe.com** and review **Plans**, **Billing history**, and the current plan status.\n2. Search your email for the August cancellation confirmation and any later Adobe renewal or plan-change notices.\n3. Verify whether the January $59.99 charge is marked “Adobe” and matches the card/account you canceled.\n4. Contact Adobe support and ask them to explain the January 15 transaction and refund it if the subscription was canceled effective September 15.\n5. If Adobe can’t justify it, dispute the charge with your credit-card issuer and consider replacing the card if further charges appear.\n\nKeep the cancellation confirmation and your August cancellation date handy when contacting Adobe.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "service": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "adobe",
+                "text": "Adobe"
+              }
+            ]
+          },
+          "prior_action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "cancel",
+                "text": "cancel"
+              }
+            ]
+          },
+          "charge": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "jan(?:uary)?\\s+15",
+                "text": "January 15"
+              },
+              {
+                "pattern": "\\$?59\\.99",
+                "text": "$59.99"
+              }
+            ]
+          },
+          "violation": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dispute",
+                "text": "dispute"
+              },
+              {
+                "pattern": "contact adobe",
+                "text": "Contact Adobe"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T14:59:12.609534+00:00"
+}

@@ -1,0 +1,319 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_04",
+  "category": "scheduling_conflicts",
+  "description": "Car service appointment conflicts with when the car is needed",
+  "started_at": "2026-07-26T15:02:52.517561+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-10-05",
+      "user_text": "Booked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM."
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-10-20",
+      "user_text": "I need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The car is unavailable for its full-day major service on 2024-11-04 from 08:00 until after 17:00, but you need to drive to the airport that day for your parents' 14:00 arrival."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": false,
+                "matches": []
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-04",
+                    "text": "2024-11-04"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "airport",
+                    "text": "airport"
+                  },
+                  {
+                    "pattern": "parents",
+                    "text": "parents"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "unavailable",
+                    "text": "unavailable"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-10-05",
+            "user_text": "Booked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-05\n\nComplete user-authored history through this session:\n[2024-10-05; session 4]\nBooked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"car\": {\n        \"scheduled_service\": {\n            \"type\": \"major service\",\n            \"date\": \"2024-11-04\",\n            \"drop_off_time\": \"08:00\",\n            \"pickup_time\": \"after 17:00\",\n            \"required_duration\": \"full day\"\n        }\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 11.376,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 366,
+              "total_tokens": 786,
+              "completion_tokens": 420
+            }
+          },
+          "source": "STATE = {\n    \"car\": {\n        \"scheduled_service\": {\n            \"type\": \"major service\",\n            \"date\": \"2024-11-04\",\n            \"drop_off_time\": \"08:00\",\n            \"pickup_time\": \"after 17:00\",\n            \"required_duration\": \"full day\"\n        }\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_04/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 25,
+            "imports": [],
+            "source_sha256": "d7b59ed51e3031152795021d09580b0e55d24b28d88646d3544e574641e20559"
+          },
+          "execution": {
+            "state": {
+              "car": {
+                "scheduled_service": {
+                  "type": "major service",
+                  "date": "2024-11-04",
+                  "drop_off_time": "08:00",
+                  "pickup_time": "after 17:00",
+                  "required_duration": "full day"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-10-20",
+            "user_text": "I need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-20\n\nComplete user-authored history through this session:\n[2024-10-05; session 4]\nBooked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM.\n\n[2024-10-20; session 6]\nI need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"car_service\": {\n        \"date\": \"2024-11-04\",\n        \"drop_off\": \"08:00\",\n        \"pickup\": \"after 17:00\",\n        \"duration\": \"full day\",\n        \"established_on\": \"2024-10-05\"\n    },\n    \"airport_pickup\": {\n        \"date\": \"2024-11-04\",\n        \"flight_lands\": \"14:00\",\n        \"passengers\": \"parents\",\n        \"needs_drive\": True,\n        \"established_on\": \"2024-10-20\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    service = STATE[\"car_service\"]\n    pickup = STATE[\"airport_pickup\"]\n    service_date = date.fromisoformat(service[\"date\"])\n    pickup_date = date.fromisoformat(pickup[\"date\"])\n    service_recorded = date.fromisoformat(service[\"established_on\"])\n    pickup_recorded = date.fromisoformat(pickup[\"established_on\"])\n\n    if (\n        service_recorded <= current\n        and pickup_recorded <= current\n        and service_date == pickup_date\n        and current <= service_date\n        and pickup[\"needs_drive\"]\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"scheduling_conflict\",\n            \"message\": (\n                \"The car is unavailable for its full-day major service on \"\n                \"2024-11-04 from 08:00 until after 17:00, but you need to \"\n                \"drive to the airport that day for your parents' 14:00 arrival.\"\n            )\n        }]\n\n    return []",
+            "latency_seconds": 19.006,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 403,
+              "total_tokens": 1281,
+              "completion_tokens": 878
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"car_service\": {\n        \"date\": \"2024-11-04\",\n        \"drop_off\": \"08:00\",\n        \"pickup\": \"after 17:00\",\n        \"duration\": \"full day\",\n        \"established_on\": \"2024-10-05\"\n    },\n    \"airport_pickup\": {\n        \"date\": \"2024-11-04\",\n        \"flight_lands\": \"14:00\",\n        \"passengers\": \"parents\",\n        \"needs_drive\": True,\n        \"established_on\": \"2024-10-20\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    service = STATE[\"car_service\"]\n    pickup = STATE[\"airport_pickup\"]\n    service_date = date.fromisoformat(service[\"date\"])\n    pickup_date = date.fromisoformat(pickup[\"date\"])\n    service_recorded = date.fromisoformat(service[\"established_on\"])\n    pickup_recorded = date.fromisoformat(pickup[\"established_on\"])\n\n    if (\n        service_recorded <= current\n        and pickup_recorded <= current\n        and service_date == pickup_date\n        and current <= service_date\n        and pickup[\"needs_drive\"]\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"scheduling_conflict\",\n            \"message\": (\n                \"The car is unavailable for its full-day major service on \"\n                \"2024-11-04 from 08:00 until after 17:00, but you need to \"\n                \"drive to the airport that day for your parents' 14:00 arrival.\"\n            )\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_04/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 157,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "0de62b3b69191bb20921e988e6b998ce0ba42e12af5a2f8a0bd86922bf3570d1"
+          },
+          "execution": {
+            "state": {
+              "car_service": {
+                "date": "2024-11-04",
+                "drop_off": "08:00",
+                "pickup": "after 17:00",
+                "duration": "full day",
+                "established_on": "2024-10-05"
+              },
+              "airport_pickup": {
+                "date": "2024-11-04",
+                "flight_lands": "14:00",
+                "passengers": "parents",
+                "needs_drive": true,
+                "established_on": "2024-10-20"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "scheduling_conflict",
+                "message": "The car is unavailable for its full-day major service on 2024-11-04 from 08:00 until after 17:00, but you need to drive to the airport that day for your parents' 14:00 arrival."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-05; session 4]\nBooked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM.\n\nCurrent session (2024-10-20):\nI need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM.",
+      "generation": {
+        "text": "There’s a scheduling conflict: your car will be at the mechanic all day on November 4, but you need it to pick up your parents from the airport at 2 PM.\n\nYou could:\n\n- Reschedule the major service.\n- Ask the mechanic whether the service can be completed early enough for pickup.\n- Arrange another car, taxi/rideshare, or airport transfer for collecting your parents.\n- Ask your parents to use airport transport if that’s practical.",
+        "latency_seconds": 4.411,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 159,
+          "total_tokens": 290,
+          "completion_tokens": 131
+        }
+      },
+      "response": "There’s a scheduling conflict: your car will be at the mechanic all day on November 4, but you need it to pick up your parents from the airport at 2 PM.\n\nYou could:\n\n- Reschedule the major service.\n- Ask the mechanic whether the service can be completed early enough for pickup.\n- Arrange another car, taxi/rideshare, or airport transfer for collecting your parents.\n- Ask your parents to use airport transport if that’s practical.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "mechanic",
+                "text": "mechanic"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+4",
+                "text": "November 4"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "airport",
+                "text": "airport"
+              },
+              {
+                "pattern": "parents",
+                "text": "parents"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "4",
+          "score": 2.753528407753,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-05; session 4]\nBooked my car in for its major service on Monday, November 4th. The mechanic said it'll need the car for the full day -- drop off at 8 AM, pick up after 5 PM.\n\nCurrent session (2024-10-20):\nI need to drive to the airport on November 4 to pick up my parents. Their flight lands at 2 PM.",
+      "generation": {
+        "text": "Your car’s major service on Monday, November 4 conflicts with picking up your parents—the mechanic needs the car all day, while their flight lands at 2 PM.\n\nYou’ll need to either:\n\n- Reschedule the service for another day,\n- Arrange alternate transport to the airport, or\n- Ask the mechanic whether the service can be completed before 2 PM, though they said to expect a full day.",
+        "latency_seconds": 5.248,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 159,
+          "total_tokens": 283,
+          "completion_tokens": 124
+        }
+      },
+      "response": "Your car’s major service on Monday, November 4 conflicts with picking up your parents—the mechanic needs the car all day, while their flight lands at 2 PM.\n\nYou’ll need to either:\n\n- Reschedule the service for another day,\n- Arrange alternate transport to the airport, or\n- Ask the mechanic whether the service can be completed before 2 PM, though they said to expect a full day.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "mechanic",
+                "text": "mechanic"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+4",
+                "text": "November 4"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "airport",
+                "text": "airport"
+              },
+              {
+                "pattern": "parents",
+                "text": "parents"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:03:32.646439+00:00"
+}

@@ -768,9 +768,14 @@ def usage_totals(traces: list[dict]) -> dict[str, int]:
                 if "generation" in update:
                     generations.append(update["generation"])
             for generation in generations:
-                totals["requests"] += 1
-                for key, value in generation.get("usage", {}).items():
+                usage = generation.get("usage", {})
+                for key, value in usage.items():
                     totals[key] += int(value)
+                # The shared Krill client records one request in every usage
+                # snapshot. Retain a fallback for test doubles or historical
+                # generators that omit that field, but never count both.
+                if "requests" not in usage:
+                    totals["requests"] += 1
     return dict(totals)
 
 

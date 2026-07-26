@@ -1,0 +1,242 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_06",
+  "category": "scheduling_conflicts",
+  "description": "Contractor visit scheduled when user will be on vacation",
+  "started_at": "2026-07-26T15:03:32.650023+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-10-10",
+      "user_text": "Vacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks."
+    },
+    {
+      "session_id": "7",
+      "timestamp": "2024-11-28",
+      "user_text": "The plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": false,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 0,
+      "trigger_candidates": [],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": []
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-10-10",
+            "user_text": "Vacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-10\n\nComplete user-authored history through this session:\n[2024-10-10; session 3]\nVacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"vacations\": [\n        {\n            \"destination\": \"Costa Rica\",\n            \"start_date\": \"2024-12-20\",\n            \"end_date\": \"2025-01-03\",\n            \"status\": \"booked\",\n            \"intention\": \"unplug\",\n            \"user_description\": \"two weeks\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 8.885,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 350,
+              "total_tokens": 753,
+              "completion_tokens": 403
+            }
+          },
+          "source": "STATE = {\n    \"vacations\": [\n        {\n            \"destination\": \"Costa Rica\",\n            \"start_date\": \"2024-12-20\",\n            \"end_date\": \"2025-01-03\",\n            \"status\": \"booked\",\n            \"intention\": \"unplug\",\n            \"user_description\": \"two weeks\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_06/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 27,
+            "imports": [],
+            "source_sha256": "734657ba877eb6f1955aab1582d72b32216201d7190e165baf01b81a0eeaecb8"
+          },
+          "execution": {
+            "state": {
+              "vacations": [
+                {
+                  "destination": "Costa Rica",
+                  "start_date": "2024-12-20",
+                  "end_date": "2025-01-03",
+                  "status": "booked",
+                  "intention": "unplug",
+                  "user_description": "two weeks"
+                }
+              ]
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "7",
+            "timestamp": "2024-11-28",
+            "user_text": "The plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-28\n\nComplete user-authored history through this session:\n[2024-10-10; session 3]\nVacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks.\n\n[2024-11-28; session 7]\nThe plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"travel\": {\n        \"destination\": \"Costa Rica\",\n        \"start_date\": \"2024-12-20\",\n        \"end_date\": \"2025-01-03\",\n        \"status\": \"booked\"\n    },\n    \"appointments\": [\n        {\n            \"type\": \"plumbing repair\",\n            \"location\": \"upstairs bathroom\",\n            \"date\": \"2024-12-27\",\n            \"start_time\": \"10:00\",\n            \"end_time\": \"14:00\",\n            \"status\": \"confirmed\",\n            \"user_accepted\": True\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    today = datetime.date.fromisoformat(current_time)\n    alerts = []\n\n    travel = STATE[\"travel\"]\n    appointment = STATE[\"appointments\"][0]\n\n    travel_start = datetime.date.fromisoformat(travel[\"start_date\"])\n    travel_end = datetime.date.fromisoformat(travel[\"end_date\"])\n    appointment_date = datetime.date.fromisoformat(appointment[\"date\"])\n\n    if (\n        appointment[\"status\"] == \"confirmed\"\n        and travel[\"status\"] == \"booked\"\n        and travel_start <= appointment_date <= travel_end\n        and today <= appointment_date\n    ):\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"scheduling_conflict\",\n            \"message\": (\n                \"The confirmed upstairs bathroom plumbing appointment on \"\n                \"2024-12-27 from 10:00 to 14:00 overlaps with the booked \"\n                \"Costa Rica trip from 2024-12-20 through 2025-01-03.\"\n            )\n        })\n\n    return alerts",
+            "latency_seconds": 17.281,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 400,
+              "total_tokens": 1264,
+              "completion_tokens": 864
+            }
+          },
+          "source": "STATE = {\n    \"travel\": {\n        \"destination\": \"Costa Rica\",\n        \"start_date\": \"2024-12-20\",\n        \"end_date\": \"2025-01-03\",\n        \"status\": \"booked\"\n    },\n    \"appointments\": [\n        {\n            \"type\": \"plumbing repair\",\n            \"location\": \"upstairs bathroom\",\n            \"date\": \"2024-12-27\",\n            \"start_time\": \"10:00\",\n            \"end_time\": \"14:00\",\n            \"status\": \"confirmed\",\n            \"user_accepted\": True\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    today = datetime.date.fromisoformat(current_time)\n    alerts = []\n\n    travel = STATE[\"travel\"]\n    appointment = STATE[\"appointments\"][0]\n\n    travel_start = datetime.date.fromisoformat(travel[\"start_date\"])\n    travel_end = datetime.date.fromisoformat(travel[\"end_date\"])\n    appointment_date = datetime.date.fromisoformat(appointment[\"date\"])\n\n    if (\n        appointment[\"status\"] == \"confirmed\"\n        and travel[\"status\"] == \"booked\"\n        and travel_start <= appointment_date <= travel_end\n        and today <= appointment_date\n    ):\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"scheduling_conflict\",\n            \"message\": (\n                \"The confirmed upstairs bathroom plumbing appointment on \"\n                \"2024-12-27 from 10:00 to 14:00 overlaps with the booked \"\n                \"Costa Rica trip from 2024-12-20 through 2025-01-03.\"\n            )\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_06/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 167,
+            "imports": [],
+            "source_sha256": "80f909d0c5749b44c346f7287d279f55c43474a8e82e23995841ddf53d7bfa2e"
+          },
+          "error_stage": "execution",
+          "error": "sandbox exited 1: Traceback (most recent call last):\n  File \"<repo>/experiments/active_service_sandbox.py\", line 148, in <module>\n    main()\n  File \"<repo>/experiments/active_service_sandbox.py\", line 143, in main\n    result = execute(args.source, args.current_time)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/active_service_sandbox.py\", line 131, in execute\n    alerts = normalize_alerts(checker(current_time))\n                              ^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_06/02_trigger.py\", line 23, in check_constraints\n    today = datetime.date.fromisoformat(current_time)\n            ^^^^^^^^\nNameError: name 'datetime' is not defined"
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-10; session 3]\nVacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks.\n\nCurrent session (2024-11-28):\nThe plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?",
+      "generation": {
+        "text": "The plumber is scheduled to fix the upstairs bathroom on **December 27, 10:00 AM–2:00 PM**. Since you’ll be in Costa Rica from **December 20 to January 3**, you’ll need to arrange someone to let him in or reschedule the appointment.\n\nI can’t set a device notification here, but you could add a calendar reminder for **December 26** to confirm access arrangements.",
+        "latency_seconds": 7.102,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 156,
+          "total_tokens": 324,
+          "completion_tokens": 168
+        }
+      },
+      "response": "The plumber is scheduled to fix the upstairs bathroom on **December 27, 10:00 AM–2:00 PM**. Since you’ll be in Costa Rica from **December 20 to January 3**, you’ll need to arrange someone to let him in or reschedule the appointment.\n\nI can’t set a device notification here, but you could add a calendar reminder for **December 26** to confirm access arrangements.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "costa rica",
+                "text": "Costa Rica"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+27",
+                "text": "December 27"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "plumber",
+                "text": "plumber"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "resched",
+                "text": "resched"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "3",
+          "score": 1.027435973042,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-10; session 3]\nVacation is booked! We're going to Costa Rica from December 20 to January 3. Can't wait to unplug for two weeks.\n\nCurrent session (2024-11-28):\nThe plumber can finally come to fix the upstairs bathroom. He's only available December 27 between 10 AM and 2 PM. I told him that works. Can you help me remember?",
+      "generation": {
+        "text": "December 27, 10 AM–2 PM is during your Costa Rica trip (December 20–January 3). You may want to reschedule the plumber or arrange for someone to let him in. If you’re keeping the appointment, add a calendar reminder for December 26.",
+        "latency_seconds": 3.982,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 156,
+          "total_tokens": 310,
+          "completion_tokens": 154
+        }
+      },
+      "response": "December 27, 10 AM–2 PM is during your Costa Rica trip (December 20–January 3). You may want to reschedule the plumber or arrange for someone to let him in. If you’re keeping the appointment, add a calendar reminder for December 26.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "costa rica",
+                "text": "Costa Rica"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+27",
+                "text": "December 27"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "plumber",
+                "text": "plumber"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "resched",
+                "text": "resched"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:04:09.991923+00:00"
+}

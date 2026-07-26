@@ -1,0 +1,325 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_06",
+  "category": "financial_authorization_conflicts",
+  "description": "Investment instruction contradicts stated risk tolerance after life change",
+  "started_at": "2026-07-26T15:00:00.456020+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-08-10",
+      "user_text": "I'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments."
+    },
+    {
+      "session_id": "7",
+      "timestamp": "2024-11-05",
+      "user_text": "My buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": false,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The proposed $15,000 investment in a super-volatile small-cap biotech stock conflicts with the explicit preference for no more risky investments."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "amount": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?15[,]?000",
+                    "text": "$15,000"
+                  }
+                ]
+              },
+              "proposal": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "volatile",
+                    "text": "volatile"
+                  },
+                  {
+                    "pattern": "biotech",
+                    "text": "biotech"
+                  }
+                ]
+              },
+              "preference": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "no more risky",
+                    "text": "no more risky"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "conflict",
+                    "text": "conflict"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-08-10",
+            "user_text": "I'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-08-10\n\nComplete user-authored history through this session:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import datetime\n\nSTATE = {\n    \"pregnancy\": {\n        \"status\": \"pregnant\",\n        \"due_month\": 3,\n        \"due_year\": None,\n    },\n    \"financial_constraints\": {\n        \"risky_investments\": \"prohibited\",\n        \"reason\": \"be more conservative with money during pregnancy\",\n    },\n}\n\n\ndef check_constraints(current_time):\n    datetime.strptime(current_time, \"%Y-%m-%d\")\n    return []",
+            "latency_seconds": 10.602,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 348,
+              "total_tokens": 727,
+              "completion_tokens": 379
+            }
+          },
+          "source": "from datetime import datetime\n\nSTATE = {\n    \"pregnancy\": {\n        \"status\": \"pregnant\",\n        \"due_month\": 3,\n        \"due_year\": None,\n    },\n    \"financial_constraints\": {\n        \"risky_investments\": \"prohibited\",\n        \"reason\": \"be more conservative with money during pregnancy\",\n    },\n}\n\n\ndef check_constraints(current_time):\n    datetime.strptime(current_time, \"%Y-%m-%d\")\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_06/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 36,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "de3729eb43ad19fd38ff24c95fb3a637a71d29fa6f538c19d2e2f55bb105ba86"
+          },
+          "error_stage": "execution",
+          "error": "sandbox exited 1: Traceback (most recent call last):\n  File \"<repo>/experiments/active_service_sandbox.py\", line 148, in <module>\n    main()\n  File \"<repo>/experiments/active_service_sandbox.py\", line 143, in main\n    result = execute(args.source, args.current_time)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/active_service_sandbox.py\", line 131, in execute\n    alerts = normalize_alerts(checker(current_time))\n                              ^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_06/01_pretrigger.py\", line 17, in check_constraints\n    datetime.strptime(current_time, \"%Y-%m-%d\")\n  File \"<repo>/experiments/active_service_sandbox.py\", line 40, in restricted_import\n    raise ImportError(f\"import not allowed: {name}\")\nImportError: import not allowed: _strptime"
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "7",
+            "timestamp": "2024-11-05",
+            "user_text": "My buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-05\n\nComplete user-authored history through this session:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\n[2024-11-05; session 7]\nMy buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"facts\": {\n        \"pregnant\": True,\n        \"due_month\": 3,\n        \"due_year\": None,\n    },\n    \"preferences_and_commitments\": [\n        {\n            \"statement\": \"We're going to need to be more conservative with our money\",\n            \"established\": \"2024-08-10\",\n        },\n        {\n            \"statement\": \"No more risky investments\",\n            \"established\": \"2024-08-10\",\n        },\n    ],\n    \"proposed_actions\": [\n        {\n            \"asset_description\": \"small-cap biotech stock\",\n            \"amount\": 15000,\n            \"risk_description\": \"Super volatile\",\n            \"status\": \"proposed\",\n            \"established\": \"2024-11-05\",\n        }\n    ],\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    proposed_investment = STATE[\"proposed_actions\"][0]\n    proposal_date = date.fromisoformat(proposed_investment[\"established\"])\n\n    if current_date >= proposal_date:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": (\n                \"The proposed $15,000 investment in a super-volatile small-cap \"\n                \"biotech stock conflicts with the explicit preference for no more \"\n                \"risky investments.\"\n            ),\n        })\n\n    return alerts",
+            "latency_seconds": 15.278,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 395,
+              "total_tokens": 1149,
+              "completion_tokens": 754
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"facts\": {\n        \"pregnant\": True,\n        \"due_month\": 3,\n        \"due_year\": None,\n    },\n    \"preferences_and_commitments\": [\n        {\n            \"statement\": \"We're going to need to be more conservative with our money\",\n            \"established\": \"2024-08-10\",\n        },\n        {\n            \"statement\": \"No more risky investments\",\n            \"established\": \"2024-08-10\",\n        },\n    ],\n    \"proposed_actions\": [\n        {\n            \"asset_description\": \"small-cap biotech stock\",\n            \"amount\": 15000,\n            \"risk_description\": \"Super volatile\",\n            \"status\": \"proposed\",\n            \"established\": \"2024-11-05\",\n        }\n    ],\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    proposed_investment = STATE[\"proposed_actions\"][0]\n    proposal_date = date.fromisoformat(proposed_investment[\"established\"])\n\n    if current_date >= proposal_date:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"conflict\",\n            \"message\": (\n                \"The proposed $15,000 investment in a super-volatile small-cap \"\n                \"biotech stock conflicts with the explicit preference for no more \"\n                \"risky investments.\"\n            ),\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_06/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 107,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "41c1058a6ffa3ffc29052412bec7dd4d16b6d75475473771137ff0ce68f28b35"
+          },
+          "execution": {
+            "state": {
+              "facts": {
+                "pregnant": true,
+                "due_month": 3,
+                "due_year": null
+              },
+              "preferences_and_commitments": [
+                {
+                  "statement": "We're going to need to be more conservative with our money",
+                  "established": "2024-08-10"
+                },
+                {
+                  "statement": "No more risky investments",
+                  "established": "2024-08-10"
+                }
+              ],
+              "proposed_actions": [
+                {
+                  "asset_description": "small-cap biotech stock",
+                  "amount": 15000,
+                  "risk_description": "Super volatile",
+                  "status": "proposed",
+                  "established": "2024-11-05"
+                }
+              ]
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "conflict",
+                "message": "The proposed $15,000 investment in a super-volatile small-cap biotech stock conflicts with the explicit preference for no more risky investments."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\nCurrent session (2024-11-05):\nMy buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x.",
+      "generation": {
+        "text": "Given that you’re expecting a baby in March and specifically wanted to be more conservative, I wouldn’t put $15,000 into a single volatile biotech stock. A “10x” possibility also comes with a realistic risk of losing most or all of the investment—especially with small-cap biotech companies, where trial results, financing, or regulatory decisions can drastically change the price.\n\nA more prudent approach:\n\n- Keep a solid emergency fund and money for delivery, childcare, and other near-term expenses in cash or similarly safe accounts.\n- Don’t invest money you may need within the next few years.\n- If you still want exposure, make it a small “fun money” allocation—an amount you could lose without affecting your family’s finances—and consider diversified investments for the rest.\n- Review the company’s cash runway, upcoming clinical milestones, dilution risk, debt, and whether the tip is based on public information. Don’t trade on material nonpublic information.\n\nUnless your $15,000 is truly disposable after those priorities, I’d pass on this tip.",
+        "latency_seconds": 8.243,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 453,
+          "completion_tokens": 302
+        }
+      },
+      "response": "Given that you’re expecting a baby in March and specifically wanted to be more conservative, I wouldn’t put $15,000 into a single volatile biotech stock. A “10x” possibility also comes with a realistic risk of losing most or all of the investment—especially with small-cap biotech companies, where trial results, financing, or regulatory decisions can drastically change the price.\n\nA more prudent approach:\n\n- Keep a solid emergency fund and money for delivery, childcare, and other near-term expenses in cash or similarly safe accounts.\n- Don’t invest money you may need within the next few years.\n- If you still want exposure, make it a small “fun money” allocation—an amount you could lose without affecting your family’s finances—and consider diversified investments for the rest.\n- Review the company’s cash runway, upcoming clinical milestones, dilution risk, debt, and whether the tip is based on public information. Don’t trade on material nonpublic information.\n\nUnless your $15,000 is truly disposable after those priorities, I’d pass on this tip.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "amount": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?15[,]?000",
+                "text": "$15,000"
+              }
+            ]
+          },
+          "proposal": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "volatile",
+                "text": "volatile"
+              },
+              {
+                "pattern": "biotech",
+                "text": "biotech"
+              }
+            ]
+          },
+          "preference": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conservative",
+                "text": "conservative"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": false,
+            "matches": []
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "4",
+          "score": 0.683244922073,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-10; session 4]\nI'm pregnant! Due in March. We're going to need to be more conservative with our money -- no more risky investments.\n\nCurrent session (2024-11-05):\nMy buddy at work gave me a hot tip on this small-cap biotech stock. I want to put $15,000 into it. Super volatile but could 10x.",
+      "generation": {
+        "text": "Given that you’re due in March and previously wanted to be more conservative, putting **$15,000 into a highly volatile small-cap biotech would conflict with your stated priorities**. A biotech stock can lose most or all of its value, especially around trial results, FDA decisions, dilution, or financing.\n\nA safer approach:\n\n- Keep near-term needs—delivery costs, parental leave, childcare, and an emergency fund—in cash or cash equivalents.\n- Don’t invest money you may need within the next few years.\n- If you still want exposure, treat it as speculative “fun money,” not a core investment, and cap it at an amount you could fully lose.\n- Avoid acting on a tip alone; review the company’s cash runway, debt, share dilution history, clinical-trial status, and upcoming catalysts.\n- Prefer a diversified, low-cost portfolio for long-term money.\n\nMy bottom line: **I wouldn’t put $15,000 into this stock**, particularly right before a major life and financial transition.",
+        "latency_seconds": 6.376,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 423,
+          "completion_tokens": 272
+        }
+      },
+      "response": "Given that you’re due in March and previously wanted to be more conservative, putting **$15,000 into a highly volatile small-cap biotech would conflict with your stated priorities**. A biotech stock can lose most or all of its value, especially around trial results, FDA decisions, dilution, or financing.\n\nA safer approach:\n\n- Keep near-term needs—delivery costs, parental leave, childcare, and an emergency fund—in cash or cash equivalents.\n- Don’t invest money you may need within the next few years.\n- If you still want exposure, treat it as speculative “fun money,” not a core investment, and cap it at an amount you could fully lose.\n- Avoid acting on a tip alone; review the company’s cash runway, debt, share dilution history, clinical-trial status, and upcoming catalysts.\n- Prefer a diversified, low-cost portfolio for long-term money.\n\nMy bottom line: **I wouldn’t put $15,000 into this stock**, particularly right before a major life and financial transition.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "amount": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?15[,]?000",
+                "text": "$15,000"
+              }
+            ]
+          },
+          "proposal": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "volatile",
+                "text": "volatile"
+              },
+              {
+                "pattern": "speculative",
+                "text": "speculative"
+              },
+              {
+                "pattern": "biotech",
+                "text": "biotech"
+              }
+            ]
+          },
+          "preference": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conservative",
+                "text": "conservative"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:00:41.029891+00:00"
+}

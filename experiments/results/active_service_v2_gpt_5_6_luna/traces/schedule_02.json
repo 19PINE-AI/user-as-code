@@ -1,0 +1,356 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_02",
+  "category": "scheduling_conflicts",
+  "description": "Double-booked dinner reservations on the same evening",
+  "started_at": "2026-07-26T15:01:13.052023+00:00",
+  "sessions": [
+    {
+      "session_id": "5",
+      "timestamp": "2024-10-28",
+      "user_text": "Made a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special."
+    },
+    {
+      "session_id": "7",
+      "timestamp": "2024-11-10",
+      "user_text": "My college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": false,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 2,
+      "trigger_candidates": [
+        "Anniversary reservation at Chez Laurent is recorded for Saturday, 2024-11-15, but 2024-11-15 is a Friday.",
+        "Two dinner reservations are booked on 2024-11-15: Chez Laurent at 19:00 and Steakhouse 55 at 19:30."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 2,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "chez laurent",
+                    "text": "Chez Laurent"
+                  },
+                  {
+                    "pattern": "anniversary",
+                    "text": "Anniversary"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": false,
+                "matches": []
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-15",
+                    "text": "2024-11-15"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          },
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "prior_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "chez laurent",
+                    "text": "Chez Laurent"
+                  }
+                ]
+              },
+              "new_event": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "steakhouse 55",
+                    "text": "Steakhouse 55"
+                  }
+                ]
+              },
+              "date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-15",
+                    "text": "2024-11-15"
+                  }
+                ]
+              },
+              "conflict": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-10-28",
+            "user_text": "Made a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-28\n\nComplete user-authored history through this session:\n[2024-10-28; session 5]\nMade a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"recorded_at\": \"2024-10-28\",\n    \"reservations\": [\n        {\n            \"occasion\": \"anniversary\",\n            \"venue\": \"Chez Laurent\",\n            \"date\": \"2024-11-15\",\n            \"declared_weekday\": \"Saturday\",\n            \"time\": \"19:00\",\n            \"status\": \"reserved\",\n            \"description\": \"special dinner\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    now = date.fromisoformat(current_time)\n    alerts = []\n\n    for reservation in STATE[\"reservations\"]:\n        recorded_at = date.fromisoformat(STATE[\"recorded_at\"])\n        reservation_date = date.fromisoformat(reservation[\"date\"])\n\n        if now < recorded_at:\n            continue\n\n        actual_weekday = reservation_date.strftime(\"%A\")\n        if actual_weekday != reservation[\"declared_weekday\"]:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"date_conflict\",\n                \"message\": (\n                    f\"The anniversary reservation at {reservation['venue']} is recorded \"\n                    f\"for {reservation['date']}, which is a {actual_weekday}, not \"\n                    f\"{reservation['declared_weekday']}.\"\n                )\n            })\n\n    return alerts",
+            "latency_seconds": 16.401,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 350,
+              "total_tokens": 1138,
+              "completion_tokens": 788
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"recorded_at\": \"2024-10-28\",\n    \"reservations\": [\n        {\n            \"occasion\": \"anniversary\",\n            \"venue\": \"Chez Laurent\",\n            \"date\": \"2024-11-15\",\n            \"declared_weekday\": \"Saturday\",\n            \"time\": \"19:00\",\n            \"status\": \"reserved\",\n            \"description\": \"special dinner\"\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    now = date.fromisoformat(current_time)\n    alerts = []\n\n    for reservation in STATE[\"reservations\"]:\n        recorded_at = date.fromisoformat(STATE[\"recorded_at\"])\n        reservation_date = date.fromisoformat(reservation[\"date\"])\n\n        if now < recorded_at:\n            continue\n\n        actual_weekday = reservation_date.strftime(\"%A\")\n        if actual_weekday != reservation[\"declared_weekday\"]:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"date_conflict\",\n                \"message\": (\n                    f\"The anniversary reservation at {reservation['venue']} is recorded \"\n                    f\"for {reservation['date']}, which is a {actual_weekday}, not \"\n                    f\"{reservation['declared_weekday']}.\"\n                )\n            })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_02/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 148,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "7e4e2f871c5f31992da6d7d697b0603a023e2af16e5d285bd94d7b1a4035f381"
+          },
+          "error_stage": "execution",
+          "error": "sandbox exited 1: Traceback (most recent call last):\n  File \"<repo>/experiments/active_service_sandbox.py\", line 148, in <module>\n    main()\n  File \"<repo>/experiments/active_service_sandbox.py\", line 143, in main\n    result = execute(args.source, args.current_time)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/active_service_sandbox.py\", line 131, in execute\n    alerts = normalize_alerts(checker(current_time))\n                              ^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_02/01_pretrigger.py\", line 30, in check_constraints\n    actual_weekday = reservation_date.strftime(\"%A\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/experiments/active_service_sandbox.py\", line 40, in restricted_import\n    raise ImportError(f\"import not allowed: {name}\")\nImportError: import not allowed: time"
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "7",
+            "timestamp": "2024-11-10",
+            "user_text": "My college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-10\n\nComplete user-authored history through this session:\n[2024-10-28; session 5]\nMade a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special.\n\n[2024-11-10; session 7]\nMy college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "import calendar\nfrom datetime import date, time\n\nSTATE = {\n    \"reservations\": [\n        {\n            \"occasion\": \"anniversary\",\n            \"venue\": \"Chez Laurent\",\n            \"date\": \"2024-11-15\",\n            \"time\": \"19:00\",\n            \"stated_weekday\": \"Saturday\",\n            \"booked_on\": \"2024-10-28\"\n        },\n        {\n            \"occasion\": \"dinner with college roommate\",\n            \"venue\": \"Steakhouse 55\",\n            \"date\": \"2024-11-15\",\n            \"time\": \"19:30\",\n            \"booked_on\": \"2024-11-10\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    for reservation in STATE[\"reservations\"]:\n        reservation_date = date.fromisoformat(reservation[\"date\"])\n        if reservation_date < current_date:\n            continue\n\n        actual_weekday = calendar.day_name[reservation_date.weekday()]\n        stated_weekday = reservation.get(\"stated_weekday\")\n        if stated_weekday and stated_weekday != actual_weekday:\n            alerts.append({\n                \"severity\": \"high\",\n                \"type\": \"invalid_date_window\",\n                \"message\": (\n                    f\"{reservation['occasion'].capitalize()} reservation at \"\n                    f\"{reservation['venue']} is recorded for {stated_weekday}, \"\n                    f\"{reservation['date']}, but {reservation['date']} is a \"\n                    f\"{actual_weekday}.\"\n                )\n            })\n\n    reservations = [\n        r for r in STATE[\"reservations\"]\n        if date.fromisoformat(r[\"date\"]) >= current_date\n    ]\n\n    for index, first in enumerate(reservations):\n        for second in reservations[index + 1:]:\n            if first[\"date\"] != second[\"date\"]:\n                continue\n\n            first_time = time.fromisoformat(first[\"time\"])\n            second_time = time.fromisoformat(second[\"time\"])\n            if first_time == second_time or abs(\n                (\n                    first_time.hour * 60\n                    + first_time.minute\n                    - second_time.hour * 60\n                    - second_time.minute\n                )\n            ) < 60:\n                alerts.append({\n                    \"severity\": \"high\",\n                    \"type\": \"scheduling_conflict\",\n                    \"message\": (\n                        f\"Two dinner reservations are booked on {first['date']}: \"\n                        f\"{first['venue']} at {first['time']} and \"\n                        f\"{second['venue']} at {second['time']}.\"\n                    )\n                })\n\n    return alerts",
+            "latency_seconds": 29.204,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 398,
+              "total_tokens": 1925,
+              "completion_tokens": 1527
+            }
+          },
+          "source": "import calendar\nfrom datetime import date, time\n\nSTATE = {\n    \"reservations\": [\n        {\n            \"occasion\": \"anniversary\",\n            \"venue\": \"Chez Laurent\",\n            \"date\": \"2024-11-15\",\n            \"time\": \"19:00\",\n            \"stated_weekday\": \"Saturday\",\n            \"booked_on\": \"2024-10-28\"\n        },\n        {\n            \"occasion\": \"dinner with college roommate\",\n            \"venue\": \"Steakhouse 55\",\n            \"date\": \"2024-11-15\",\n            \"time\": \"19:30\",\n            \"booked_on\": \"2024-11-10\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    for reservation in STATE[\"reservations\"]:\n        reservation_date = date.fromisoformat(reservation[\"date\"])\n        if reservation_date < current_date:\n            continue\n\n        actual_weekday = calendar.day_name[reservation_date.weekday()]\n        stated_weekday = reservation.get(\"stated_weekday\")\n        if stated_weekday and stated_weekday != actual_weekday:\n            alerts.append({\n                \"severity\": \"high\",\n                \"type\": \"invalid_date_window\",\n                \"message\": (\n                    f\"{reservation['occasion'].capitalize()} reservation at \"\n                    f\"{reservation['venue']} is recorded for {stated_weekday}, \"\n                    f\"{reservation['date']}, but {reservation['date']} is a \"\n                    f\"{actual_weekday}.\"\n                )\n            })\n\n    reservations = [\n        r for r in STATE[\"reservations\"]\n        if date.fromisoformat(r[\"date\"]) >= current_date\n    ]\n\n    for index, first in enumerate(reservations):\n        for second in reservations[index + 1:]:\n            if first[\"date\"] != second[\"date\"]:\n                continue\n\n            first_time = time.fromisoformat(first[\"time\"])\n            second_time = time.fromisoformat(second[\"time\"])\n            if first_time == second_time or abs(\n                (\n                    first_time.hour * 60\n                    + first_time.minute\n                    - second_time.hour * 60\n                    - second_time.minute\n                )\n            ) < 60:\n                alerts.append({\n                    \"severity\": \"high\",\n                    \"type\": \"scheduling_conflict\",\n                    \"message\": (\n                        f\"Two dinner reservations are booked on {first['date']}: \"\n                        f\"{first['venue']} at {first['time']} and \"\n                        f\"{second['venue']} at {second['time']}.\"\n                    )\n                })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_02/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 358,
+            "imports": [
+              "calendar",
+              "datetime"
+            ],
+            "source_sha256": "b652571af614f512c529691c23ac2f511b406c7c6b32c0eb1f158217b68cbe1c"
+          },
+          "execution": {
+            "state": {
+              "reservations": [
+                {
+                  "occasion": "anniversary",
+                  "venue": "Chez Laurent",
+                  "date": "2024-11-15",
+                  "time": "19:00",
+                  "stated_weekday": "Saturday",
+                  "booked_on": "2024-10-28"
+                },
+                {
+                  "occasion": "dinner with college roommate",
+                  "venue": "Steakhouse 55",
+                  "date": "2024-11-15",
+                  "time": "19:30",
+                  "booked_on": "2024-11-10"
+                }
+              ]
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "invalid_date_window",
+                "message": "Anniversary reservation at Chez Laurent is recorded for Saturday, 2024-11-15, but 2024-11-15 is a Friday."
+              },
+              {
+                "severity": "high",
+                "type": "scheduling_conflict",
+                "message": "Two dinner reservations are booked on 2024-11-15: Chez Laurent at 19:00 and Steakhouse 55 at 19:30."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-28; session 5]\nMade a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special.\n\nCurrent session (2024-11-10):\nMy college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up.",
+      "generation": {
+        "text": "You now have overlapping dinner plans on November 15:\n\n- **7:00 PM:** Anniversary dinner at Chez Laurent  \n- **7:30 PM:** Dinner with your college roommate at Steakhouse 55  \n\nAlso, **November 15, 2024 is a Friday**, not a Saturday. You may want to confirm the date and reschedule one of the reservations.",
+        "latency_seconds": 5.885,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 154,
+          "total_tokens": 371,
+          "completion_tokens": 217
+        }
+      },
+      "response": "You now have overlapping dinner plans on November 15:\n\n- **7:00 PM:** Anniversary dinner at Chez Laurent  \n- **7:30 PM:** Dinner with your college roommate at Steakhouse 55  \n\nAlso, **November 15, 2024 is a Friday**, not a Saturday. You may want to confirm the date and reschedule one of the reservations.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "chez laurent",
+                "text": "Chez Laurent"
+              },
+              {
+                "pattern": "anniversary",
+                "text": "Anniversary"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "steakhouse 55",
+                "text": "Steakhouse 55"
+              },
+              {
+                "pattern": "roommate",
+                "text": "roommate"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+15",
+                "text": "November 15"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "resched",
+                "text": "resched"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "5",
+          "score": 2.409337356784,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-28; session 5]\nMade a dinner reservation for my anniversary -- Saturday November 15 at 7 PM at Chez Laurent. It's going to be special.\n\nCurrent session (2024-11-10):\nMy college roommate is in town briefly! I just booked dinner with him at Steakhouse 55 on November 15 at 7:30 PM. Can't wait to catch up.",
+      "generation": {
+        "text": "That sounds like a great reunion—but there’s a scheduling conflict: you have Chez Laurent booked for your anniversary at 7:00 PM and Steakhouse 55 booked at 7:30 PM on November 15. Also, November 15, 2024 is a Friday, not a Saturday. You may want to confirm which reservation and date are correct.",
+        "latency_seconds": 4.91,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 154,
+          "total_tokens": 351,
+          "completion_tokens": 197
+        }
+      },
+      "response": "That sounds like a great reunion—but there’s a scheduling conflict: you have Chez Laurent booked for your anniversary at 7:00 PM and Steakhouse 55 booked at 7:30 PM on November 15. Also, November 15, 2024 is a Friday, not a Saturday. You may want to confirm which reservation and date are correct.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "chez laurent",
+                "text": "Chez Laurent"
+              },
+              {
+                "pattern": "anniversary",
+                "text": "anniversary"
+              }
+            ]
+          },
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "steakhouse 55",
+                "text": "Steakhouse 55"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+15",
+                "text": "November 15"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:02:09.539613+00:00"
+}

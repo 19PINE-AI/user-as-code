@@ -1,0 +1,310 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "finance_02",
+  "category": "financial_authorization_conflicts",
+  "description": "Transaction exceeds the user's stated authorization limit",
+  "started_at": "2026-07-26T14:58:02.061370+00:00",
+  "sessions": [
+    {
+      "session_id": "1",
+      "timestamp": "2024-07-10",
+      "user_text": "Just so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process."
+    },
+    {
+      "session_id": "12",
+      "timestamp": "2025-01-15",
+      "user_text": "Need to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The venue's $4,200 quote exceeds the corporate card's $3,000 per-transaction limit. VP approval is required, which conflicts with the preference to avoid that process."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "cost": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?4[,]?200",
+                    "text": "$4,200"
+                  }
+                ]
+              },
+              "limit": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "\\$?3[,]?000",
+                    "text": "$3,000"
+                  }
+                ]
+              },
+              "comparison": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "exceed",
+                    "text": "exceed"
+                  }
+                ]
+              },
+              "resolution": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "VP approval",
+                    "text": "VP approval"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "1",
+            "timestamp": "2024-07-10",
+            "user_text": "Just so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-07-10\n\nComplete user-authored history through this session:\n[2024-07-10; session 1]\nJust so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"corporate_card\": {\n        \"per_transaction_limit\": 3000,\n        \"currency\": \"USD\",\n        \"requires_vp_approval_above_limit\": True,\n        \"user_preference\": \"Avoid transactions requiring VP approval\",\n        \"established_on\": \"2024-07-10\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 5.384,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 359,
+              "total_tokens": 571,
+              "completion_tokens": 212
+            }
+          },
+          "source": "STATE = {\n    \"corporate_card\": {\n        \"per_transaction_limit\": 3000,\n        \"currency\": \"USD\",\n        \"requires_vp_approval_above_limit\": True,\n        \"user_preference\": \"Avoid transactions requiring VP approval\",\n        \"established_on\": \"2024-07-10\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_02/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 23,
+            "imports": [],
+            "source_sha256": "ee4b478b4b52afc9daf5de5e143c042bee63a87de0dc0fb8582c5997a4bf7a4e"
+          },
+          "execution": {
+            "state": {
+              "corporate_card": {
+                "per_transaction_limit": 3000,
+                "currency": "USD",
+                "requires_vp_approval_above_limit": true,
+                "user_preference": "Avoid transactions requiring VP approval",
+                "established_on": "2024-07-10"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "12",
+            "timestamp": "2025-01-15",
+            "user_text": "Need to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2025-01-15\n\nComplete user-authored history through this session:\n[2024-07-10; session 1]\nJust so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process.\n\n[2025-01-15; session 12]\nNeed to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"corporate_card\": {\n        \"per_transaction_limit\": 3000,\n        \"currency\": \"USD\",\n        \"above_limit_requires\": \"VP approval\",\n        \"user_preference\": \"Avoid the VP approval process\"\n    },\n    \"team_offsite\": {\n        \"venue_day_quote\": 4200,\n        \"currency\": \"USD\",\n        \"requested_payment_method\": \"corporate card\",\n        \"request_date\": \"2025-01-15\"\n    }\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    request_date = date.fromisoformat(STATE[\"team_offsite\"][\"request_date\"])\n\n    if current_date < request_date:\n        return []\n\n    quote = STATE[\"team_offsite\"][\"venue_day_quote\"]\n    limit = STATE[\"corporate_card\"][\"per_transaction_limit\"]\n\n    if quote > limit:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"constraint_conflict\",\n            \"message\": (\n                \"The venue's $4,200 quote exceeds the corporate card's \"\n                \"$3,000 per-transaction limit. VP approval is required, \"\n                \"which conflicts with the preference to avoid that process.\"\n            )\n        }]\n\n    return []",
+            "latency_seconds": 11.78,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 400,
+              "total_tokens": 948,
+              "completion_tokens": 548
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"corporate_card\": {\n        \"per_transaction_limit\": 3000,\n        \"currency\": \"USD\",\n        \"above_limit_requires\": \"VP approval\",\n        \"user_preference\": \"Avoid the VP approval process\"\n    },\n    \"team_offsite\": {\n        \"venue_day_quote\": 4200,\n        \"currency\": \"USD\",\n        \"requested_payment_method\": \"corporate card\",\n        \"request_date\": \"2025-01-15\"\n    }\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    request_date = date.fromisoformat(STATE[\"team_offsite\"][\"request_date\"])\n\n    if current_date < request_date:\n        return []\n\n    quote = STATE[\"team_offsite\"][\"venue_day_quote\"]\n    limit = STATE[\"corporate_card\"][\"per_transaction_limit\"]\n\n    if quote > limit:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"constraint_conflict\",\n            \"message\": (\n                \"The venue's $4,200 quote exceeds the corporate card's \"\n                \"$3,000 per-transaction limit. VP approval is required, \"\n                \"which conflicts with the preference to avoid that process.\"\n            )\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/finance_02/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 108,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "bbf0507c0d555f12e7b25b2f96355b46ca494c166625fe0bf124b2e18183c5fc"
+          },
+          "execution": {
+            "state": {
+              "corporate_card": {
+                "per_transaction_limit": 3000,
+                "currency": "USD",
+                "above_limit_requires": "VP approval",
+                "user_preference": "Avoid the VP approval process"
+              },
+              "team_offsite": {
+                "venue_day_quote": 4200,
+                "currency": "USD",
+                "requested_payment_method": "corporate card",
+                "request_date": "2025-01-15"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "constraint_conflict",
+                "message": "The venue's $4,200 quote exceeds the corporate card's $3,000 per-transaction limit. VP approval is required, which conflicts with the preference to avoid that process."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "1"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-07-10; session 1]\nJust so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process.\n\nCurrent session (2025-01-15):\nNeed to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?",
+      "generation": {
+        "text": "The $4,200 venue charge exceeds your corporate card’s $3,000 per-transaction limit, so it requires VP approval. I can help draft the approval request or look for venues priced at $3,000 or less.",
+        "latency_seconds": 3.95,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 156,
+          "total_tokens": 266,
+          "completion_tokens": 110
+        }
+      },
+      "response": "The $4,200 venue charge exceeds your corporate card’s $3,000 per-transaction limit, so it requires VP approval. I can help draft the approval request or look for venues priced at $3,000 or less.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "cost": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?4[,]?200",
+                "text": "$4,200"
+              }
+            ]
+          },
+          "limit": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?3[,]?000",
+                "text": "$3,000"
+              }
+            ]
+          },
+          "comparison": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "exceed",
+                "text": "exceed"
+              }
+            ]
+          },
+          "resolution": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "VP approval",
+                "text": "VP approval"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "1"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "1",
+          "score": 1.726092434711,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-07-10; session 1]\nJust so you know, my corporate card has a $3,000 per-transaction limit. Anything above that needs VP approval and I don't want to deal with that process.\n\nCurrent session (2025-01-15):\nNeed to book a team offsite. The venue is quoting $4,200 for the day. Can you put it on my corporate card?",
+      "generation": {
+        "text": "The $4,200 venue charge exceeds your corporate card’s $3,000 per-transaction limit, so it requires VP approval. I wouldn’t place it on the card without that approval. You could either obtain approval or select a venue priced at $3,000 or less.",
+        "latency_seconds": 3.797,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 156,
+          "total_tokens": 277,
+          "completion_tokens": 121
+        }
+      },
+      "response": "The $4,200 venue charge exceeds your corporate card’s $3,000 per-transaction limit, so it requires VP approval. I wouldn’t place it on the card without that approval. You could either obtain approval or select a venue priced at $3,000 or less.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "cost": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?4[,]?200",
+                "text": "$4,200"
+              }
+            ]
+          },
+          "limit": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "\\$?3[,]?000",
+                "text": "$3,000"
+              }
+            ]
+          },
+          "comparison": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "exceed",
+                "text": "exceed"
+              }
+            ]
+          },
+          "resolution": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "VP approval",
+                "text": "VP approval"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T14:58:27.038840+00:00"
+}

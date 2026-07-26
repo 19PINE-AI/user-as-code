@@ -1,0 +1,282 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_05",
+  "category": "warranty_deadline_expiration",
+  "description": "Return window closing for a purchase the user was unhappy with",
+  "started_at": "2026-07-26T15:06:23.149682+00:00",
+  "sessions": [
+    {
+      "session_id": "5",
+      "timestamp": "2024-10-08",
+      "user_text": "Bought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide."
+    },
+    {
+      "session_id": "9",
+      "timestamp": "2024-10-29",
+      "user_text": "Morning! What's the weather like today?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": true,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The espresso machine return window for the $400 purchase from Williams-Sonoma ends on 2024-11-01 (3 days remaining)."
+      ],
+      "posttrigger_score": {
+        "passed": true,
+        "passing_candidate_indices": [
+          0
+        ],
+        "candidates": [
+          {
+            "passed": true,
+            "matched_groups": 4,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "espresso",
+                    "text": "espresso"
+                  },
+                  {
+                    "pattern": "williams[- ]?sonoma",
+                    "text": "Williams-Sonoma"
+                  }
+                ]
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-01",
+                    "text": "2024-11-01"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:3|three) days?",
+                    "text": "3 days"
+                  }
+                ]
+              },
+              "action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "return",
+                    "text": "return"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "5",
+            "timestamp": "2024-10-08",
+            "user_text": "Bought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-08\n\nComplete user-authored history through this session:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"purchases\": [\n        {\n            \"item\": \"espresso machine\",\n            \"seller\": \"Williams-Sonoma\",\n            \"price_usd\": 400,\n            \"purchase_date\": \"2024-10-02\",\n            \"return_window_days\": 30,\n            \"concern\": \"milk frother is kind of weak\",\n            \"decision_status\": \"undecided\",\n            \"stated_decision_timing\": \"another week or two\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    for purchase in STATE[\"purchases\"]:\n        if purchase[\"decision_status\"] != \"undecided\":\n            continue\n\n        purchase_date = date.fromisoformat(purchase[\"purchase_date\"])\n        return_deadline = purchase_date.fromordinal(\n            purchase_date.toordinal() + purchase[\"return_window_days\"]\n        )\n        days_until_deadline = (return_deadline - current_date).days\n\n        if days_until_deadline < 0:\n            alerts.append({\n                \"severity\": \"critical\",\n                \"type\": \"return_window_expired\",\n                \"message\": (\n                    f\"The {purchase['item']} return window at {purchase['seller']} \"\n                    f\"ended on {return_deadline.isoformat()}, and the purchase is still undecided.\"\n                )\n            })\n        elif days_until_deadline <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"return_deadline_approaching\",\n                \"message\": (\n                    f\"The {purchase['item']} return window at {purchase['seller']} \"\n                    f\"ends on {return_deadline.isoformat()}; the purchase is still undecided.\"\n                )\n            })\n\n    return alerts",
+            "latency_seconds": 16.658,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 375,
+              "total_tokens": 1182,
+              "completion_tokens": 807
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"purchases\": [\n        {\n            \"item\": \"espresso machine\",\n            \"seller\": \"Williams-Sonoma\",\n            \"price_usd\": 400,\n            \"purchase_date\": \"2024-10-02\",\n            \"return_window_days\": 30,\n            \"concern\": \"milk frother is kind of weak\",\n            \"decision_status\": \"undecided\",\n            \"stated_decision_timing\": \"another week or two\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    alerts = []\n\n    for purchase in STATE[\"purchases\"]:\n        if purchase[\"decision_status\"] != \"undecided\":\n            continue\n\n        purchase_date = date.fromisoformat(purchase[\"purchase_date\"])\n        return_deadline = purchase_date.fromordinal(\n            purchase_date.toordinal() + purchase[\"return_window_days\"]\n        )\n        days_until_deadline = (return_deadline - current_date).days\n\n        if days_until_deadline < 0:\n            alerts.append({\n                \"severity\": \"critical\",\n                \"type\": \"return_window_expired\",\n                \"message\": (\n                    f\"The {purchase['item']} return window at {purchase['seller']} \"\n                    f\"ended on {return_deadline.isoformat()}, and the purchase is still undecided.\"\n                )\n            })\n        elif days_until_deadline <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"return_deadline_approaching\",\n                \"message\": (\n                    f\"The {purchase['item']} return window at {purchase['seller']} \"\n                    f\"ends on {return_deadline.isoformat()}; the purchase is still undecided.\"\n                )\n            })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_05/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 192,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "49f0718fd059d63cb4bc8983fa167c59fbf8f4d9387c7667e5fe5311f0e20204"
+          },
+          "execution": {
+            "state": {
+              "purchases": [
+                {
+                  "item": "espresso machine",
+                  "seller": "Williams-Sonoma",
+                  "price_usd": 400,
+                  "purchase_date": "2024-10-02",
+                  "return_window_days": 30,
+                  "concern": "milk frother is kind of weak",
+                  "decision_status": "undecided",
+                  "stated_decision_timing": "another week or two"
+                }
+              ]
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "9",
+            "timestamp": "2024-10-29",
+            "user_text": "Morning! What's the weather like today?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-29\n\nComplete user-authored history through this session:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\n[2024-10-29; session 9]\nMorning! What's the weather like today?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"purchases\": [\n        {\n            \"item\": \"espresso machine\",\n            \"price_usd\": 400,\n            \"seller\": \"Williams-Sonoma\",\n            \"purchase_date\": \"2024-10-02\",\n            \"return_window_days\": 30,\n            \"return_deadline\": \"2024-11-01\",\n            \"concern\": \"The milk frother is kind of weak.\",\n            \"decision_status\": \"undecided\",\n            \"intended_decision_timing\": \"Give it another week or two before deciding.\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    for purchase in STATE[\"purchases\"]:\n        deadline = date.fromisoformat(purchase[\"return_deadline\"])\n        days_remaining = (deadline - current).days\n\n        if days_remaining < 0:\n            alerts.append({\n                \"severity\": \"high\",\n                \"type\": \"expired_deadline\",\n                \"message\": (\n                    f\"The {purchase['item']} return window for the ${purchase['price_usd']} \"\n                    f\"purchase from {purchase['seller']} expired on \"\n                    f\"{purchase['return_deadline']}.\"\n                )\n            })\n        elif days_remaining <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"upcoming_deadline\",\n                \"message\": (\n                    f\"The {purchase['item']} return window for the ${purchase['price_usd']} \"\n                    f\"purchase from {purchase['seller']} ends on \"\n                    f\"{purchase['return_deadline']} ({days_remaining} days remaining).\"\n                )\n            })\n\n    return alerts",
+            "latency_seconds": 17.598,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 395,
+              "total_tokens": 1273,
+              "completion_tokens": 878
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"purchases\": [\n        {\n            \"item\": \"espresso machine\",\n            \"price_usd\": 400,\n            \"seller\": \"Williams-Sonoma\",\n            \"purchase_date\": \"2024-10-02\",\n            \"return_window_days\": 30,\n            \"return_deadline\": \"2024-11-01\",\n            \"concern\": \"The milk frother is kind of weak.\",\n            \"decision_status\": \"undecided\",\n            \"intended_decision_timing\": \"Give it another week or two before deciding.\"\n        }\n    ]\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    alerts = []\n\n    for purchase in STATE[\"purchases\"]:\n        deadline = date.fromisoformat(purchase[\"return_deadline\"])\n        days_remaining = (deadline - current).days\n\n        if days_remaining < 0:\n            alerts.append({\n                \"severity\": \"high\",\n                \"type\": \"expired_deadline\",\n                \"message\": (\n                    f\"The {purchase['item']} return window for the ${purchase['price_usd']} \"\n                    f\"purchase from {purchase['seller']} expired on \"\n                    f\"{purchase['return_deadline']}.\"\n                )\n            })\n        elif days_remaining <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"upcoming_deadline\",\n                \"message\": (\n                    f\"The {purchase['item']} return window for the ${purchase['price_usd']} \"\n                    f\"purchase from {purchase['seller']} ends on \"\n                    f\"{purchase['return_deadline']} ({days_remaining} days remaining).\"\n                )\n            })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_05/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 183,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "cde13eb2d59868fff41b6990fed2a1109ff708b2b69d022e2e2f088732da503b"
+          },
+          "execution": {
+            "state": {
+              "purchases": [
+                {
+                  "item": "espresso machine",
+                  "price_usd": 400,
+                  "seller": "Williams-Sonoma",
+                  "purchase_date": "2024-10-02",
+                  "return_window_days": 30,
+                  "return_deadline": "2024-11-01",
+                  "concern": "The milk frother is kind of weak.",
+                  "decision_status": "undecided",
+                  "intended_decision_timing": "Give it another week or two before deciding."
+                }
+              ]
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "upcoming_deadline",
+                "message": "The espresso machine return window for the $400 purchase from Williams-Sonoma ends on 2024-11-01 (3 days remaining)."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\nCurrent session (2024-10-29):\nMorning! What's the weather like today?",
+      "generation": {
+        "text": "Good morning! What city or ZIP code should I check the weather for?",
+        "latency_seconds": 2.606,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 202,
+          "completion_tokens": 51
+        }
+      },
+      "response": "Good morning! What city or ZIP code should I check the weather for?",
+      "score": {
+        "passed": false,
+        "matched_groups": 0,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": false,
+            "matches": []
+          },
+          "deadline": {
+            "passed": false,
+            "matches": []
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": false,
+            "matches": []
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "5"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "5",
+          "score": 0.287682072452,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-08; session 5]\nBought a $400 espresso machine from Williams-Sonoma last week, October 2. I'm not sure about it -- the milk frother is kind of weak. Their return policy is 30 days. I'll give it another week or two and decide.\n\nCurrent session (2024-10-29):\nMorning! What's the weather like today?",
+      "generation": {
+        "text": "Good morning! What city or ZIP code should I check the weather for?",
+        "latency_seconds": 2.297,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 196,
+          "completion_tokens": 45
+        }
+      },
+      "response": "Good morning! What city or ZIP code should I check the weather for?",
+      "score": {
+        "passed": false,
+        "matched_groups": 0,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": false,
+            "matches": []
+          },
+          "deadline": {
+            "passed": false,
+            "matches": []
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": false,
+            "matches": []
+          }
+        }
+      },
+      "passed": false
+    }
+  },
+  "completed_at": "2026-07-26T15:07:02.398769+00:00"
+}

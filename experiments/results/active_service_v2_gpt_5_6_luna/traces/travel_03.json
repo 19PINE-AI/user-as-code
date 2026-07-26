@@ -1,0 +1,340 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "travel_03",
+  "category": "travel_document_validity",
+  "description": "Schengen visa single-entry already used, second trip planned",
+  "started_at": "2026-07-26T14:55:52.058706+00:00",
+  "sessions": [
+    {
+      "session_id": "3",
+      "timestamp": "2024-09-20",
+      "user_text": "My Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024."
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-11-05",
+      "user_text": "Just got back from an amazing week in Paris. The croissants were unreal."
+    },
+    {
+      "session_id": "10",
+      "timestamp": "2024-12-01",
+      "user_text": "I'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The tentative Berlin trip is dated December 28, 2024 to January 2, 2025, but the Schengen visa is valid only through December 31, 2024."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 1,
+            "required_groups": 4,
+            "groups": {
+              "constraint": {
+                "passed": false,
+                "matches": []
+              },
+              "prior_use": {
+                "passed": false,
+                "matches": []
+              },
+              "new_trip": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "berlin",
+                    "text": "Berlin"
+                  }
+                ]
+              },
+              "consequence": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "3",
+            "timestamp": "2024-09-20",
+            "user_text": "My Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-20\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "STATE = {\n    \"schengen_visa\": {\n        \"status\": \"approved\",\n        \"entry_type\": \"single-entry\",\n        \"valid_from\": \"2024-10-01\",\n        \"valid_until\": \"2024-12-31\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []",
+            "latency_seconds": 10.023,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 350,
+              "completion_tokens": 371,
+              "total_tokens": 721
+            }
+          },
+          "source": "STATE = {\n    \"schengen_visa\": {\n        \"status\": \"approved\",\n        \"entry_type\": \"single-entry\",\n        \"valid_from\": \"2024-10-01\",\n        \"valid_until\": \"2024-12-31\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/travel_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 21,
+            "imports": [],
+            "source_sha256": "2aab1bab204de68937e66ac44fce5b32a3cb89aad8f852bcbdbe4318af11eb0c"
+          },
+          "execution": {
+            "state": {
+              "schengen_visa": {
+                "status": "approved",
+                "entry_type": "single-entry",
+                "valid_from": "2024-10-01",
+                "valid_until": "2024-12-31"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-11-05",
+            "user_text": "Just got back from an amazing week in Paris. The croissants were unreal."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-05\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\n[2024-11-05; session 6]\nJust got back from an amazing week in Paris. The croissants were unreal.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"travel\": {\n        \"schengen_visa\": {\n            \"type\": \"single-entry\",\n            \"valid_from\": \"2024-10-01\",\n            \"valid_until\": \"2024-12-31\",\n            \"status\": \"issued\"\n        },\n        \"paris_trip\": {\n            \"status\": \"completed\",\n            \"duration\": \"one week\",\n            \"reported_on\": \"2024-11-05\"\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []",
+            "latency_seconds": 8.37,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 378,
+              "total_tokens": 754,
+              "completion_tokens": 376
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"travel\": {\n        \"schengen_visa\": {\n            \"type\": \"single-entry\",\n            \"valid_from\": \"2024-10-01\",\n            \"valid_until\": \"2024-12-31\",\n            \"status\": \"issued\"\n        },\n        \"paris_trip\": {\n            \"status\": \"completed\",\n            \"duration\": \"one week\",\n            \"reported_on\": \"2024-11-05\"\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/travel_03/02_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 41,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "39add647d123564789867140567016588a06ed58650404599d3903e5c7c47ce7"
+          },
+          "execution": {
+            "state": {
+              "travel": {
+                "schengen_visa": {
+                  "type": "single-entry",
+                  "valid_from": "2024-10-01",
+                  "valid_until": "2024-12-31",
+                  "status": "issued"
+                },
+                "paris_trip": {
+                  "status": "completed",
+                  "duration": "one week",
+                  "reported_on": "2024-11-05"
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "10",
+            "timestamp": "2024-12-01",
+            "user_text": "I'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-12-01\n\nComplete user-authored history through this session:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\n[2024-11-05; session 6]\nJust got back from an amazing week in Paris. The croissants were unreal.\n\n[2024-12-01; session 10]\nI'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"schengen_visa\": {\n        \"type\": \"single-entry\",\n        \"valid_from\": \"2024-10-01\",\n        \"valid_until\": \"2024-12-31\"\n    },\n    \"completed_trip\": {\n        \"destination\": \"Paris\",\n        \"returned_on\": \"2024-11-05\",\n        \"duration\": \"one week\"\n    },\n    \"tentative_trip\": {\n        \"destination\": \"Berlin\",\n        \"start_date\": \"2024-12-28\",\n        \"end_date\": \"2025-01-02\",\n        \"occasion\": \"New Year's Eve\",\n        \"status\": \"considering\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    today = date.fromisoformat(current_time)\n    alerts = []\n\n    trip = STATE[\"tentative_trip\"]\n    visa = STATE[\"schengen_visa\"]\n    trip_start = date.fromisoformat(trip[\"start_date\"])\n    trip_end = date.fromisoformat(trip[\"end_date\"])\n    visa_end = date.fromisoformat(visa[\"valid_until\"])\n    session_date = date(2024, 12, 1)\n\n    if (\n        today >= session_date\n        and today <= trip_end\n        and trip_start <= trip_end\n        and trip_end > visa_end\n    ):\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"visa_validity_conflict\",\n            \"message\": (\n                \"The tentative Berlin trip is dated December 28, 2024 to \"\n                \"January 2, 2025, but the Schengen visa is valid only through \"\n                \"December 31, 2024.\"\n            )\n        })\n\n    return alerts",
+            "latency_seconds": 23.069,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 412,
+              "total_tokens": 1572,
+              "completion_tokens": 1160
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"schengen_visa\": {\n        \"type\": \"single-entry\",\n        \"valid_from\": \"2024-10-01\",\n        \"valid_until\": \"2024-12-31\"\n    },\n    \"completed_trip\": {\n        \"destination\": \"Paris\",\n        \"returned_on\": \"2024-11-05\",\n        \"duration\": \"one week\"\n    },\n    \"tentative_trip\": {\n        \"destination\": \"Berlin\",\n        \"start_date\": \"2024-12-28\",\n        \"end_date\": \"2025-01-02\",\n        \"occasion\": \"New Year's Eve\",\n        \"status\": \"considering\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    today = date.fromisoformat(current_time)\n    alerts = []\n\n    trip = STATE[\"tentative_trip\"]\n    visa = STATE[\"schengen_visa\"]\n    trip_start = date.fromisoformat(trip[\"start_date\"])\n    trip_end = date.fromisoformat(trip[\"end_date\"])\n    visa_end = date.fromisoformat(visa[\"valid_until\"])\n    session_date = date(2024, 12, 1)\n\n    if (\n        today >= session_date\n        and today <= trip_end\n        and trip_start <= trip_end\n        and trip_end > visa_end\n    ):\n        alerts.append({\n            \"severity\": \"warning\",\n            \"type\": \"visa_validity_conflict\",\n            \"message\": (\n                \"The tentative Berlin trip is dated December 28, 2024 to \"\n                \"January 2, 2025, but the Schengen visa is valid only through \"\n                \"December 31, 2024.\"\n            )\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/travel_03/03_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 160,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "81da796207ce7f7b63fe346fd7d1f7a27724d649be1ed9cc89743aebf2772386"
+          },
+          "execution": {
+            "state": {
+              "schengen_visa": {
+                "type": "single-entry",
+                "valid_from": "2024-10-01",
+                "valid_until": "2024-12-31"
+              },
+              "completed_trip": {
+                "destination": "Paris",
+                "returned_on": "2024-11-05",
+                "duration": "one week"
+              },
+              "tentative_trip": {
+                "destination": "Berlin",
+                "start_date": "2024-12-28",
+                "end_date": "2025-01-02",
+                "occasion": "New Year's Eve",
+                "status": "considering"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "visa_validity_conflict",
+                "message": "The tentative Berlin trip is dated December 28, 2024 to January 2, 2025, but the Schengen visa is valid only through December 31, 2024."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "3",
+        "6"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\n[2024-11-05; session 6]\nJust got back from an amazing week in Paris. The croissants were unreal.\n\nCurrent session (2024-12-01):\nI'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?",
+      "generation": {
+        "text": "Your current Schengen visa likely won’t work for that trip:\n\n- It’s **single-entry**, and you already used it for Paris.\n- It’s valid only through **December 31, 2024**, while your trip would continue until **January 2, 2025**.\n\nYou’d need a **new Schengen visa** for the Berlin trip, assuming you’re traveling from outside the Schengen Area. Since Berlin would be your destination, Germany would generally be the country to apply through. Also check processing times immediately—applying for a December 28 departure may be very tight.",
+        "latency_seconds": 8.222,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 168,
+          "total_tokens": 390,
+          "completion_tokens": 222
+        }
+      },
+      "response": "Your current Schengen visa likely won’t work for that trip:\n\n- It’s **single-entry**, and you already used it for Paris.\n- It’s valid only through **December 31, 2024**, while your trip would continue until **January 2, 2025**.\n\nYou’d need a **new Schengen visa** for the Berlin trip, assuming you’re traveling from outside the Schengen Area. Since Berlin would be your destination, Germany would generally be the country to apply through. Also check processing times immediately—applying for a December 28 departure may be very tight.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "constraint": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "single[- ]?entry",
+                "text": "single-entry"
+              }
+            ]
+          },
+          "prior_use": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "paris",
+                "text": "Paris"
+              },
+              {
+                "pattern": "already (?:used|entered)",
+                "text": "already used"
+              }
+            ]
+          },
+          "new_trip": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "berlin",
+                "text": "Berlin"
+              }
+            ]
+          },
+          "consequence": {
+            "passed": false,
+            "matches": []
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "3"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "3",
+          "score": 2.575069209046,
+          "source_index": 0
+        },
+        {
+          "session_id": "6",
+          "score": 0.0,
+          "source_index": 1
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-09-20; session 3]\nMy Schengen visa came through! It's a single-entry visa valid from October 1 to December 31, 2024.\n\nCurrent session (2024-12-01):\nI'm thinking about a quick trip to Berlin for New Year's Eve. Maybe December 28 to January 2?",
+      "generation": {
+        "text": "Your planned **December 28–January 2 trip won’t work under that visa as stated**:\n\n- The visa expires **December 31, 2024**, so you must leave the Schengen Area by the permitted date—likely no later than December 31, subject to the exact visa sticker.\n- Since it is **single-entry**, leaving Schengen and trying to return would not be allowed.\n- Also check the visa’s **“Duration of stay”** field; you may be authorized for fewer days than the overall validity period.\n\nYou could instead plan to **return by December 31**, or obtain a visa/authorization that covers your stay through January 2. Check the “FROM,” “UNTIL,” “DURATION OF STAY,” and “NUMBER OF ENTRIES” fields on the visa before booking.",
+        "latency_seconds": 7.443,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 140,
+          "total_tokens": 454,
+          "completion_tokens": 314
+        }
+      },
+      "response": "Your planned **December 28–January 2 trip won’t work under that visa as stated**:\n\n- The visa expires **December 31, 2024**, so you must leave the Schengen Area by the permitted date—likely no later than December 31, subject to the exact visa sticker.\n- Since it is **single-entry**, leaving Schengen and trying to return would not be allowed.\n- Also check the visa’s **“Duration of stay”** field; you may be authorized for fewer days than the overall validity period.\n\nYou could instead plan to **return by December 31**, or obtain a visa/authorization that covers your stay through January 2. Check the “FROM,” “UNTIL,” “DURATION OF STAY,” and “NUMBER OF ENTRIES” fields on the visa before booking.",
+      "score": {
+        "passed": false,
+        "matched_groups": 1,
+        "required_groups": 4,
+        "groups": {
+          "constraint": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "single[- ]?entry",
+                "text": "single-entry"
+              }
+            ]
+          },
+          "prior_use": {
+            "passed": false,
+            "matches": []
+          },
+          "new_trip": {
+            "passed": false,
+            "matches": []
+          },
+          "consequence": {
+            "passed": false,
+            "matches": []
+          }
+        }
+      },
+      "passed": false
+    }
+  },
+  "completed_at": "2026-07-26T14:56:49.284087+00:00"
+}

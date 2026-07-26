@@ -1,0 +1,315 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "deadline_03",
+  "category": "warranty_deadline_expiration",
+  "description": "Lease renewal deadline approaching with user wanting to negotiate",
+  "started_at": "2026-07-26T15:05:37.516086+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-08-20",
+      "user_text": "My apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms."
+    },
+    {
+      "session_id": "9",
+      "timestamp": "2024-11-25",
+      "user_text": "I'm so busy with the holidays. Can't even think straight."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "Renewal notice and negotiation are due by 2024-12-02, which is within seven days."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "subject": {
+                "passed": false,
+                "matches": []
+              },
+              "deadline": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-12-02",
+                    "text": "2024-12-02"
+                  }
+                ]
+              },
+              "remaining": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "(?:7|seven) days?",
+                    "text": "seven days"
+                  }
+                ]
+              },
+              "action": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "notice",
+                    "text": "notice"
+                  },
+                  {
+                    "pattern": "renew",
+                    "text": "Renew"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-08-20",
+            "user_text": "My apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-08-20\n\nComplete user-authored history through this session:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"lease\": {\n        \"expiration_date\": \"2025-01-31\",\n        \"notice_required_days\": 60,\n        \"renewal_intent\": True,\n        \"renewal_goal\": \"negotiate renewal terms\",\n        \"landlord_consequence_without_notice\": \"lease auto-converts to month-to-month at a higher rate\",\n    }\n}\n\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    expiration_date = date.fromisoformat(STATE[\"lease\"][\"expiration_date\"])\n    notice_deadline = expiration_date - timedelta(\n        days=STATE[\"lease\"][\"notice_required_days\"]\n    )\n\n    if not STATE[\"lease\"][\"renewal_intent\"]:\n        return []\n\n    days_until_deadline = (notice_deadline - current_date).days\n\n    if days_until_deadline < 0:\n        return [{\n            \"severity\": \"critical\",\n            \"type\": \"missed_deadline\",\n            \"message\": (\n                f\"The {STATE['lease']['notice_required_days']}-day renewal notice \"\n                f\"deadline was {notice_deadline.isoformat()}; without notice, the \"\n                \"lease may auto-convert to month-to-month at a higher rate.\"\n            ),\n        }]\n\n    if days_until_deadline <= 7:\n        return [{\n            \"severity\": \"warning\",\n            \"type\": \"upcoming_deadline\",\n            \"message\": (\n                f\"Renewal notice is due by {notice_deadline.isoformat()} \"\n                f\"({days_until_deadline} days away) because you want to negotiate \"\n                \"renewal terms.\"\n            ),\n        }]\n\n    return []",
+            "latency_seconds": 15.319,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 371,
+              "total_tokens": 1129,
+              "completion_tokens": 758
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"lease\": {\n        \"expiration_date\": \"2025-01-31\",\n        \"notice_required_days\": 60,\n        \"renewal_intent\": True,\n        \"renewal_goal\": \"negotiate renewal terms\",\n        \"landlord_consequence_without_notice\": \"lease auto-converts to month-to-month at a higher rate\",\n    }\n}\n\n\ndef check_constraints(current_time):\n    current_date = date.fromisoformat(current_time)\n    expiration_date = date.fromisoformat(STATE[\"lease\"][\"expiration_date\"])\n    notice_deadline = expiration_date - timedelta(\n        days=STATE[\"lease\"][\"notice_required_days\"]\n    )\n\n    if not STATE[\"lease\"][\"renewal_intent\"]:\n        return []\n\n    days_until_deadline = (notice_deadline - current_date).days\n\n    if days_until_deadline < 0:\n        return [{\n            \"severity\": \"critical\",\n            \"type\": \"missed_deadline\",\n            \"message\": (\n                f\"The {STATE['lease']['notice_required_days']}-day renewal notice \"\n                f\"deadline was {notice_deadline.isoformat()}; without notice, the \"\n                \"lease may auto-convert to month-to-month at a higher rate.\"\n            ),\n        }]\n\n    if days_until_deadline <= 7:\n        return [{\n            \"severity\": \"warning\",\n            \"type\": \"upcoming_deadline\",\n            \"message\": (\n                f\"Renewal notice is due by {notice_deadline.isoformat()} \"\n                f\"({days_until_deadline} days away) because you want to negotiate \"\n                \"renewal terms.\"\n            ),\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_03/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 158,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "3b39c953b5c8aeef2653a8c46f20204992c7d61d7478c9a9b319f09b5c2e3bea"
+          },
+          "execution": {
+            "state": {
+              "lease": {
+                "expiration_date": "2025-01-31",
+                "notice_required_days": 60,
+                "renewal_intent": true,
+                "renewal_goal": "negotiate renewal terms",
+                "landlord_consequence_without_notice": "lease auto-converts to month-to-month at a higher rate"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "9",
+            "timestamp": "2024-11-25",
+            "user_text": "I'm so busy with the holidays. Can't even think straight."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-25\n\nComplete user-authored history through this session:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\n[2024-11-25; session 9]\nI'm so busy with the holidays. Can't even think straight.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date, timedelta\n\nSTATE = {\n    \"lease\": {\n        \"expiration_date\": \"2025-01-31\",\n        \"renewal_notice_days\": 60,\n        \"notice_deadline\": \"2024-12-02\",\n        \"auto_conversion_if_no_renewal\": \"month-to-month at a higher rate\",\n        \"user_wants_to_renew\": True,\n        \"user_wants_to_negotiate_renewal_terms\": True\n    },\n    \"user_context\": {\n        \"as_of\": \"2024-11-25\",\n        \"reported_busy_with_holidays\": True\n    }\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    deadline = date.fromisoformat(STATE[\"lease\"][\"notice_deadline\"])\n    days_until_deadline = (deadline - current).days\n    alerts = []\n\n    if STATE[\"lease\"][\"user_wants_to_renew\"] and STATE[\"lease\"][\"user_wants_to_negotiate_renewal_terms\"]:\n        if 0 <= days_until_deadline <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"deadline\",\n                \"message\": \"Renewal notice and negotiation are due by 2024-12-02, which is within seven days.\"\n            })\n        elif days_until_deadline < 0:\n            alerts.append({\n                \"severity\": \"critical\",\n                \"type\": \"missed_deadline\",\n                \"message\": \"The 2024-12-02 renewal-notice deadline has passed, and no renewal notice is recorded.\"\n            })\n\n    return alerts",
+            "latency_seconds": 16.974,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 395,
+              "total_tokens": 1252,
+              "completion_tokens": 857
+            }
+          },
+          "source": "from datetime import date, timedelta\n\nSTATE = {\n    \"lease\": {\n        \"expiration_date\": \"2025-01-31\",\n        \"renewal_notice_days\": 60,\n        \"notice_deadline\": \"2024-12-02\",\n        \"auto_conversion_if_no_renewal\": \"month-to-month at a higher rate\",\n        \"user_wants_to_renew\": True,\n        \"user_wants_to_negotiate_renewal_terms\": True\n    },\n    \"user_context\": {\n        \"as_of\": \"2024-11-25\",\n        \"reported_busy_with_holidays\": True\n    }\n}\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    deadline = date.fromisoformat(STATE[\"lease\"][\"notice_deadline\"])\n    days_until_deadline = (deadline - current).days\n    alerts = []\n\n    if STATE[\"lease\"][\"user_wants_to_renew\"] and STATE[\"lease\"][\"user_wants_to_negotiate_renewal_terms\"]:\n        if 0 <= days_until_deadline <= 7:\n            alerts.append({\n                \"severity\": \"warning\",\n                \"type\": \"deadline\",\n                \"message\": \"Renewal notice and negotiation are due by 2024-12-02, which is within seven days.\"\n            })\n        elif days_until_deadline < 0:\n            alerts.append({\n                \"severity\": \"critical\",\n                \"type\": \"missed_deadline\",\n                \"message\": \"The 2024-12-02 renewal-notice deadline has passed, and no renewal notice is recorded.\"\n            })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/deadline_03/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 135,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "7c52f6c8315bcf58e2febf568eb00a20020ad3d8cc69311a948220e6992c5124"
+          },
+          "execution": {
+            "state": {
+              "lease": {
+                "expiration_date": "2025-01-31",
+                "renewal_notice_days": 60,
+                "notice_deadline": "2024-12-02",
+                "auto_conversion_if_no_renewal": "month-to-month at a higher rate",
+                "user_wants_to_renew": true,
+                "user_wants_to_negotiate_renewal_terms": true
+              },
+              "user_context": {
+                "as_of": "2024-11-25",
+                "reported_busy_with_holidays": true
+              }
+            },
+            "alerts": [
+              {
+                "severity": "warning",
+                "type": "deadline",
+                "message": "Renewal notice and negotiation are due by 2024-12-02, which is within seven days."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\nCurrent session (2024-11-25):\nI'm so busy with the holidays. Can't even think straight.",
+      "generation": {
+        "text": "That’s a lot to juggle. The good news is you still have a little time: with a January 31, 2025 lease expiration and a 60-day notice requirement, your deadline is approximately **December 2, 2024**.\n\nTo protect yourself, send the landlord a brief written notice now saying you want to renew and negotiate terms. For example:\n\n> **Subject: Lease Renewal Discussion**  \n> Hi [Landlord],  \n> I’m writing to confirm that I’m interested in renewing my lease beyond January 31, 2025. I’d like to discuss the renewal terms, including the proposed rent and lease length. Please send me the renewal options and let me know a convenient time to discuss.  \n> Thank you,  \n> [Your name]\n\nCheck your lease for the exact notice language and send it in the required manner—email, certified mail, or another specified method. Keep a copy and proof of delivery.",
+        "latency_seconds": 7.497,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 481,
+          "completion_tokens": 330
+        }
+      },
+      "response": "That’s a lot to juggle. The good news is you still have a little time: with a January 31, 2025 lease expiration and a 60-day notice requirement, your deadline is approximately **December 2, 2024**.\n\nTo protect yourself, send the landlord a brief written notice now saying you want to renew and negotiate terms. For example:\n\n> **Subject: Lease Renewal Discussion**  \n> Hi [Landlord],  \n> I’m writing to confirm that I’m interested in renewing my lease beyond January 31, 2025. I’d like to discuss the renewal terms, including the proposed rent and lease length. Please send me the renewal options and let me know a convenient time to discuss.  \n> Thank you,  \n> [Your name]\n\nCheck your lease for the exact notice language and send it in the required manner—email, certified mail, or another specified method. Keep a copy and proof of delivery.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "lease",
+                "text": "lease"
+              }
+            ]
+          },
+          "deadline": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+2",
+                "text": "December 2"
+              }
+            ]
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "notice",
+                "text": "notice"
+              },
+              {
+                "pattern": "renew",
+                "text": "renew"
+              },
+              {
+                "pattern": "landlord",
+                "text": "landlord"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "4",
+          "score": 0.791125699242,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-20; session 4]\nMy apartment lease expires January 31, 2025. The landlord requires 60 days notice if I want to renew or it auto-converts to month-to-month at a higher rate. I definitely want to negotiate the renewal terms.\n\nCurrent session (2024-11-25):\nI'm so busy with the holidays. Can't even think straight.",
+      "generation": {
+        "text": "That’s understandable. The key thing is not to let the deadline slip: for a January 31 lease expiration, 60 days’ notice is around **December 2**, so you should contact your landlord this week.\n\nYou could send:\n\n> Hi [Landlord],  \n> I’m interested in renewing my lease beyond January 31, 2025, and would like to discuss the renewal terms, including the proposed rent and lease length. Please send me the renewal offer and let me know whether the notice deadline can be extended while we negotiate.  \n> Thanks,  \n> [Name]\n\nSet a reminder for today or tomorrow, and check your lease for the exact notice language.",
+        "latency_seconds": 5.752,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 151,
+          "total_tokens": 368,
+          "completion_tokens": 217
+        }
+      },
+      "response": "That’s understandable. The key thing is not to let the deadline slip: for a January 31 lease expiration, 60 days’ notice is around **December 2**, so you should contact your landlord this week.\n\nYou could send:\n\n> Hi [Landlord],  \n> I’m interested in renewing my lease beyond January 31, 2025, and would like to discuss the renewal terms, including the proposed rent and lease length. Please send me the renewal offer and let me know whether the notice deadline can be extended while we negotiate.  \n> Thanks,  \n> [Name]\n\nSet a reminder for today or tomorrow, and check your lease for the exact notice language.",
+      "score": {
+        "passed": false,
+        "matched_groups": 3,
+        "required_groups": 4,
+        "groups": {
+          "subject": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "lease",
+                "text": "lease"
+              }
+            ]
+          },
+          "deadline": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+2",
+                "text": "December 2"
+              }
+            ]
+          },
+          "remaining": {
+            "passed": false,
+            "matches": []
+          },
+          "action": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "notice",
+                "text": "notice"
+              },
+              {
+                "pattern": "renew",
+                "text": "renew"
+              },
+              {
+                "pattern": "landlord",
+                "text": "landlord"
+              }
+            ]
+          }
+        }
+      },
+      "passed": false
+    }
+  },
+  "completed_at": "2026-07-26T15:06:23.146830+00:00"
+}

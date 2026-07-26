@@ -1,0 +1,272 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "schedule_07",
+  "category": "scheduling_conflicts",
+  "description": "Marathon training long run conflicts with friend's wedding",
+  "started_at": "2026-07-26T15:04:09.996727+00:00",
+  "sessions": [
+    {
+      "session_id": "2",
+      "timestamp": "2024-08-15",
+      "user_text": "My best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday."
+    },
+    {
+      "session_id": "6",
+      "timestamp": "2024-09-20",
+      "user_text": "Starting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it."
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": false,
+      "all_updates_executable": false,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 0,
+      "trigger_candidates": [],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": []
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "2",
+            "timestamp": "2024-08-15",
+            "user_text": "My best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-08-15\n\nComplete user-authored history through this session:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"people\": {\n        \"jake\": {\n            \"relationship\": \"best friend\",\n            \"event\": {\n                \"type\": \"wedding\",\n                \"date\": \"2024-10-26\",\n                \"role\": \"groomsman\",\n                \"attendance_commitment\": \"whole weekend\",\n                \"schedule\": [\n                    {\n                        \"name\": \"rehearsal dinner\",\n                        \"date\": \"2024-10-25\",\n                        \"time_of_day\": \"Friday night\"\n                    },\n                    {\n                        \"name\": \"wedding\",\n                        \"date\": \"2024-10-26\",\n                        \"time_of_day\": \"Saturday\"\n                    },\n                    {\n                        \"name\": \"brunch\",\n                        \"date\": \"2024-10-27\",\n                        \"time_of_day\": \"Sunday\"\n                    }\n                ]\n            }\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []",
+            "latency_seconds": 11.187,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 362,
+              "total_tokens": 882,
+              "completion_tokens": 520
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"people\": {\n        \"jake\": {\n            \"relationship\": \"best friend\",\n            \"event\": {\n                \"type\": \"wedding\",\n                \"date\": \"2024-10-26\",\n                \"role\": \"groomsman\",\n                \"attendance_commitment\": \"whole weekend\",\n                \"schedule\": [\n                    {\n                        \"name\": \"rehearsal dinner\",\n                        \"date\": \"2024-10-25\",\n                        \"time_of_day\": \"Friday night\"\n                    },\n                    {\n                        \"name\": \"wedding\",\n                        \"date\": \"2024-10-26\",\n                        \"time_of_day\": \"Saturday\"\n                    },\n                    {\n                        \"name\": \"brunch\",\n                        \"date\": \"2024-10-27\",\n                        \"time_of_day\": \"Sunday\"\n                    }\n                ]\n            }\n        }\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_07/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 61,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "37c6760880163654b0b4e32e6772f9aafa4cb7d52e131906ef0a58578ad221a1"
+          },
+          "execution": {
+            "state": {
+              "people": {
+                "jake": {
+                  "relationship": "best friend",
+                  "event": {
+                    "type": "wedding",
+                    "date": "2024-10-26",
+                    "role": "groomsman",
+                    "attendance_commitment": "whole weekend",
+                    "schedule": [
+                      {
+                        "name": "rehearsal dinner",
+                        "date": "2024-10-25",
+                        "time_of_day": "Friday night"
+                      },
+                      {
+                        "name": "wedding",
+                        "date": "2024-10-26",
+                        "time_of_day": "Saturday"
+                      },
+                      {
+                        "name": "brunch",
+                        "date": "2024-10-27",
+                        "time_of_day": "Sunday"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "6",
+            "timestamp": "2024-09-20",
+            "user_text": "Starting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-09-20\n\nComplete user-authored history through this session:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\n[2024-09-20; session 6]\nStarting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"facts\": {\n        \"best_friend\": \"Jake\",\n        \"marathon\": {\n            \"month\": \"December 2024\",\n            \"training_plan_started\": \"2024-09-20\"\n        }\n    },\n    \"commitments\": [\n        {\n            \"name\": \"Jake's wedding weekend\",\n            \"role\": \"groomsman\",\n            \"dates\": {\n                \"rehearsal_dinner\": \"2024-10-25\",\n                \"wedding\": \"2024-10-26\",\n                \"brunch\": \"2024-10-27\"\n            },\n            \"attendance_requirement\": \"must be there the whole weekend\"\n        },\n        {\n            \"name\": \"Marathon training long run\",\n            \"date\": \"2024-10-26\",\n            \"distance_miles\": 20,\n            \"importance\": \"critical workout\",\n            \"skip_allowed\": False\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    wedding_day = date(2024, 10, 26)\n    wedding_weekend_start = date(2024, 10, 25)\n    wedding_weekend_end = date(2024, 10, 27)\n\n    if (\n        current <= wedding_day\n        and wedding_weekend_start <= wedding_day <= wedding_weekend_end\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"schedule_conflict\",\n            \"message\": (\n                \"Jake's wedding weekend requires groomsman attendance from Friday \"\n                \"October 25 through Sunday October 27, while the critical 20-mile \"\n                \"marathon training run is scheduled for Saturday October 26 and \"\n                \"cannot be skipped.\"\n            )\n        }]\n\n    return [] 񟿿",
+            "latency_seconds": 17.409,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 412,
+              "total_tokens": 1283,
+              "completion_tokens": 871
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"facts\": {\n        \"best_friend\": \"Jake\",\n        \"marathon\": {\n            \"month\": \"December 2024\",\n            \"training_plan_started\": \"2024-09-20\"\n        }\n    },\n    \"commitments\": [\n        {\n            \"name\": \"Jake's wedding weekend\",\n            \"role\": \"groomsman\",\n            \"dates\": {\n                \"rehearsal_dinner\": \"2024-10-25\",\n                \"wedding\": \"2024-10-26\",\n                \"brunch\": \"2024-10-27\"\n            },\n            \"attendance_requirement\": \"must be there the whole weekend\"\n        },\n        {\n            \"name\": \"Marathon training long run\",\n            \"date\": \"2024-10-26\",\n            \"distance_miles\": 20,\n            \"importance\": \"critical workout\",\n            \"skip_allowed\": False\n        }\n    ]\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    wedding_day = date(2024, 10, 26)\n    wedding_weekend_start = date(2024, 10, 25)\n    wedding_weekend_end = date(2024, 10, 27)\n\n    if (\n        current <= wedding_day\n        and wedding_weekend_start <= wedding_day <= wedding_weekend_end\n    ):\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"schedule_conflict\",\n            \"message\": (\n                \"Jake's wedding weekend requires groomsman attendance from Friday \"\n                \"October 25 through Sunday October 27, while the critical 20-mile \"\n                \"marathon training run is scheduled for Saturday October 26 and \"\n                \"cannot be skipped.\"\n            )\n        }]\n\n    return [] 񟿿\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/schedule_07/02_trigger.py",
+          "error_stage": "generation_or_validation",
+          "error": "syntax error at line 54: invalid non-printable character U+5FFFF"
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "2"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\nCurrent session (2024-09-20):\nStarting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it.",
+      "generation": {
+        "text": "You’ve got a significant scheduling conflict: Jake’s wedding weekend requires you to be present from Friday, October 25 through Sunday, October 27, while your 20-mile run is scheduled for Saturday, October 26.\n\nSince this is a key workout, the best solution is usually to **move it rather than skip it**—for example:\n\n- **Thursday, October 24:** Run it before traveling, if your plan allows.\n- **Friday morning:** Possible, but a 20-miler before the rehearsal dinner may leave you exhausted.\n- **Sunday after brunch or Monday, October 28:** Shift it by a day if your coach/plan permits.\n- **Run part of it near the wedding location:** Only if logistics and recovery make that realistic.\n\nI’d prioritize being at the wedding as promised and adjust the training schedule with your coach. A single-day shift is generally less disruptive than missing the wedding or forcing a hard run while sleep-deprived and busy.",
+        "latency_seconds": 7.123,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 168,
+          "total_tokens": 476,
+          "completion_tokens": 308
+        }
+      },
+      "response": "You’ve got a significant scheduling conflict: Jake’s wedding weekend requires you to be present from Friday, October 25 through Sunday, October 27, while your 20-mile run is scheduled for Saturday, October 26.\n\nSince this is a key workout, the best solution is usually to **move it rather than skip it**—for example:\n\n- **Thursday, October 24:** Run it before traveling, if your plan allows.\n- **Friday morning:** Possible, but a 20-miler before the rehearsal dinner may leave you exhausted.\n- **Sunday after brunch or Monday, October 28:** Shift it by a day if your coach/plan permits.\n- **Run part of it near the wedding location:** Only if logistics and recovery make that realistic.\n\nI’d prioritize being at the wedding as promised and adjust the training schedule with your coach. A single-day shift is generally less disruptive than missing the wedding or forcing a hard run while sleep-deprived and busy.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "20[- ]?mile",
+                "text": "20-mile"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "oct(?:ober)?\\s+26",
+                "text": "October 26"
+              }
+            ]
+          },
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "wedding",
+                "text": "wedding"
+              },
+              {
+                "pattern": "jake",
+                "text": "Jake"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "2"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "2",
+          "score": 1.726092434711,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-08-15; session 2]\nMy best friend Jake is getting married on October 26! I'm a groomsman so I need to be there the whole weekend -- rehearsal dinner Friday night, wedding Saturday, brunch Sunday.\n\nCurrent session (2024-09-20):\nStarting my marathon training plan for the December marathon. The plan has my longest training run -- 20 miles -- scheduled for Saturday October 26. It's a critical workout, can't skip it.",
+      "generation": {
+        "text": "Your 20-mile run conflicts with Jake’s wedding on Saturday, October 26—and you’ll also be occupied with the rehearsal dinner Friday and brunch Sunday.\n\nSince this is a critical workout, don’t simply skip it. Good options:\n\n- **Move it to Thursday, October 24**, if your schedule and recovery allow.\n- **Run early Friday morning**, only if you can still attend the rehearsal dinner rested and on time.\n- **Swap the workout with another week’s long run** or adjust the training plan with your coach.\n- **Run Sunday afternoon**, after the brunch, if that leaves enough recovery before the next workout.\n\nThe safest choice is usually to shift the 20-miler to another day or week rather than trying to squeeze it in around the wedding. You could tell your coach:\n\n> “My 20-mile run is scheduled for October 26, but I’m a groomsman in a wedding that weekend and have commitments Friday through Sunday. What’s the best way to move or modify that long run without disrupting the plan?”",
+        "latency_seconds": 6.839,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 168,
+          "total_tokens": 480,
+          "completion_tokens": 312
+        }
+      },
+      "response": "Your 20-mile run conflicts with Jake’s wedding on Saturday, October 26—and you’ll also be occupied with the rehearsal dinner Friday and brunch Sunday.\n\nSince this is a critical workout, don’t simply skip it. Good options:\n\n- **Move it to Thursday, October 24**, if your schedule and recovery allow.\n- **Run early Friday morning**, only if you can still attend the rehearsal dinner rested and on time.\n- **Swap the workout with another week’s long run** or adjust the training plan with your coach.\n- **Run Sunday afternoon**, after the brunch, if that leaves enough recovery before the next workout.\n\nThe safest choice is usually to shift the 20-miler to another day or week rather than trying to squeeze it in around the wedding. You could tell your coach:\n\n> “My 20-mile run is scheduled for October 26, but I’m a groomsman in a wedding that weekend and have commitments Friday through Sunday. What’s the best way to move or modify that long run without disrupting the plan?”",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "new_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "20[- ]?mile",
+                "text": "20-mile"
+              },
+              {
+                "pattern": "long run",
+                "text": "long run"
+              }
+            ]
+          },
+          "date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "oct(?:ober)?\\s+26",
+                "text": "October 26"
+              }
+            ]
+          },
+          "prior_event": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "wedding",
+                "text": "wedding"
+              },
+              {
+                "pattern": "groomsman",
+                "text": "groomsman"
+              },
+              {
+                "pattern": "jake",
+                "text": "Jake"
+              }
+            ]
+          },
+          "conflict": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "conflict",
+                "text": "conflict"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T15:04:52.612954+00:00"
+}

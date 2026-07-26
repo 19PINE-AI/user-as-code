@@ -198,6 +198,43 @@ class StatisticsTests(unittest.TestCase):
         self.assertEqual(1.0, v2.exact_mcnemar_p(0, 0))
         self.assertLess(v2.exact_mcnemar_p(8, 0), 0.05)
 
+    def test_usage_totals_do_not_double_count_requests(self) -> None:
+        traces = [
+            {
+                "systems": {
+                    "uac": {
+                        "updates": [
+                            {
+                                "generation": {
+                                    "usage": {
+                                        "requests": 1,
+                                        "prompt_tokens": 10,
+                                        "completion_tokens": 5,
+                                        "total_tokens": 15,
+                                    }
+                                }
+                            },
+                            {"generation": {"usage": {"total_tokens": 7}}},
+                        ]
+                    },
+                    "full_context": {
+                        "generation": {
+                            "usage": {"requests": 1, "total_tokens": 11}
+                        }
+                    },
+                }
+            }
+        ]
+        self.assertEqual(
+            {
+                "requests": 3,
+                "prompt_tokens": 10,
+                "completion_tokens": 5,
+                "total_tokens": 33,
+            },
+            v2.usage_totals(traces),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

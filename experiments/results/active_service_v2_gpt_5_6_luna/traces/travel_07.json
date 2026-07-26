@@ -1,0 +1,311 @@
+{
+  "protocol_id": "active-service-v2.1",
+  "scenario_id": "travel_07",
+  "category": "travel_document_validity",
+  "description": "Visa validity window starts after the planned departure date",
+  "started_at": "2026-07-26T14:56:49.285401+00:00",
+  "sessions": [
+    {
+      "session_id": "4",
+      "timestamp": "2024-10-30",
+      "user_text": "Applied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025."
+    },
+    {
+      "session_id": "7",
+      "timestamp": "2024-11-18",
+      "user_text": "Change of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?"
+    }
+  ],
+  "systems": {
+    "uac": {
+      "passed": false,
+      "all_updates_valid": true,
+      "all_updates_executable": true,
+      "pretrigger_alert_count": 0,
+      "trigger_alert_count": 1,
+      "trigger_candidates": [
+        "The planned Sydney flight is on 2024-11-25, but the Australian visa is stated to be valid starting 2024-12-01."
+      ],
+      "posttrigger_score": {
+        "passed": false,
+        "passing_candidate_indices": [],
+        "candidates": [
+          {
+            "passed": false,
+            "matched_groups": 3,
+            "required_groups": 4,
+            "groups": {
+              "credential": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "visa",
+                    "text": "visa"
+                  }
+                ]
+              },
+              "planned_date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-11-25",
+                    "text": "2024-11-25"
+                  }
+                ]
+              },
+              "validity_date": {
+                "passed": true,
+                "matches": [
+                  {
+                    "pattern": "2024-12-01",
+                    "text": "2024-12-01"
+                  }
+                ]
+              },
+              "violation": {
+                "passed": false,
+                "matches": []
+              }
+            }
+          }
+        ]
+      },
+      "updates": [
+        {
+          "stage": "pretrigger",
+          "session": {
+            "session_id": "4",
+            "timestamp": "2024-10-30",
+            "user_text": "Applied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025."
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-10-30\n\nComplete user-authored history through this session:\n[2024-10-30; session 4]\nApplied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025.\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"visa\": {\n        \"country\": \"Australia\",\n        \"status\": \"applied\",\n        \"application_date\": \"2024-10-30\",\n        \"valid_from\": \"2024-12-01\",\n        \"valid_until\": \"2025-05-31\",\n        \"source\": \"agent-stated\"\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n\n    visa = STATE[\"visa\"]\n    valid_from = date.fromisoformat(visa[\"valid_from\"])\n    valid_until = date.fromisoformat(visa[\"valid_until\"])\n\n    if valid_from > valid_until:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"invalid_date_window\",\n            \"message\": \"The stated Australian visa validity window is invalid because its start date is after its end date.\"\n        }]\n\n    return []",
+            "latency_seconds": 8.956,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 354,
+              "total_tokens": 759,
+              "completion_tokens": 405
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"visa\": {\n        \"country\": \"Australia\",\n        \"status\": \"applied\",\n        \"application_date\": \"2024-10-30\",\n        \"valid_from\": \"2024-12-01\",\n        \"valid_until\": \"2025-05-31\",\n        \"source\": \"agent-stated\"\n    }\n}\n\ndef check_constraints(current_time):\n    date.fromisoformat(current_time)\n\n    visa = STATE[\"visa\"]\n    valid_from = date.fromisoformat(visa[\"valid_from\"])\n    valid_until = date.fromisoformat(visa[\"valid_until\"])\n\n    if valid_from > valid_until:\n        return [{\n            \"severity\": \"high\",\n            \"type\": \"invalid_date_window\",\n            \"message\": \"The stated Australian visa validity window is invalid because its start date is after its end date.\"\n        }]\n\n    return []\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/travel_07/01_pretrigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 86,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "b5ac360095d3b2016c6413ae0b57bc34bfeef833e446e0fda919ca6b7892b0df"
+          },
+          "execution": {
+            "state": {
+              "visa": {
+                "country": "Australia",
+                "status": "applied",
+                "application_date": "2024-10-30",
+                "valid_from": "2024-12-01",
+                "valid_until": "2025-05-31",
+                "source": "agent-stated"
+              }
+            },
+            "alerts": []
+          }
+        },
+        {
+          "stage": "trigger",
+          "session": {
+            "session_id": "7",
+            "timestamp": "2024-11-18",
+            "user_text": "Change of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?"
+          },
+          "system_prompt": "You maintain an executable, persistent memory view for a personal assistant.\n\nReturn ONLY a self-contained Python module, without Markdown fences or prose. The module must:\n1. define STATE as a JSON-serializable dictionary containing the durable facts established by the user-authored history;\n2. define check_constraints(current_time), where current_time is an ISO YYYY-MM-DD string;\n3. return a list of alert dictionaries with exactly the useful fields severity, type, and message;\n4. use only facts, rules, limits, commitments, preferences, dates, and direct semantic relationships stated by the user; never invent an external medical, legal, tax, immigration, or policy rule;\n5. emit an alert only when information available by current_time creates a concrete conflict, violated explicit limit or preference, unavailable resource, post-cancellation event, invalid explicit date window, or a user-stated deadline no more than seven days away;\n6. return [] when there is no currently actionable violation. A stored fact alone is not an alert.\n\nThe program is regenerated after every session and executed immediately. Use the supplied current_time argument for all temporal comparisons; do not read the system clock. Permitted imports are datetime, math, calendar, decimal, statistics, and collections. Do not perform file, network, process, input, reflection, or dynamic-code operations.",
+          "user_prompt": "Current session timestamp: 2024-11-18\n\nComplete user-authored history through this session:\n[2024-10-30; session 4]\nApplied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025.\n\n[2024-11-18; session 7]\nChange of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?\n\nGenerate the replacement Python memory-and-constraint module now.",
+          "generation": {
+            "text": "from datetime import date\n\nSTATE = {\n    \"visa\": {\n        \"country\": \"Australia\",\n        \"applied_on\": \"2024-10-30\",\n        \"valid_from\": \"2024-12-01\",\n        \"valid_until\": \"2025-05-31\",\n        \"source\": \"agent\"\n    },\n    \"travel_plan\": {\n        \"destination\": \"Sydney\",\n        \"flight_date\": \"2024-11-25\",\n        \"status\": \"planned\",\n        \"found_cheap_flights\": True\n    },\n    \"request\": {\n        \"help_find_hotels\": True,\n        \"requested_on\": \"2024-11-18\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    flight_date = date.fromisoformat(STATE[\"travel_plan\"][\"flight_date\"])\n    visa_start = date.fromisoformat(STATE[\"visa\"][\"valid_from\"])\n    visa_end = date.fromisoformat(STATE[\"visa\"][\"valid_until\"])\n\n    alerts = []\n\n    if (\n        STATE[\"travel_plan\"][\"status\"] == \"planned\"\n        and current <= flight_date\n        and flight_date < visa_start\n    ):\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"date_conflict\",\n            \"message\": (\n                \"The planned Sydney flight is on 2024-11-25, but the Australian \"\n                \"visa is stated to be valid starting 2024-12-01.\"\n            )\n        })\n\n    if current > visa_end and current <= flight_date:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"invalid_date_window\",\n            \"message\": (\n                \"The planned Sydney flight is after the stated end of the \"\n                \"Australian visa validity window.\"\n            )\n        })\n\n    return alerts",
+            "latency_seconds": 16.361,
+            "usage": {
+              "requests": 1,
+              "prompt_tokens": 394,
+              "total_tokens": 1231,
+              "completion_tokens": 837
+            }
+          },
+          "source": "from datetime import date\n\nSTATE = {\n    \"visa\": {\n        \"country\": \"Australia\",\n        \"applied_on\": \"2024-10-30\",\n        \"valid_from\": \"2024-12-01\",\n        \"valid_until\": \"2025-05-31\",\n        \"source\": \"agent\"\n    },\n    \"travel_plan\": {\n        \"destination\": \"Sydney\",\n        \"flight_date\": \"2024-11-25\",\n        \"status\": \"planned\",\n        \"found_cheap_flights\": True\n    },\n    \"request\": {\n        \"help_find_hotels\": True,\n        \"requested_on\": \"2024-11-18\"\n    }\n}\n\n\ndef check_constraints(current_time):\n    current = date.fromisoformat(current_time)\n    flight_date = date.fromisoformat(STATE[\"travel_plan\"][\"flight_date\"])\n    visa_start = date.fromisoformat(STATE[\"visa\"][\"valid_from\"])\n    visa_end = date.fromisoformat(STATE[\"visa\"][\"valid_until\"])\n\n    alerts = []\n\n    if (\n        STATE[\"travel_plan\"][\"status\"] == \"planned\"\n        and current <= flight_date\n        and flight_date < visa_start\n    ):\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"date_conflict\",\n            \"message\": (\n                \"The planned Sydney flight is on 2024-11-25, but the Australian \"\n                \"visa is stated to be valid starting 2024-12-01.\"\n            )\n        })\n\n    if current > visa_end and current <= flight_date:\n        alerts.append({\n            \"severity\": \"high\",\n            \"type\": \"invalid_date_window\",\n            \"message\": (\n                \"The planned Sydney flight is after the stated end of the \"\n                \"Australian visa validity window.\"\n            )\n        })\n\n    return alerts\n",
+          "source_path": "experiments/results/active_service_v2_gpt_5_6_luna/programs/travel_07/02_trigger.py",
+          "validation": {
+            "valid": true,
+            "ast_nodes": 171,
+            "imports": [
+              "datetime"
+            ],
+            "source_sha256": "ea492c3145893a2eab6f87d6dc3c35d3971e67264e03f36680acfde38db8353f"
+          },
+          "execution": {
+            "state": {
+              "visa": {
+                "country": "Australia",
+                "applied_on": "2024-10-30",
+                "valid_from": "2024-12-01",
+                "valid_until": "2025-05-31",
+                "source": "agent"
+              },
+              "travel_plan": {
+                "destination": "Sydney",
+                "flight_date": "2024-11-25",
+                "status": "planned",
+                "found_cheap_flights": true
+              },
+              "request": {
+                "help_find_hotels": true,
+                "requested_on": "2024-11-18"
+              }
+            },
+            "alerts": [
+              {
+                "severity": "high",
+                "type": "date_conflict",
+                "message": "The planned Sydney flight is on 2024-11-25, but the Australian visa is stated to be valid starting 2024-12-01."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "full_context": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": null,
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-30; session 4]\nApplied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025.\n\nCurrent session (2024-11-18):\nChange of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?",
+      "generation": {
+        "text": "Before booking a November 25 flight, check your visa conditions carefully: your agent said it starts **December 1, 2024**, so you may not be allowed to enter Australia on November 25. Confirm the grant notice’s **“visa start date”** and entry conditions, and contact the agent or Australian Home Affairs if anything is unclear. An airline may deny boarding if your visa isn’t valid yet.\n\nFor hotels in Sydney, send me:\n\n- Check-in and check-out dates  \n- Budget per night and currency  \n- Preferred area—CBD, Circular Quay/The Rocks, Darling Harbour, Surry Hills, or near the airport  \n- Private room vs. hostel/shared accommodation  \n- Must-haves such as breakfast, Wi‑Fi, kitchen, or free cancellation  \n\nIf you do travel once your visa is valid, I can help narrow down suitable options.",
+        "latency_seconds": 6.653,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 150,
+          "total_tokens": 416,
+          "completion_tokens": 266
+        }
+      },
+      "response": "Before booking a November 25 flight, check your visa conditions carefully: your agent said it starts **December 1, 2024**, so you may not be allowed to enter Australia on November 25. Confirm the grant notice’s **“visa start date”** and entry conditions, and contact the agent or Australian Home Affairs if anything is unclear. An airline may deny boarding if your visa isn’t valid yet.\n\nFor hotels in Sydney, send me:\n\n- Check-in and check-out dates  \n- Budget per night and currency  \n- Preferred area—CBD, Circular Quay/The Rocks, Darling Harbour, Surry Hills, or near the airport  \n- Private room vs. hostel/shared accommodation  \n- Must-haves such as breakfast, Wi‑Fi, kitchen, or free cancellation  \n\nIf you do travel once your visa is valid, I can help narrow down suitable options.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "credential": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "visa",
+                "text": "visa"
+              }
+            ]
+          },
+          "planned_date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+25",
+                "text": "November 25"
+              }
+            ]
+          },
+          "validity_date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+1",
+                "text": "December 1"
+              }
+            ]
+          },
+          "violation": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "before",
+                "text": "Before"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "retrieval": {
+      "selected_history_session_ids": [
+        "4"
+      ],
+      "retrieval_scores": [
+        {
+          "session_id": "4",
+          "score": 0.287682072452,
+          "source_index": 0
+        }
+      ],
+      "system_prompt": "You are a personal assistant. Respond directly and helpfully to the user's current message. Prior user-authored memory is provided when available; use it when naturally relevant. Do not invent missing facts or external rules. Do not discuss this evaluation or the memory format.",
+      "user_prompt": "Prior user-authored memory:\n[2024-10-30; session 4]\nApplied for my Australian visa today. The agent said it'll be valid starting December 1, 2024 through May 31, 2025.\n\nCurrent session (2024-11-18):\nChange of plans -- I want to head to Sydney early! Found cheap flights for November 25th. Can you help me find hotels?",
+      "generation": {
+        "text": "Before booking a November 25 flight, check your visa carefully: you were told it is valid **from December 1, 2024**, so you may not be allowed to enter Australia on November 25 unless you have another valid visa or entry authorization. Confirm the start date and whether it refers to the visa’s travel/entry validity with your agent or Australia’s Department of Home Affairs.\n\nOnce that’s resolved, I can help compare Sydney hotels. Please share:\n\n- Check-out date or length of stay  \n- Budget per night  \n- Preferred areas (CBD, Circular Quay, Darling Harbour, Bondi, etc.)  \n- Hotel vs. hostel/apartment  \n- Any requirements such as breakfast, luggage storage, or free cancellation  \n\nAvoid booking a nonrefundable room until your entry date is confirmed.",
+        "latency_seconds": 6.301,
+        "usage": {
+          "requests": 1,
+          "prompt_tokens": 150,
+          "total_tokens": 417,
+          "completion_tokens": 267
+        }
+      },
+      "response": "Before booking a November 25 flight, check your visa carefully: you were told it is valid **from December 1, 2024**, so you may not be allowed to enter Australia on November 25 unless you have another valid visa or entry authorization. Confirm the start date and whether it refers to the visa’s travel/entry validity with your agent or Australia’s Department of Home Affairs.\n\nOnce that’s resolved, I can help compare Sydney hotels. Please share:\n\n- Check-out date or length of stay  \n- Budget per night  \n- Preferred areas (CBD, Circular Quay, Darling Harbour, Bondi, etc.)  \n- Hotel vs. hostel/apartment  \n- Any requirements such as breakfast, luggage storage, or free cancellation  \n\nAvoid booking a nonrefundable room until your entry date is confirmed.",
+      "score": {
+        "passed": true,
+        "matched_groups": 4,
+        "required_groups": 4,
+        "groups": {
+          "credential": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "visa",
+                "text": "visa"
+              }
+            ]
+          },
+          "planned_date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "nov(?:ember)?\\s+25",
+                "text": "November 25"
+              }
+            ]
+          },
+          "validity_date": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "dec(?:ember)?\\s+1",
+                "text": "December 1"
+              }
+            ]
+          },
+          "violation": {
+            "passed": true,
+            "matches": [
+              {
+                "pattern": "before",
+                "text": "Before"
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    }
+  },
+  "completed_at": "2026-07-26T14:57:27.625590+00:00"
+}
