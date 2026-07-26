@@ -135,53 +135,12 @@ def fig_architecture():
 
 
 # =====================================================================
-# Figure 2: Benchmark comparison (grouped bar chart)
+# Figure 2: Full-LOCOMO benchmark comparison
 # =====================================================================
 def fig_benchmarks():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.2))
+    from regenerate_with_new_results import generate_benchmark_figure
 
-    # LOCOMO (5 conversations, 300 QAs total)
-    systems = ['UaC\n(ours)', 'Full\nContext', 'MemMachine', 'Hindsight\n(lite)', 'EverMemOS\n(lite)', 'A-MEM', 'Mem0']
-    locomo = [78.0, 82.3, 75.3, 70.0, 55.0, 56.7, 32.7]
-    colors_l = [BLUE, GRAY, GREEN, ORANGE, LIGHTBLUE, ORANGE, RED]
-
-    bars = ax1.bar(range(len(systems)), locomo, color=colors_l, edgecolor='white', linewidth=0.5, width=0.7)
-    ax1.set_xticks(range(len(systems)))
-    ax1.set_xticklabels(systems, fontsize=7)
-    ax1.set_ylabel('LLM-Judge Accuracy (%)')
-    ax1.set_title('LOCOMO (5 conv, 300 QAs)', fontweight='bold')
-    ax1.set_ylim(0, 100)
-    ax1.spines['top'].set_visible(False)
-    ax1.spines['right'].set_visible(False)
-    for bar, val in zip(bars, locomo):
-        ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1.5,
-                f'{val:.1f}', ha='center', va='bottom', fontsize=7, fontweight='bold')
-    bars[0].set_edgecolor(BLUE)
-    bars[0].set_linewidth(2)
-
-    # LongMemEval (200-question stratified sample)
-    systems2 = ['UaC\n(ours)', 'Full\nContext', 'MemMachine', 'EverMemOS\n(lite)', 'Hindsight\n(lite)', 'A-MEM', 'Mem0']
-    lme = [84.5, 86.5, 84.0, 79.5, 70.5, 58.0, 24.5]
-    colors_r = [BLUE, GRAY, GREEN, LIGHTBLUE, ORANGE, ORANGE, RED]
-
-    bars2 = ax2.bar(range(len(systems2)), lme, color=colors_r, edgecolor='white', linewidth=0.5, width=0.7)
-    ax2.set_xticks(range(len(systems2)))
-    ax2.set_xticklabels(systems2, fontsize=7)
-    ax2.set_title('LongMemEval (200 stratified Qs)', fontweight='bold')
-    ax2.set_ylim(0, 100)
-    ax2.spines['top'].set_visible(False)
-    ax2.spines['right'].set_visible(False)
-    for bar, val in zip(bars2, lme):
-        ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1.5,
-                f'{val:.1f}', ha='center', va='bottom', fontsize=7, fontweight='bold')
-    bars2[0].set_edgecolor(BLUE)
-    bars2[0].set_linewidth(2)
-
-    plt.tight_layout()
-    plt.savefig('figures/benchmarks.pdf')
-    plt.savefig('figures/benchmarks.png')
-    print('Saved benchmarks figure')
-    plt.close()
+    generate_benchmark_figure()
 
 
 # =====================================================================

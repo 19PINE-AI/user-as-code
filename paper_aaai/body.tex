@@ -246,7 +246,7 @@ Three further principles guide production deployment but are not isolated by the
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/benchmarks.pdf}
-\caption{Standard benchmark comparison. The full LOCOMO evaluation covers all 1{,}986 annotations under two Krill-hosted backbones; LongMemEval uses all 500 questions. Full Context is a reference receiving all raw text.}
+\caption{Full LOCOMO results under two Krill-hosted backbones. Columns report category-aware token F1, same-backbone judge accuracy, and deterministic refusal accuracy separately. F1 and judge use 1{,}540 answer-bearing questions (categories 1--4); refusal uses 446 adversarial questions (category~5). Full Context is a reference receiving all raw text, not an upper bound. Judge comparisons are within rows because cross-backbone calibration differs.}
 \label{fig:benchmarks}
 \end{figure}
 \fi
