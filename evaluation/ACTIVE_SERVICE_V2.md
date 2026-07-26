@@ -1,6 +1,6 @@
-# Active Service v2.0 protocol
+# Active Service v2.1 protocol
 
-Active Service v2.0 is a preregistered replacement for the deprecated
+Active Service v2.1 is a preregistered replacement for the deprecated
 proactive-alert pilot. Its purpose is narrow: test whether a persistent
 User-as-Code program can turn facts established in earlier user sessions into
 an executable constraint that fires at the first objectively conflicting or
@@ -12,25 +12,25 @@ scenario file's SHA-256 digest differs from the registered digest.
 
 ## Eligibility
 
-The original 40 standard scenarios are preserved unchanged. Eighteen are
+The original 40 standard scenarios are preserved unchanged. Seventeen are
 eligible. They involve direct semantic constraints over user-stated data:
 
 - two travel-document state/date cases;
 - five financial authorization, cancellation, or preference conflicts;
 - seven calendar/resource conflicts; and
-- four user-stated deadlines.
+- three user-stated deadlines.
 
-The other 22 standard cases are excluded before model execution. The exclusion
-reasons are recorded individually in the protocol JSON. In particular, v2.0
+The other 23 standard cases are excluded before the full model execution. The
+exclusion reasons are recorded individually in the protocol JSON. In particular, v2.1
 does not score medical advice, externally supplied immigration/tax/legal
 rules, unknown account or filing status, subjective risk thresholds, or a
 trigger that explicitly asks the assistant to recall reminders. All 20 legacy
-hard scenarios are also outside v2.0: their authored golds have not been
+hard scenarios are also outside v2.1: their authored golds have not been
 reconciled and several contain contradictory dates, arithmetic, or policy
 assumptions.
 
 This eligibility decision deliberately produces a smaller but auditable suite.
-Results must be described as an 18-case curated evaluation, never as results on
+Results must be described as a 17-case curated evaluation, never as results on
 the original 40- or 60-case pilot.
 
 ## Cue-free interaction
@@ -61,8 +61,9 @@ Generated modules are parsed before execution. Imports are limited to a small
 standard-library allowlist. File, network, process, dynamic-code, reflection,
 interactive-input, nondeterministic-clock, and dunder access are rejected.
 The isolated interpreter uses restricted builtins, CPU and platform-supported
-memory limits, a wall-clock timeout, and a minimal environment. Validation or runtime
-errors are stored in the trace and count as misses; there is no manual repair.
+memory limits, a wall-clock timeout, and a minimal environment. Validation or
+runtime errors are stored in the trace and count as misses; there is no manual
+repair.
 
 Every case trace contains the exact user-only updates, raw model generations,
 extracted source, validation outcome, executed `STATE`, emitted alerts,
@@ -95,3 +96,12 @@ was amended to reuse the repository's proven Krill integration and its two
 established backbones. The case set, prompts, program contract, retrieval rule,
 and scorer were unchanged. This amendment is recorded in the machine-readable
 protocol.
+
+Before the full run, a two-case Luna smoke test found that ISO dates emitted by
+valid generated programs were not accepted by month-name-only rubric patterns.
+Version 2.1 registers ISO dates as surface-form equivalents for every applicable
+case. The same smoke also exposed an ambiguity in `deadline_04`: subtracting 30
+calendar days from November 1 gives October 2, while its authored gold says
+October 1. Version 2.1 excludes the case rather than choosing an inclusivity
+convention. No smoke output is part of the canonical results, and all prompts,
+non-date concepts, execution checks, and aggregate rules remain unchanged.

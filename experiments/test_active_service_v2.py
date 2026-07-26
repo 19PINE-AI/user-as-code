@@ -25,7 +25,7 @@ class ProtocolTests(unittest.TestCase):
     def test_partition_and_rubric_counts(self) -> None:
         eligible = set(self.protocol["eligible_ids"])
         excluded = set(self.protocol["exclusions"])
-        self.assertEqual(18, len(eligible))
+        self.assertEqual(17, len(eligible))
         self.assertEqual(40, len(self.scenarios))
         self.assertFalse(eligible & excluded)
         self.assertEqual(set(self.scenarios), eligible | excluded)
@@ -85,6 +85,19 @@ class ProtocolTests(unittest.TestCase):
                 v2.score_text(text, self.protocol["rubrics"][scenario_id])["passed"],
                 scenario_id,
             )
+
+    def test_iso_date_surface_forms_are_accepted(self) -> None:
+        text = (
+            "The planned flight on 2024-11-25 is before the Australian visa "
+            "validity date of 2024-12-01."
+        )
+        self.assertTrue(
+            v2.score_text(text, self.protocol["rubrics"]["travel_07"])["passed"]
+        )
+
+    def test_ambiguous_notice_deadline_is_excluded(self) -> None:
+        self.assertNotIn("deadline_04", self.protocol["eligible_ids"])
+        self.assertIn("calendar arithmetic", self.protocol["exclusions"]["deadline_04"])
 
 
 class RetrievalTests(unittest.TestCase):

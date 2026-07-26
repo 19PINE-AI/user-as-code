@@ -121,7 +121,7 @@ def git_commit() -> str:
 
 def load_protocol(path: Path = DEFAULT_PROTOCOL_PATH) -> dict:
     protocol = json.loads(path.read_text(encoding="utf-8"))
-    if protocol.get("protocol_id") != "active-service-v2.0":
+    if protocol.get("protocol_id") != "active-service-v2.1":
         raise ProtocolError("unsupported protocol_id")
     models = protocol.get("models")
     if not isinstance(models, list) or not models:
@@ -655,7 +655,7 @@ def run_case(
 ) -> dict:
     sessions = scenario_sessions(scenario)
     trace: dict[str, Any] = {
-        "protocol_id": "active-service-v2.0",
+        "protocol_id": "active-service-v2.1",
         "scenario_id": scenario["id"],
         "category": scenario["category"],
         "description": scenario["description"],

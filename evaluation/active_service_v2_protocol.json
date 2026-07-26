@@ -1,6 +1,6 @@
 {
-  "protocol_id": "active-service-v2.0",
-  "status": "frozen-before-scenario-model-runs",
+  "protocol_id": "active-service-v2.1",
+  "status": "frozen-before-full-model-runs",
   "source_suite": {
     "path": "evaluation/active_service_scenarios.json",
     "sha256": "a9e77af758d8a7f18d0ba1ba0b387c87a9ba770e1fb7d46f05db8328ad2931dd",
@@ -25,6 +25,23 @@
     "scope": "transport, declared backbones, and provider-controlled generation parameters only",
     "reason": "Initial smoke attempts incorrectly used direct Gemini and OpenAI credentials; those requests returned authentication or quota errors and produced no scenario completion. Before any scenario output was observed, the user clarified that the established Krill AI integration must be used. The canonical evaluation therefore reuses the exact shared Krill client and the two model IDs already used by the successful full-LOCOMO runs. Krill's interface does not expose the previously proposed seed, temperature, or output cap, so provider defaults are recorded instead.",
     "successful_transport_check": "A non-scenario READY probe succeeded for gpt-5.6-luna through the shared Krill client. Gemini requests retain the existing retry policy for transient provider failures."
+  },
+  "pre_full_run_correction": {
+    "date": "2026-07-26",
+    "diagnostic_scope": "two Luna smoke cases; no smoke output is included in the canonical result",
+    "changes": [
+      "Accept ISO YYYY-MM-DD dates as deterministic surface-form equivalents to the already registered month-name dates in every applicable rubric.",
+      "Exclude deadline_04 because November 1 minus 30 calendar days is October 2, while the authored gold asserts October 1; the inclusivity convention is not stated by the user.",
+      "Allow trace paths outside the repository so disposable smoke directories do not fail before validation and execution."
+    ],
+    "unchanged": [
+      "all model prompts",
+      "all remaining scenario histories and triggers",
+      "all non-date rubric concepts",
+      "generated-code validator and sandbox policy",
+      "baseline retrieval rule",
+      "all-groups pass criterion and aggregate statistics"
+    ]
   },
   "amendment_invariants": [
     "eligible and excluded cases",
@@ -54,7 +71,7 @@
     "errors": "count as misses",
     "confidence_interval": "two-sided 95% Wilson score interval",
     "multiple_runs_or_manual_overrides": false,
-    "model_panels": "the complete 18-case suite is run once under each frozen Krill model"
+    "model_panels": "the complete 17-case suite is run once under each frozen Krill model"
   },
   "eligible_ids": [
     "travel_03",
@@ -72,7 +89,6 @@
     "schedule_07",
     "schedule_08",
     "deadline_03",
-    "deadline_04",
     "deadline_05",
     "deadline_07"
   ],
@@ -97,6 +113,7 @@
     "schedule_05": "A hotel checkout after a flight departure is not necessarily a scheduling conflict.",
     "deadline_01": "The trigger explicitly asks for the to-do list and therefore does not test unsolicited active service.",
     "deadline_02": "The filing deadline is external and filing status is unknown.",
+    "deadline_04": "The authored gold uses October 1 as November 1 minus 30 days, while calendar arithmetic gives October 2; the notice-policy inclusivity convention is unstated.",
     "deadline_06": "The authored consequence relies on external licensing and insurance law.",
     "deadline_08": "Current balance is unknown and the trigger explicitly asks for a spending review."
   },
@@ -112,8 +129,8 @@
     "travel_07": {
       "required": {
         "credential": ["visa"],
-        "planned_date": ["nov(?:ember)?\\s+25"],
-        "validity_date": ["dec(?:ember)?\\s+1"],
+        "planned_date": ["nov(?:ember)?\\s+25", "2024-11-25"],
+        "validity_date": ["dec(?:ember)?\\s+1", "2024-12-01"],
         "violation": ["before", "(?:6|six) days? early", "not (?:yet )?valid", "does(?: not|n't) become valid"]
       }
     },
@@ -137,7 +154,7 @@
       "required": {
         "service": ["adobe"],
         "prior_action": ["cancel"],
-        "charge": ["jan(?:uary)?\\s+15", "\\$?59\\.99"],
+        "charge": ["jan(?:uary)?\\s+15", "2025-01-15", "\\$?59\\.99"],
         "violation": ["after (?:the )?cancell", "unexpected", "dispute", "contact adobe"]
       }
     },
@@ -169,14 +186,14 @@
       "required": {
         "prior_event": ["chez laurent", "anniversary"],
         "new_event": ["steakhouse 55", "roommate"],
-        "date": ["nov(?:ember)?\\s+15"],
+        "date": ["nov(?:ember)?\\s+15", "2024-11-15"],
         "conflict": ["conflict", "double[- ]?book", "resched"]
       }
     },
     "schedule_03": {
       "required": {
         "prior_event": ["emma", "school play"],
-        "date": ["dec(?:ember)?\\s+12"],
+        "date": ["dec(?:ember)?\\s+12", "2024-12-12"],
         "new_event": ["new york", "business trip"],
         "conflict": ["conflict", "overlap", "miss (?:the |her )?(?:play|performance)", "adjust (?:the )?trip"]
       }
@@ -184,7 +201,7 @@
     "schedule_04": {
       "required": {
         "prior_event": ["mechanic", "car service"],
-        "date": ["nov(?:ember)?\\s+4"],
+        "date": ["nov(?:ember)?\\s+4", "2024-11-04"],
         "new_event": ["airport", "parents"],
         "conflict": ["unavailable", "won't have", "will not have", "conflict", "overlap", "alternate transportation"]
       }
@@ -192,7 +209,7 @@
     "schedule_06": {
       "required": {
         "prior_event": ["costa rica", "vacation"],
-        "date": ["dec(?:ember)?\\s+27"],
+        "date": ["dec(?:ember)?\\s+27", "2024-12-27"],
         "new_event": ["plumber"],
         "conflict": ["away", "not (?:be )?home", "resched", "someone else"]
       }
@@ -200,7 +217,7 @@
     "schedule_07": {
       "required": {
         "new_event": ["20[- ]?mile", "long run"],
-        "date": ["oct(?:ober)?\\s+26"],
+        "date": ["oct(?:ober)?\\s+26", "2024-10-26"],
         "prior_event": ["wedding", "groomsman", "jake"],
         "conflict": ["conflict", "same day", "resched", "move (?:the )?run"]
       }
@@ -208,7 +225,7 @@
     "schedule_08": {
       "required": {
         "prior_event": ["airbnb", "guest"],
-        "date": ["nov(?:ember)?\\s+15"],
+        "date": ["nov(?:ember)?\\s+15", "2024-11-15"],
         "new_event": ["mover", "moving"],
         "conflict": ["overlap", "conflict", "same day", "cancel", "resched"]
       }
@@ -216,23 +233,15 @@
     "deadline_03": {
       "required": {
         "subject": ["lease"],
-        "deadline": ["dec(?:ember)?\\s+2"],
+        "deadline": ["dec(?:ember)?\\s+2", "2024-12-02"],
         "remaining": ["(?:7|seven) days?"],
         "action": ["notice", "renew", "landlord"]
-      }
-    },
-    "deadline_04": {
-      "required": {
-        "subject": ["gym"],
-        "deadline": ["oct(?:ober)?\\s+1"],
-        "remaining": ["(?:3|three) days?"],
-        "action": ["cancel", "written notice", "renew"]
       }
     },
     "deadline_05": {
       "required": {
         "subject": ["espresso", "williams[- ]?sonoma"],
-        "deadline": ["nov(?:ember)?\\s+1"],
+        "deadline": ["nov(?:ember)?\\s+1", "2024-11-01"],
         "remaining": ["(?:3|three) days?"],
         "action": ["return"]
       }
@@ -240,7 +249,7 @@
     "deadline_07": {
       "required": {
         "subject": ["inspection", "contingency"],
-        "deadline": ["nov(?:ember)?\\s+9"],
+        "deadline": ["nov(?:ember)?\\s+9", "2024-11-09"],
         "remaining": ["(?:3|three) days?"],
         "action": ["extension", "respond", "deadline", "expir"]
       }
