@@ -6,6 +6,8 @@ __pycache__/
 *.blg
 *.out
 *.pdf
+*.fdb_latexmk
+*.fls
 !paper_aaai/figures/*.pdf
 .DS_Store
 lancedb_*/
@@ -22,6 +24,10 @@ benchmarks/*/data/
 experiments/results/memory_lme.json
 experiments/results/lme_500_full.json
 experiments/results/lme_200_sample.json
+
+# Development-only Active Service reruns. The validated final artifact omits
+# a `_dev*` suffix and remains eligible for version control.
+experiments/results/active_service_v3_*_dev*/
 
 # Submission artifact
 arxiv_submission.tar.gz

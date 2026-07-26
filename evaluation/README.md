@@ -33,8 +33,13 @@ Active Service label are deprecated pilot artifacts.
 
 The frozen replacement protocol is documented in
 [`ACTIVE_SERVICE_V2.md`](ACTIVE_SERVICE_V2.md) and
-`active_service_v2_protocol.json`. It preregisters an 18-case subset with
+`active_service_v2_protocol.json`. It preregisters a 17-case subset with
 user-only histories, cue-free triggers, executable UaC constraints, matched
 baselines, isolated traces, and deterministic scoring. Its outputs are
 publication-eligible only after the complete frozen run passes the integrity
 checks described there.
+
+The post-evaluation Active Service v3 engineering work is documented in
+[`ACTIVE_SERVICE_V3.md`](ACTIVE_SERVICE_V3.md). It preserves the 17 frozen
+cases and rubrics but was tuned after inspecting v2.1 failures, so its 17/17
+result is a regression result rather than an unbiased benchmark estimate.
