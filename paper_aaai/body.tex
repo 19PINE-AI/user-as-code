@@ -13,7 +13,7 @@ UaC does not claim that Python alone improves reasoning: on clean, already struc
 \begin{itemize}[leftmargin=*]
 \item \textbf{An LLM-generated executable memory view} whose schemas and typed state are generated rather than fixed by a human. The representation supports attribute access, complete-set computation, and deterministic checks against explicit invariants with ordinary Python.
 \item \textbf{A durable-source/write-view architecture} that retains append-only facts and raw conversation separately from the generated code view. The three answer-time channels can therefore recover evidence that the bounded structuring input or generated schema omits.
-\item \textbf{Evaluation across recall and aggregate inference:} full 1{,}986-question LOCOMO suites and 100 deterministically scored aggregate cases. UaC has the highest observed persistent-system judge accuracy with Luna/Gemini (78.8\%/80.6\%), with metric-dependent token-F1/refusal tradeoffs, and reaches 100\% aggregate accuracy.
+\item \textbf{Evaluation of three memory capabilities:} factual recall on full 1{,}986-question LOCOMO suites, complete-set computation on 100 aggregate cases, and delayed activation on 17 constraints spanning four domains.
 \end{itemize}
 
 \section{Related Work}
@@ -96,7 +96,7 @@ An LLM extracts every individual fact as a flat string from each session. Facts 
 
 \subsubsection{Phase 2: Structure (periodic, bounded input)}
 
-An LLM generates structured Python from the serialized fact list, organizing the visible facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, and \texttt{notes: list[str]} for hard-to-type facts. The evaluated \texttt{UserAsCodeV5.structure()} implementation truncates that serialization to the first 30{,}000 characters before the Phase~2 call. In LOCOMO, all sessions of one conversation are ingested before this call; a later write marks the code view stale until it is regenerated. Regeneration replaces only the view, never the fact list or archive. Consequently, the typed code is a bounded prefix-derived view rather than a structure of the complete LOCOMO fact corpus. The append-only fact index and raw archive retain the broader evidence and remain available at answer time. Hierarchical or incremental structuring is required to remove this ceiling.
+An LLM generates structured Python from the serialized fact list, organizing the visible facts into typed dataclasses: \texttt{date()} for dates, typed lists for collections, and \texttt{notes: list[str]} for hard-to-type facts. The evaluated Phase~2 implementation truncates that serialization to the first 30{,}000 characters before the structuring call. In LOCOMO, all sessions of one conversation are ingested before this call; a later write marks the code view stale until it is regenerated. Regeneration replaces only the view, never the fact list or archive. Consequently, the typed code is a bounded prefix-derived view rather than a structure of the complete LOCOMO fact corpus. The append-only fact index and raw archive retain the broader evidence and remain available at answer time. Hierarchical or incremental structuring is required to remove this ceiling.
 
 \begin{algorithm}[t]
 \caption{Evaluated UaC update and recall path.}
@@ -248,6 +248,30 @@ The results (Table~\ref{tab:analytical}, Figures~\ref{fig:aggregation-example} a
 
 The divide is between representations a code tool can enumerate (UaC and FC+REPL) and systems limited to retrieved subsets in this harness (Mem0 and MemMachine). The former remain accurate as $N$ grows; the latter do not. This synthetic benchmark deliberately isolates read-side representation and tool access: its inputs are already schema-clean and therefore do not test UaC's conversation-to-structure conversion. UaC matches the JSON+REPL reference here, establishing the value of an enumerable interface rather than an advantage of Python syntax itself. UaC's architectural contribution occurs one step earlier in a deployment: Phase~1 and Phase~2 convert unstructured, timestamped conversation into the code-readable collection that makes repeated full-set computation possible.
 
+\subsection{Cue-Free Constraint Detection}
+\label{sec:active-service}
+
+We test whether persistent memory can surface a user-stated conflict without an explicit reminder request. The 17 cases cover travel-document validity, financial limits and cancellations, schedule conflicts, and user-stated deadlines. All systems use GPT-5.6 Luna and user-authored text with timestamps. After each session, UaC writes a schema-validated constraint that trusted code compiles to sandboxed Python and executes. At the final message, Full Context sees all prior sessions, whereas Top-1 Retrieval sees only the lexically highest-scoring one. A deterministic rubric requires a complete, grounded response; UaC must also execute after every update and remain silent before activation.
+
+\begin{table}[t]
+\centering
+\caption{Cue-free constraint detection (passed/eligible).}
+\label{tab:active-service}
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+System & Travel & Finance & Schedule & Deadline & All \\
+\midrule
+UaC & \textbf{2/2} & \textbf{5/5} & \textbf{7/7} & \textbf{3/3} & \textbf{17/17} \\
+Full Context & 1/2 & 3/5 & 6/7 & 0/3 & 10/17 \\
+Top-1 Retrieval & 1/2 & 4/5 & \textbf{7/7} & 0/3 & 12/17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:active-service} reveals two regimes. Top-1 Retrieval resolves all seven direct schedule conflicts, showing that text can recover localized, immediate incompatibilities. Delayed activation separates the interfaces: neither textual baseline resolves a deadline, whereas UaC resolves all three by storing an invariant and reevaluating it as time advances. All 36 UaC updates execute, with no pre-trigger alert. Reliability follows from separating model-authored semantics from validated constraints, deterministic compilation and date arithmetic, activation windows, and sandboxing. Because the cases informed this engineering, 17/17 is functional coverage of known constraints, not accuracy on unseen ones.
+
 \subsection{Evaluation of Answer-Channel Roles}
 \label{sec:channel-evaluation}
 
@@ -299,15 +323,15 @@ Modular loading preserves accuracy while reducing prompt tokens 23.8$\times$ and
 
 \section{Discussion and Limitations}
 
-UaC changes the access interface rather than uniformly improving recall. We report LOCOMO token F1, within-panel same-backbone judge accuracy, and adversarial refusal separately; cross-panel judge comparisons also change the judge. The answer-channel evaluation shows that structured state changes conventional QA only slightly, whereas the aggregate benchmark demonstrates the value of an enumerable representation. Retrieval remains complementary: Phase~1 facts preserve normalized atomic evidence, the archive preserves wording and local dialogue, and Phase~2 supplies a disposable computational view. The representation should therefore be read as durable sources plus a generated index, not as a claim that Python replaces textual memory.
+UaC changes the access interface rather than uniformly improving recall. We report LOCOMO token F1, within-panel judge accuracy, and adversarial refusal separately; cross-panel comparisons also change the judge. The answer-channel evaluation shows that structured state changes conventional QA only slightly, whereas the aggregate and cue-free studies test complete-set access and executable constraints. Retrieval remains complementary: facts preserve atomic evidence, the archive preserves dialogue, and Phase~2 supplies a disposable computational view. UaC is thus durable textual sources plus a generated index, not a claim that Python replaces text.
 
-Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, so typed state is incomplete on long LOCOMO histories; hierarchical or incremental structuring is needed. Second, generated Python may be incomplete or semantically wrong and requires parsing, validation, and sandboxing before use. Third, the aggregate suite starts from synthetic, schema-clean records and bypasses Phase~1; UaC also retains \texttt{records\_raw}, so a typed-state-only lesion and a component-pure direct-to-code write-path comparison remain missing. Finally, controlled baselines simplify some published stacks, and the full LOCOMO answer backbone also judges within each panel; a cross-family audit covers only the legacy 600-question subset. Native reproductions and independent full-scale judging remain future work.
+Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, so typed state is incomplete on long histories. Second, generated Python requires parsing, validation, and sandboxing. The cue-free extension instead compiles validated constraints in trusted code, but its cases informed the representation and validators; a newly frozen suite is needed to measure unseen constraints. Third, the aggregate suite starts from schema-clean records and bypasses Phase~1; UaC also retains \texttt{records\_raw}, leaving typed-state-only and direct-to-code comparisons missing. Finally, controlled baselines simplify published stacks, and full LOCOMO uses the answer backbone as within-panel judge; native reproductions and independent full-scale judging remain future work.
 
 \section{Conclusion}
 
-Python rather than Markdown is a functional choice, not a stylistic one. Markdown preserves human-readable evidence, but prose does not by itself expose a typed collection that an interpreter can enumerate. Generated Python makes schemas and records explicit, enabling deterministic filters, counts, joins, and temporal aggregates without reconstructing structure at every query. UaC therefore retains append-only facts and raw conversation for recall while using Python as a replaceable computational view. Executable state also permits deterministic checks against explicit constraints---for example, whether a planned departure occurs after a stored passport expiration date---although reliable proactive constraint monitoring remains future work.
+Python rather than Markdown is a functional choice, not a stylistic one. Markdown preserves human-readable evidence, but prose does not by itself expose a typed collection that an interpreter can enumerate or an invariant that a runtime can reevaluate. Generated Python makes schemas and records explicit, enabling deterministic filters, counts, joins, temporal aggregates, and constraint checks without reconstructing structure at every query. UaC therefore retains append-only facts and raw conversation for recall while using Python as a replaceable computational view. In the cue-free study, persistent invariants surface conflicts when a later proposal or date activates them---for example, when a planned departure falls after a stored passport expiration date---without requiring the user to request a reminder.
 
-The experiments support this division of labor. UaC achieves the highest observed persistent-system judge accuracy on full LOCOMO in both model panels, with metric-dependent token-F1 and refusal tradeoffs, and remains within 2.4pp of the best system on LongMemEval. In the answer-channel study, facts and archive excerpts provide most of the conventional QA benefit, whereas structured state provides the executable interface. On aggregate inference, UaC+REPL and raw-record FC+REPL both answer all 100 cases correctly at every tested collection size, while retrieval-only systems degrade as the collection grows. Modular loading also preserves accuracy while reducing prompt tokens by 23.8$\times$ and cost by 14.9$\times$, although lossy manifest routing reduces accuracy. Thus, the central advantage is not Python syntax itself, but complete, executable access to user records; Python provides that access in a representation an agent can generate and reuse.
+The experiments support this division of labor. UaC has the highest observed persistent-system judge accuracy on full LOCOMO in both model panels, with token-F1 and refusal tradeoffs, and is within 2.4pp of the best LongMemEval system. Facts and archive excerpts provide most conventional-QA benefit. By contrast, UaC and raw-record FC+REPL answer all 100 aggregate cases correctly, while retrieval-only systems degrade with collection size. Top-1 Retrieval handles all seven immediate schedule conflicts, but neither textual baseline handles any of three delayed deadlines; persistent UaC constraints handle all three. Its overall 17/17 is engineering-informed functional coverage, not held-out generalization. Modular loading reduces prompt tokens by 23.8$\times$ and cost by 14.9$\times$ without a material accuracy loss. The central advantage is therefore reusable, machine-checkable access: Python turns remembered prose into state that can be enumerated, verified, and reevaluated.
 
 \textbf{AI assistance disclosure.} Generative AI tools were used for language editing, code assistance, and manuscript formatting; the authors verified all research claims, analyses, and final text.
 
