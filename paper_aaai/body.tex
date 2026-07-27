@@ -251,7 +251,22 @@ The divide is between representations a code tool can enumerate (UaC and FC+REPL
 \subsection{Cue-Free Constraint Detection}
 \label{sec:active-service}
 
-We test whether persistent memory can surface a user-stated conflict without an explicit reminder request. The 17 cases cover travel-document validity, financial limits and cancellations, schedule conflicts, and user-stated deadlines. All systems use GPT-5.6 Luna and user-authored text with timestamps. After each session, UaC writes a schema-validated constraint that trusted code compiles to sandboxed Python and executes. At the final message, Full Context sees all prior sessions, whereas Top-1 Retrieval sees only the lexically highest-scoring one. A deterministic rubric requires a complete, grounded response; UaC must also execute after every update and remain silent before activation.
+We test whether persistent memory can surface a user-stated conflict without an explicit reminder request. The 17 cases cover travel-document validity, financial limits and cancellations, schedule conflicts, and user-stated deadlines. All systems use GPT-5.6 Luna and user-authored text with timestamps. After each session, UaC writes validated state and constraints that trusted code compiles to sandboxed Python and executes. At the final message, Full Context sees all prior sessions, whereas Top-1 Retrieval sees only the lexically highest-scoring one. A deterministic rubric requires a complete, grounded response; UaC must also execute after every update and remain silent before activation.
+
+\begin{figure}[t]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+deadline = date(2025, 1, 31) - timedelta(days=60)
+activate = deadline - timedelta(days=7)
+
+# Executed after every session
+if activate <= now <= deadline:
+    days = (deadline - now).days
+    emit(f"Lease due {deadline}; {days} days left")
+# Aug 20: silent; Nov 25: alert (7 days)
+\end{lstlisting}
+\caption{Compact rendering of a compiled deadline check. The August~20 lease fact remains dormant; execution after an unrelated November~25 message emits an alert seven days before the derived December~2 notice deadline.}
+\label{fig:constraint-example}
+\end{figure}
 
 \begin{table}[t]
 \centering
@@ -270,7 +285,7 @@ Top-1 Retrieval & 1/2 & 4/5 & \textbf{7/7} & 0/3 & 12/17 \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:active-service} reveals two regimes. Top-1 Retrieval resolves all seven direct schedule conflicts, showing that text can recover localized, immediate incompatibilities. Delayed activation separates the interfaces: neither textual baseline resolves a deadline, whereas UaC resolves all three. Full Context contains the prior evidence but must reconstruct a constraint during one response; UaC persists it as an executable object and checks activation after every update. All 36 UaC updates execute, with no pre-trigger alert. Reliability follows from separating model-authored semantics from validated constraints, deterministic compilation and date arithmetic, activation windows, and sandboxing. Because the cases informed this engineering, 17/17 is functional coverage of known constraints, not accuracy on unseen ones.
+Table~\ref{tab:active-service} reveals two regimes. Top-1 Retrieval resolves all seven schedule conflicts, showing that text can recover localized, immediate incompatibilities. Neither textual baseline resolves a deadline, whereas UaC resolves all three. Full Context must reconstruct a constraint during one response; UaC persists and checks it after every update, as Figure~\ref{fig:constraint-example} illustrates. All 36 UaC updates execute, with no pre-trigger alert. Reliability follows from validated constraints, deterministic compilation and date arithmetic, activation windows, and sandboxing. Because the cases informed this engineering, 17/17 is functional coverage of known constraints, not accuracy on unseen ones.
 
 \subsection{Evaluation of Answer-Channel Roles}
 \label{sec:channel-evaluation}
@@ -329,7 +344,7 @@ Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized
 
 \section{Conclusion}
 
-Python rather than Markdown is a functional choice: prose preserves readable evidence, whereas executable state exposes collections and invariants that can be enumerated, verified, and reevaluated without reconstructing structure at each query. UaC has the highest observed persistent-system judge accuracy on full LOCOMO in both model panels despite metric-specific tradeoffs, and UaC and raw-record FC+REPL answer all 100 aggregate cases while retrieval-only systems degrade with collection size. Cue-free results reveal a complementary distinction: Top-1 Retrieval handles all seven immediate schedule conflicts, but neither textual baseline handles any of three delayed deadlines, whereas persistent UaC constraints handle all three, including a departure after passport expiration.
+Python rather than Markdown is a functional choice: prose preserves readable evidence, whereas executable state exposes collections and invariants that can be enumerated, verified, and reevaluated without reconstructing structure at each query. UaC has the highest observed persistent-system judge accuracy on full LOCOMO in both model panels despite metric-specific tradeoffs, and UaC and raw-record FC+REPL answer all 100 aggregate cases while retrieval-only systems degrade with collection size.
 
 \textbf{AI assistance disclosure.} Generative AI tools were used for language editing, code assistance, and manuscript formatting; the authors verified all research claims, analyses, and final text.
 
