@@ -35,23 +35,20 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{subcaption}
 
-\definecolor{codebg}{rgb}{0.95,0.95,0.97}
 \definecolor{codegreen}{rgb}{0.0,0.5,0.0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{codeblue}{rgb}{0.0,0.0,0.7}
 
 \lstdefinestyle{pythonstyle}{
-    backgroundcolor=\color{codebg},
     basicstyle=\ttfamily\small,
     breakatwhitespace=false,
     breaklines=true,
     captionpos=b,
     commentstyle=\color{codegreen},
     keywordstyle=\color{codeblue}\bfseries,
-    numberstyle=\scriptsize\color{codegray},
+    numberstyle=\small\color{codegray},
     stringstyle=\color{codepurple},
     language=Python,
     showstringspaces=false,
@@ -68,14 +65,11 @@
     frame=none,
     numbers=none,
     breaklines=false,
-    backgroundcolor=\color{codebg},
 }
 
 % Style for conversation transcript excerpts (italic dialogue, framed).
-\definecolor{convbg}{rgb}{0.98,0.97,0.92}
 \definecolor{speakerblue}{rgb}{0.10,0.30,0.60}
 \lstdefinestyle{conversationstyle}{
-    backgroundcolor=\color{convbg},
     basicstyle=\ttfamily\footnotesize,
     breakatwhitespace=false,
     breaklines=true,
@@ -92,10 +86,8 @@
 }
 
 % Style for runtime output / alert blocks (red border, fixed-width).
-\definecolor{alertbg}{rgb}{1.00,0.96,0.94}
 \definecolor{alertred}{rgb}{0.70,0.10,0.10}
 \lstdefinestyle{alertstyle}{
-    backgroundcolor=\color{alertbg},
     basicstyle=\ttfamily\footnotesize,
     breakatwhitespace=false,
     breaklines=true,
@@ -226,7 +218,7 @@ Extraction (Section~\ref{sec:extraction}) converts raw multi-session conversatio
 \subsection{What ``User as Code'' Looks Like}
 \label{sec:code-example}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \textbf{Phase 1: append atomic facts with provenance.}\par
 \vspace{4pt}
@@ -269,8 +261,7 @@ jon_studio = Business(
 
 \begin{figure*}[t]
 \centering
-\captionsetup{skip=2pt}
-\includegraphics[width=0.80\textwidth]{figures/architecture.pdf}
+\includegraphics[width=0.94\textwidth]{figures/architecture.pdf}
 \caption{Evaluated UaC architecture. Session facts are appended before periodic bounded structuring into typed state. Answering combines the typed state, retrieved facts, and raw-archive excerpts; aggregate cases expose state to a Python REPL.}
 \label{fig:architecture}
 \end{figure*}
@@ -498,7 +489,7 @@ The results split by access interface. MemMachine drops from 100\% at $N{=}20$ t
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.84\columnwidth]{figures/analytical_scaling.pdf}
+\includegraphics[width=0.94\columnwidth]{figures/analytical_scaling.pdf}
 \caption{Aggregate-inference accuracy as record count $N$ grows (log-scaled horizontal axis; 20 cases per value of $N$).}
 \label{fig:analytical-scaling}
 \end{figure}
@@ -511,7 +502,7 @@ Because both code-based systems expose complete collections, this schema-clean b
 We test whether persistent memory can surface a user-stated conflict without an explicit reminder request. The 17 eligible cases from 40 authored scenarios cover travel-document validity, financial limits and cancellations, schedule conflicts, and user-stated deadlines. All systems use GPT-5.6 Luna through Krill with provider-default decoding and user-authored timestamped text. UaC permits three validated IR-generation attempts. The parent-process timeout is five seconds; the sandbox applies a two-second CPU limit, a three-second alarm, a 256 MiB memory limit where supported, a zero-byte file limit, and a 16-descriptor limit. Each case ends with an unrelated update. Full Context sees all prior sessions, whereas Top-1 Retrieval sees the single prior session selected by frozen BM25-style scoring. A deterministic rubric requires a complete, grounded response; UaC must execute after every update and remain silent before activation.
 
 \begin{figure}[t]
-\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\begin{lstlisting}[basicstyle=\small\ttfamily]
 deadline = date(2025, 1, 31) - timedelta(days=60)
 activate = deadline - timedelta(days=7)
 # Executed after every session

@@ -7,7 +7,7 @@ import matplotlib.patheffects as pe
 import numpy as np
 
 plt.rcParams.update({
-    'font.family': 'serif',
+    'font.family': 'STIXGeneral',
     'font.size': 10,
     'axes.labelsize': 11,
     'axes.titlesize': 12,
@@ -47,85 +47,86 @@ def fig_architecture():
     ax.axis('off')
 
     # Phase 1 box
-    phase1 = mpatches.FancyBboxPatch((0.3, 3.45), 4.2, 2.1,
+    phase1 = mpatches.FancyBboxPatch((0.3, 3.35), 4.2, 2.2,
         boxstyle="round,pad=0.08", facecolor=LIGHTBLUE, edgecolor=BLUE, linewidth=1.5)
     ax.add_patch(phase1)
-    ax.text(2.4, 5.35, 'Phase 1: Memorizing', ha='center', fontweight='bold', fontsize=10, color=BLUE)
-    ax.text(2.4, 5.05, '(per session, append-only)', ha='center', fontsize=8, color=DARKGRAY)
+    ax.text(2.4, 5.35, 'Phase 1: Memorizing', ha='center', fontweight='bold', fontsize=11.2, color=BLUE)
+    ax.text(2.4, 5.05, '(per session, append-only)', ha='center', fontsize=10.2, color=DARKGRAY)
 
     # Session boxes
     for i, label in enumerate(['Session 1', 'Session 2', 'Session 3', '...']):
-        x = 0.6 + i * 1.0
-        box = mpatches.FancyBboxPatch((x, 4.35), 0.85, 0.4,
+        x = 0.485 + i * 1.02
+        box = mpatches.FancyBboxPatch((x, 4.35), 0.82, 0.4,
             boxstyle="round,pad=0.05", facecolor='white', edgecolor=BLUE, linewidth=0.8)
         ax.add_patch(box)
-        ax.text(x + 0.425, 4.55, label, ha='center', va='center', fontsize=7)
+        ax.text(x + 0.41, 4.55, label, ha='center', va='center', fontsize=10.2)
 
     # Arrow down to fact list
-    ax.annotate('', xy=(2.2, 3.88), xytext=(2.2, 4.30),
+    ax.annotate('', xy=(2.2, 3.77), xytext=(2.2, 4.35),
         arrowprops=dict(arrowstyle='->', color=BLUE, lw=1.5))
-    ax.text(2.32, 4.12, 'Extract facts\n(thinking LLM)', ha='left', va='center',
-            fontsize=6.1, linespacing=1.1, color=BLUE)
+    ax.text(2.32, 4.06, 'Extract facts\n(thinking LLM)', ha='left', va='center',
+            fontsize=10.2, linespacing=0.95, color=BLUE)
 
     # Fact list
-    fact_box = mpatches.FancyBboxPatch((0.7, 3.55), 3.4, 0.32,
+    fact_box = mpatches.FancyBboxPatch((0.38, 3.45), 4.0, 0.32,
         boxstyle="round,pad=0.05", facecolor='white', edgecolor=BLUE, linewidth=0.8)
     ax.add_patch(fact_box)
-    ax.text(2.4, 3.71, 'Append-only Fact List (~1600 facts)', ha='center', fontsize=7.5, fontweight='bold')
+    ax.text(2.38, 3.61, 'Append-only Fact List (~1600 facts)',
+            ha='center', va='center', fontsize=10.2, fontweight='bold')
 
     # Phase 2 box
-    phase2 = mpatches.FancyBboxPatch((5.5, 3.45), 4.2, 2.1,
+    phase2 = mpatches.FancyBboxPatch((5.5, 3.35), 4.2, 2.2,
         boxstyle="round,pad=0.08", facecolor=LIGHTGREEN, edgecolor=GREEN, linewidth=1.5)
     ax.add_patch(phase2)
-    ax.text(7.6, 5.35, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=10, color='#15803D')
-    ax.text(7.6, 5.05, '(periodic, first 30K serialized characters)', ha='center', fontsize=8, color=DARKGRAY)
+    ax.text(7.6, 5.35, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=11.2, color='#15803D')
+    ax.text(7.6, 5.05, '(periodic, first 30K serialized characters)', ha='center', fontsize=10.2, color=DARKGRAY)
 
     # Code representation
     code_box = mpatches.FancyBboxPatch((5.9, 4.32), 3.4, 0.48,
         boxstyle="round,pad=0.04", facecolor='white', edgecolor=GREEN, linewidth=0.8)
     ax.add_patch(code_box)
-    ax.text(7.6, 4.56, 'Typed state modules (Code)', ha='center', va='center', fontsize=8, fontweight='bold')
+    ax.text(7.6, 4.56, 'Typed state modules (Code)', ha='center', va='center', fontsize=10.2, fontweight='bold')
 
     # Arrow from facts to code
     ax.annotate('', xy=(5.5, 4.55), xytext=(4.5, 3.72),
         arrowprops=dict(arrowstyle='->', color='#15803D', lw=1.5, connectionstyle='arc3,rad=-0.2'))
-    ax.text(4.98, 4.07, 'Structure\n(thinking LLM)', ha='center', va='center',
-            fontsize=6.1, linespacing=1.1, color='#15803D', rotation=39)
+    ax.text(4.98, 3.99, 'Structure\n(thinking LLM)', ha='center', va='center',
+            fontsize=10.2, linespacing=0.95, color='#15803D', rotation=39)
 
     # Analytical execution over the typed view.
     const_box = mpatches.FancyBboxPatch((5.9, 3.58), 3.4, 0.48,
         boxstyle="round,pad=0.05", facecolor=LIGHTORANGE, edgecolor=ORANGE, linewidth=0.8)
     ax.add_patch(const_box)
     ax.text(7.6, 3.82, 'Python REPL  ->  exact aggregation',
-            ha='center', va='center', fontsize=7.5, fontweight='bold', color='#92400E')
+            ha='center', va='center', fontsize=10.2, fontweight='bold', color='#92400E')
 
     # Tier 3 Archive
     archive_box = mpatches.FancyBboxPatch((0.3, 2.40), 4.2, 0.68,
         boxstyle="round,pad=0.06", facecolor=LIGHTPURPLE, edgecolor=PURPLE, linewidth=1.2)
     ax.add_patch(archive_box)
-    ax.text(2.4, 2.86, 'Archive (ChromaDB)', ha='center', fontweight='bold', fontsize=9, color=PURPLE)
-    ax.text(2.4, 2.60, 'Raw conversation chunks + fact vectors', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.text(2.4, 2.86, 'Archive (ChromaDB)', ha='center', fontweight='bold', fontsize=10.2, color=PURPLE)
+    ax.text(2.4, 2.60, 'Raw conversation chunks + fact vectors', ha='center', fontsize=10.2, color=DARKGRAY)
 
     # Retrieval box
     ret_box = mpatches.FancyBboxPatch((5.5, 2.40), 4.2, 0.68,
         boxstyle="round,pad=0.06", facecolor=LIGHTRED, edgecolor=RED, linewidth=1.2)
     ax.add_patch(ret_box)
-    ax.text(7.6, 2.86, 'Multi-Strategy Retrieval', ha='center', fontweight='bold', fontsize=9, color=RED)
-    ax.text(7.6, 2.60, 'Code + Facts + Archive  \u2192  Answer', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.text(7.6, 2.86, 'Multi-Strategy Retrieval', ha='center', fontweight='bold', fontsize=10.2, color=RED)
+    ax.text(7.6, 2.60, 'Code + Facts + Archive  \u2192  Answer', ha='center', fontsize=10.2, color=DARKGRAY)
 
     # Arrows to retrieval
     ax.annotate('', xy=(5.5, 2.74), xytext=(4.5, 2.74),
         arrowprops=dict(arrowstyle='->', color=PURPLE, lw=1.2))
     ax.annotate('', xy=(9.45, 3.08), xytext=(9.05, 4.32),
         arrowprops=dict(arrowstyle='->', color=GREEN, lw=1.2,
-                        connectionstyle='arc3,rad=0.25'))
+                        connectionstyle='arc3,rad=-0.25'))
 
     # Bottom: separate analytical and standard-QA outputs.
     analytical_out = mpatches.FancyBboxPatch((0.8, 1.55), 3.7, 0.55,
         boxstyle="round,pad=0.06", facecolor='#F3F4F6', edgecolor=DARKGRAY, linewidth=1.2)
     ax.add_patch(analytical_out)
-    ax.text(2.65, 1.91, 'Analytical result', ha='center', fontweight='bold', fontsize=9)
-    ax.text(2.65, 1.69, 'Interpreter output', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.text(2.65, 1.91, 'Analytical result', ha='center', fontweight='bold', fontsize=10.2)
+    ax.text(2.65, 1.69, 'Interpreter output', ha='center', fontsize=10.2, color=DARKGRAY)
     ax.annotate('', xy=(4.5, 1.92), xytext=(5.9, 3.82),
         arrowprops=dict(arrowstyle='->', color=ORANGE, lw=1.2,
                         connectionstyle='arc3,rad=0.25'))
@@ -133,8 +134,8 @@ def fig_architecture():
     qa_out = mpatches.FancyBboxPatch((5.5, 1.55), 4.2, 0.55,
         boxstyle="round,pad=0.06", facecolor='#F3F4F6', edgecolor=DARKGRAY, linewidth=1.2)
     ax.add_patch(qa_out)
-    ax.text(7.6, 1.91, 'Question-answering result', ha='center', fontweight='bold', fontsize=9)
-    ax.text(7.6, 1.69, 'LLM over retrieved evidence', ha='center', fontsize=7.5, color=DARKGRAY)
+    ax.text(7.6, 1.91, 'Question-answering result', ha='center', fontweight='bold', fontsize=10.2)
+    ax.text(7.6, 1.69, 'LLM over retrieved evidence', ha='center', fontsize=10.2, color=DARKGRAY)
     ax.annotate('', xy=(7.6, 2.1), xytext=(7.6, 2.40),
         arrowprops=dict(arrowstyle='->', color=DARKGRAY, lw=1.2))
 

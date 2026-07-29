@@ -12,6 +12,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullFormatter
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from generate_figures import BLUE, GREEN, ORANGE, RED, GRAY, PURPLE  # noqa: E402
@@ -30,10 +31,12 @@ PUBLISHED_PER_N = {
 }
 
 plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 10,
-    "axes.labelsize": 11,
-    "axes.titlesize": 12,
+    "font.family": "STIXGeneral",
+    "font.size": 9,
+    "axes.labelsize": 9,
+    "axes.titlesize": 9,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
     "legend.fontsize": 9,
     "savefig.dpi": 300,
     "savefig.bbox": "tight",
@@ -67,7 +70,9 @@ def main():
     ns = [20, 50, 100, 200, 500]
     # Reserve a separate band below the axes for the legend so it never
     # obscures the accuracy curves.
-    fig, ax = plt.subplots(figsize=(6.0, 4.0))
+    # Generate near the final AAAI column size so LaTeX does not shrink the
+    # labels below the required 9-point minimum.
+    fig, ax = plt.subplots(figsize=(3.2, 3.0))
     for name, label, color, marker, ls in systems:
         data = per_n(name)
         if not data:
@@ -78,6 +83,8 @@ def main():
     ax.set_xscale("log")
     ax.set_xticks(ns)
     ax.set_xticklabels([str(n) for n in ns])
+    ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.tick_params(axis="x", which="minor", labelbottom=False)
     ax.set_xlabel("Records per case (N, log scale)")
     ax.set_ylabel("Accuracy (%)")
     ax.set_ylim(-5, 105)
@@ -86,9 +93,9 @@ def main():
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.01),
-               framealpha=0.9, ncol=3, columnspacing=1.2, handlelength=2.4)
-    plt.tight_layout(rect=(0, 0.18, 1, 1))
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.08),
+               framealpha=0.9, ncol=2, columnspacing=0.8, handlelength=1.5)
+    plt.tight_layout(rect=(0, 0.27, 1, 1))
     out = pathlib.Path(__file__).parent / "analytical_scaling.pdf"
     plt.savefig(out)
     plt.savefig(str(out).replace(".pdf", ".png"))
