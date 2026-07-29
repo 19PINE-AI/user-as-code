@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Run the regression-tuned Active Service constraint-IR system.
 
+Paper map: "Cue-Free Constraint Detection" (sec:active-service), including the
+explicit
+qualification that the v3 result is post-evaluation regression coverage rather
+than an unbiased held-out estimate.
+
 This runner deliberately leaves the frozen v2.1 publication runner and its
 4/17 artifact untouched.  It reuses the unchanged eligible cases and scoring
 rubrics as a regression suite while replacing free-form model-authored Python
@@ -107,7 +112,10 @@ def generate_valid_ir(
     history: str,
     max_attempts: int = MAX_IR_ATTEMPTS,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Generate and structurally validate IR, retrying only machine failures."""
+    """Generate and structurally validate the constraint IR used in
+    "Cue-Free Constraint Detection" (sec:active-service), retrying only
+    machine failures.
+    """
     original_prompt = IR_UPDATE_TEMPLATE.format(timestamp=timestamp, history=history)
     prompt = original_prompt
     attempts: list[dict[str, Any]] = []
@@ -148,6 +156,7 @@ def run_uac_case(
     generator: v2.KrillModelGenerator,
     programs_dir: Path,
 ) -> dict[str, Any]:
+    """Execute the update/compile/check loop illustrated in Paper Figure 5."""
     updates: list[dict[str, Any]] = []
     cumulative: list[dict] = []
     pretrigger_alert_count = 0

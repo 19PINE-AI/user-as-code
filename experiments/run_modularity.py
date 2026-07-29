@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run all 3 modularity strategies on the 30-case benchmark."""
+"""Run all 3 modularity strategies on the 100-case benchmark."""
 from __future__ import annotations
 import argparse
 import json

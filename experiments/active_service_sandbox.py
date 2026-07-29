@@ -4,7 +4,8 @@
 This module is invoked with ``python -I -S`` by ``run_active_service_v2.py``.
 The parent performs AST validation first; this child adds restricted builtins,
 resource limits, and strict output-shape checks. It prints exactly one JSON
-object to stdout.
+object to stdout. These controls implement the sandbox described in
+"Cue-Free Constraint Detection" (sec:active-service).
 """
 from __future__ import annotations
 
@@ -71,7 +72,9 @@ SAFE_BUILTINS = {
 
 
 def set_limits() -> None:
-    """Apply conservative limits before evaluating generated source."""
+    """Apply the execution limits from "Cue-Free Constraint Detection"
+    (sec:active-service) before evaluating generated source.
+    """
     def lower_soft_limit(kind: int, target: int) -> None:
         _, hard = resource.getrlimit(kind)
         soft = target if hard == resource.RLIM_INFINITY else min(target, hard)

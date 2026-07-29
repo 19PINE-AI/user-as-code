@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Validated constraint IR and deterministic compiler for Active Service.
 
+Paper map: "Cue-Free Constraint Detection" (sec:active-service) and
+"Compiled deadline check" (fig:constraint-example). This module
+implements the validated-constraint, deterministic-compilation, date-arithmetic,
+activation-window, and sandbox-facing steps described there.
+
 The first Active Service implementation asked the model to write unrestricted
 Python after every session.  That coupled semantic memory quality to incidental
 code-generation details (imports, date APIs, and even stray Unicode).  This
@@ -73,7 +78,9 @@ def _validate_iso_date(value: object, label: str, *, optional: bool) -> str | No
 
 
 def validate_constraint_ir(value: object) -> dict[str, Any]:
-    """Validate and canonicalize the model-authored memory/constraint IR."""
+    """Validate the model-authored IR before execution as described in
+    "Cue-Free Constraint Detection" (sec:active-service).
+    """
     if not isinstance(value, dict):
         raise ConstraintIRError("IR must be a dictionary")
     if set(value) != {"state", "constraints"}:
@@ -221,7 +228,10 @@ def validate_constraint_ir(value: object) -> dict[str, Any]:
 
 
 def compile_constraint_module(ir: dict[str, Any]) -> str:
-    """Compile validated IR into a deterministic, sandbox-compatible module."""
+    """Compile validated IR into the trusted executable code described in
+    "Cue-Free Constraint Detection" (sec:active-service) and illustrated by
+    "Compiled deadline check" (fig:constraint-example).
+    """
     canonical = validate_constraint_ir(ir)
     compiled_constraints: list[dict[str, Any]] = []
     for constraint in canonical["constraints"]:

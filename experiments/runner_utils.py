@@ -5,16 +5,16 @@ used across all systems.
 """
 from __future__ import annotations
 
+import os
 import re
 import time
 from collections import Counter
 from typing import Optional
 
-from krill_client import KRILL_MODEL, krill_call
-
-# Backward-compatible name imported by existing runners. New result artifacts
-# record the actual configured model (gpt-5.6-luna by default).
-GEMINI_MODEL = KRILL_MODEL
+if os.environ.get("LME_PROVIDER", "").lower() == "direct-google":
+    from direct_google_client import MODEL as GEMINI_MODEL, direct_google_call as _provider_call
+else:
+    from krill_client import KRILL_MODEL as GEMINI_MODEL, krill_call as _provider_call
 
 
 def _log(msg: str):
@@ -25,7 +25,7 @@ def gemini_call(contents: str, system_instruction: Optional[str] = None,
                 thinking_budget: int = 2048, temperature: float = 1.0,
                 max_retries: int = 6) -> str:
     """Call the shared model through Krill (legacy function name)."""
-    return krill_call(
+    return _provider_call(
         contents,
         system_instruction=system_instruction,
         thinking_budget=thinking_budget,

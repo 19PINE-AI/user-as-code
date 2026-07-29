@@ -29,9 +29,9 @@ hard scenarios are also outside v2.1: their authored golds have not been
 reconciled and several contain contradictory dates, arithmetic, or policy
 assumptions.
 
-This eligibility decision deliberately produces a smaller but auditable suite.
-Results must be described as a 17-case curated evaluation, never as results on
-the original 40- or 60-case pilot.
+We therefore evaluate a smaller, fully traceable suite and report it as a
+17-case curated evaluation rather than as results on the original 40- or
+60-case pilot.
 
 ## Cue-free interaction
 
@@ -67,8 +67,8 @@ repair.
 
 Every case trace contains the exact user-only updates, raw model generations,
 extracted source, validation outcome, executed `STATE`, emitted alerts,
-baseline prompts/responses, and deterministic rubric matches. Credentials and
-API transport metadata are never stored.
+baseline prompts/responses, and deterministic rubric matches. Credentials are
+never stored; provider, model, runner, and scoring configuration are recorded.
 
 ## Frozen scoring
 
@@ -78,14 +78,15 @@ all-groups rule: there is no partial-credit threshold, LLM judge, or manual
 override. UaC additionally fails if any pre-trigger alert is emitted. Errors
 are misses. Aggregate recall is accompanied by a two-sided 95% Wilson interval.
 
-The canonical evaluation runs one completion per update/response under both
-GPT-5.6 Luna and Gemini 3 Flash Preview through the same shared Krill AI client
-used by the completed LOCOMO experiments. The client selects its established
-model-specific request profile: the OpenAI SDK identity for Luna and the
-model-aware Gemini CLI identity for Gemini. Krill controls the remaining
-generation defaults; no unsupported seed, temperature, output cap, or Gemini
-thinking budget is claimed. The model/API names and exact runner/scorer commit
-are written to each result manifest.
+We preregistered GPT-5.6 Luna and Gemini 3 Flash Preview as candidate backbones,
+both accessed through the shared Krill AI client used for LOCOMO. We completed
+and report the v2.1 cue-free evaluation with Luna, using one completion per
+update or baseline response. We did not complete or report a Gemini cue-free
+run. The client uses the OpenAI SDK request identity for Luna and the
+model-aware Gemini CLI request identity when Gemini is selected. Krill controls
+the remaining generation defaults, so we do not specify a seed, temperature,
+output cap, or Gemini thinking budget. We record the provider, model, and
+runner/scorer commit in each completed result manifest.
 Smoke tests may validate transport and trace completeness, but neither the
 eligibility set nor scorer may be changed after inspecting model outputs.
 

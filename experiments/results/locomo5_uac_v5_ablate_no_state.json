@@ -6,7 +6,7 @@
     "archive": true
   },
   "model": "gemini-3-flash-preview",
-  "max_qa_per_conv": 2,
+  "max_qa_per_conv": 60,
   "per_conversation": {
     "conv-26": {
       "n_questions": 60,

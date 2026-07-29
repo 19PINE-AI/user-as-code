@@ -1,21 +1,18 @@
-"""Runners for the Modularity / Progressive-Disclosure ablation.
+"""Runners for "Modularity and Progressive Disclosure" (sec:modularity).
 
 Three strategies, all using the same Python REPL + Gemini 3 Flash:
 
 1. monolithic_repl
-   All 300 records (all domains) loaded into the REPL as `records_raw` (a
-   single dict mapping domain -> list[dict]). Models the naive "dump
-   everything" baseline.
+   All 500 records from ten domains are serialized in the prompt and exposed
+   in the REPL as `records_raw`, a dict mapping domains to record lists.
 
 2. modular_repl
-   The same 6-domain dict, but the LLM is told it can pick any subset of
-   domains to load via a `load_domain(name)` Python helper. The pre-loaded
-   namespace contains only `manifest` (domain summaries) plus the loader.
-   Models a UaC project organized by life-domain folders.
+   The REPL exposes one-line summaries through `manifest` and loads selected
+   domains through `load_domain(name)`.
 
 3. manifest_repl
-   Same as modular_repl but with the manifest pre-loaded into the system
-   instruction (so the LLM can route without an extra read).
+   The same summaries are placed directly in the system instruction before
+   the same on-demand loader is provided.
 
 All three measure prompt + output + thoughts tokens via tools.extract_usage.
 """
@@ -40,7 +37,8 @@ def _final_line(text: str) -> str:
 
 def run_monolithic_repl(case: dict, user_state: dict, summaries: dict) -> dict[str, Any]:
     """Strategy 1: ALWAYS-DUMP — full state inlined into the LLM system prompt
-    (worst case for progressive disclosure)."""
+    (worst case for progressive disclosure), corresponding to the Monolithic
+    condition in "Modularity and Progressive Disclosure" (sec:modularity)."""
     full_text = json.dumps(user_state, indent=1)
     repl = PythonREPL(initial_namespace={"records_raw": user_state}, timeout=20.0)
     sys_inst = (
@@ -62,7 +60,8 @@ def run_modular_repl(case: dict, user_state: dict, summaries: dict) -> dict[str,
     The REPL starts with only `manifest` (domain summaries) and a
     `load_domain(name)` helper. The LLM must call `load_domain('trips')` to
     materialize a domain into a Python variable, mirroring how a UaC project
-    organized into domain folders would be queried.
+    organized into domain folders would be queried. This is the Modular
+    condition in "Modularity and Progressive Disclosure" (sec:modularity).
     """
     # We pre-build a closure for load_domain that pulls from user_state.
     boot = {
@@ -98,7 +97,8 @@ def run_manifest_repl(case: dict, user_state: dict, summaries: dict) -> dict[str
 
     Identical to modular_repl except the manifest is embedded in the system
     prompt rather than loaded from a Python variable. Saves the LLM one
-    routing step.
+    routing step. This is the Manifest condition in "Modularity and Progressive
+    Disclosure" (sec:modularity).
     """
     boot = {"_full_state": user_state}
     repl = PythonREPL(initial_namespace=boot, timeout=20.0)

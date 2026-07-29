@@ -2,7 +2,7 @@
 
 This directory holds the full experiment harness for *User as Code*. Runs write
 their inspectable per-question outputs under `results/`; the scripts and strict
-validator below regenerate and certify the paper-facing aggregates.
+validator below regenerate and validate the reported aggregates.
 
 ## Setup
 
@@ -64,6 +64,7 @@ From the repository root:
 | LongMemEval 500 (Table 2) | `run_lme_500.py`, `full_longmemeval_comparison.py` | `lme500_*.json` |
 | Analytical inference (Table 3) | `run_analytical_bench.py`; one-case repair via `merge_analytical_case.py` | `analytical_*.json` |
 | Withdrawn analytical cost pilot (canonical UaC artifacts lack separate structuring usage) | `analytical_cost_summary.py` | `analytical_cost_*` |
+| Cue-free constraint detection (Table 4) | baselines: `run_active_service_v2.py`; UaC: `run_active_service_v3.py`; replay: `validate_active_service_v3.py` | `active_service_v2_gpt_5_6_luna/`, `active_service_v3_gpt_5_6_luna/` |
 | Exploratory proactive-alert pilot (not paper evidence) | legacy `run_active_service_*.py` scripts | `active_service_*.json`, `hard_active_service_results.json` |
 | Historical development-version comparison (not controlled component lesions) | `ablation_experiment.py` | `ablation_v3_v4.json` |
 | Retrieval-channel ablation | `run_channel_ablation.py` | `locomo5_uac_v5_ablate_*.json` |
@@ -72,11 +73,31 @@ From the repository root:
 | Separate 500K-cap Phase-2 stress test (not the evaluated 30K-cap UaC path) | `run_phase2_scalability.py` | `phase2_scalability.json` |
 | Cross-family judge re-judging | `run_full_rejudge.py`, `run_judge_crosscheck.py` | `full_rejudge.json`, `judge_crosscheck.json` |
 | Legacy cross-LLM portability (GPT-5.4; superseded by the two full suites) | `run_locomo_gpt54.py` | `locomo_gpt54_*` |
-| `conv-30` case study (Appendix) | `run_conv30_extraction.py`, `gen_case_memory.py` | `conv30_extraction/` |
+| `conv-30` case study (Figure 1) | `run_conv30_extraction.py`, `gen_case_memory.py` | `conv30_extraction/` |
 
 Legacy tables and aggregate figures are assembled by `build_paper_tables.py` /
-`aggregate_results.py`. The full LOCOMO table must use the strictly validated
-output of `summarize_locomo_full.py`.
+`aggregate_results.py`. We build the full LOCOMO table from the strictly
+validated output of `summarize_locomo_full.py`.
+
+The reported LongMemEval artifacts used Google's API directly rather than
+Krill. Reproduce that provider path by setting `GEMINI_API_KEY` and
+`LME_PROVIDER=direct-google` before running `run_lme_500.py`. This selects
+`gemini-3-flash-preview`, temperature 1.0, a 2,048-token answer thinking budget,
+a 256-token judge thinking budget, and six client attempts, matching the
+historical client preserved with the original artifacts.
+
+After the seven LongMemEval, four channel, and three modularity artifacts are
+present, validate exact coverage, paired keys, stored scores, per-type
+aggregates, and token-usage totals with:
+
+```bash
+python experiments/reproduce_reported_summaries.py
+```
+
+This offline command first checks the canonical LongMemEval, answer-channel,
+and modularity artifacts and their stored aggregates, then prints the Wilson
+intervals, exact two-sided McNemar tests, and Holm-adjusted values reported in
+the paper. The component commands remain available separately.
 
 The analytical item `sleep_sleep_trend_q1_q2_n500` originally omitted the
 year even though its deterministic gold calculation used 2024. The canonical
@@ -132,23 +153,22 @@ questions and reports deterministic refusal accuracy; those questions are never
 sent to the LLM judge.
 
 After all artifacts finish, validate their exact coverage, provenance, stored
-scores, judge fields, and aggregates and print the paper-facing metrics with:
+scores, judge fields, and aggregates and print the reported metrics with:
 
 ```bash
 .venv-locomo/bin/python experiments/summarize_locomo_full.py
 ```
 
-The validator fails on missing or error records. A complete paper-facing run
-must print all 14 model/system rows followed by `FINAL VALIDATION PASSED`. Its
-`--allow-partial` option is only for monitoring an active run and must not be
-used to certify or report results.
+The validator fails on missing or error records. We accept a complete reported
+run only when it prints all 14 model/system rows followed by
+`FINAL VALIDATION PASSED`. We use `--allow-partial` only to monitor an active
+run, not to validate or report results.
 
-For publication packaging, the canonical set is exactly the seven basenames
+The reported set contains exactly the seven basenames
 `full_context.json`, `uac_v5.json`, `memmachine.json`, `hindsight.json`,
 `evermemos.json`, `a_mem.json`, and `mem0.json` in each of the two run
 directories. Timestamped `.bak`, `.invalid`, and other repair artifacts are
-audit history, not members of the 14-file result set, and must be excluded from
-the submission bundle.
+excluded repair and backup files rather than members of the 14-file result set.
 
 Krill/Luna currently safety-blocks one benign Mem0 extraction prompt in
 LOCOMO `conv-44` (`session_15`, turn `D15:3`, about four dogs and veterinary
@@ -168,8 +188,8 @@ token-F1 scoring. All four resulting decisions are `WRONG` and are tagged
 `[provider-safety fallback]` in their `judge_reason` fields; other failures keep
 the normal error path.
 
-Transient failures should be repaired in an isolated run directory. After the
-corresponding main writer exits, merge a complete repaired conversation with:
+We repair transient failures in an isolated run directory. After the
+corresponding main writer exits, we merge a complete repaired conversation with:
 
 ```bash
 .venv-locomo/bin/python experiments/merge_locomo_repair.py \

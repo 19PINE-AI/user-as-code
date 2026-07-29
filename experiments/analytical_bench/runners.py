@@ -2,7 +2,8 @@
 
 Each runner takes a single case (records + question) and returns a predicted
 answer string. They share the tools module so the comparison stays apples-to-
-apples on tool semantics.
+apples on tool semantics. The UaC and raw-record interfaces implement
+"Aggregate Inference" (sec:analytical).
 """
 from __future__ import annotations
 
@@ -145,7 +146,8 @@ RULES:
 
 
 def _uac_structure_with_usage(case: dict) -> tuple[str, dict]:
-    """One-shot structuring: records -> typed-dataclass Python code.
+    """Create the one-shot typed view evaluated in "Aggregate Inference"
+    (sec:analytical).
 
     Gemini 3 Flash supports a 1M-token context window, so we keep the records
     payload uncompressed up to ~500K characters (well under the model's
@@ -181,6 +183,9 @@ def _uac_structure(case: dict) -> str:
 
 
 def run_uac_v5(case: dict) -> dict[str, Any]:
+    """Run the typed-state-plus-raw-recovery interface in
+    "Aggregate Inference" (sec:analytical).
+    """
     code, structuring_usage = _uac_structure_with_usage(case)
     repl = PythonREPL(initial_namespace={"records_raw": case["records"]}, timeout=20.0)
     pre = repl.run(code)

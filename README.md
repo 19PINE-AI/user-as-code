@@ -27,7 +27,7 @@ structuring—and exposes the typed view to ordinary Python for analytical queri
 | [`figures/`](figures/) | Paper figures (PDF) and the scripts that generate them |
 | [`prototype/`](prototype/) | **Reference UaC implementation** — a worked example user (`jessica_thompson`) as typed domains + executable constraints + tests |
 | [`experiments/`](experiments/) | Full experiment harness, the UaC pipeline (`user_as_code_v5.py`), baseline reimplementations, generated `results/`, and strict validators. See [`experiments/README.md`](experiments/README.md) |
-| [`evaluation/`](evaluation/) | Exploratory proactive-alert scenarios and deprecated pilot runners; these are not publication-ready evidence. See [`evaluation/README.md`](evaluation/README.md) |
+| [`evaluation/`](evaluation/) | Deprecated proactive-alert pilots, the reported frozen v2.1 cue-free evaluation, and the post-evaluation v3 regression. See [`evaluation/README.md`](evaluation/README.md) |
 | [`benchmarks/`](benchmarks/) | Fetch script + instructions for the third-party datasets (LOCOMO, LongMemEval). Raw data is **not** redistributed. See [`benchmarks/README.md`](benchmarks/README.md) |
 | [`web/`](web/) | React companion site that visualizes every graded test case. See [`web/README.md`](web/README.md) |
 | [`scripts/`](scripts/) | `build_site_data.py` — turns `experiments/results/` into the site's data bundles |
@@ -125,8 +125,8 @@ analytical results.
   benchmark, exploratory proactive-alert scenarios, and the reference prototype. The alert
   pilot is retained for future protocol repair and is not a reported benchmark.
 - **Generated results:** per-run JSON artifacts are written under `experiments/results/`.
-  A paper-facing full LOCOMO artifact is valid only after strict validation of
-  coverage, provenance, stored scores, judge fields, and aggregates.
+  We report a full LOCOMO run only after validating its coverage, provenance,
+  stored scores, judge fields, and aggregates.
 - **Not committed (regenerable / third-party):** the vector-index cache
   (`experiments/chroma_db/`), the raw benchmark datasets (`benchmarks/*/data/`, fetched via
   the script), and a few large LongMemEval-derived dumps (rebuilt by the pipeline). See the

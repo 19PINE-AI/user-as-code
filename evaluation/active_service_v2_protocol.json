@@ -1,6 +1,7 @@
 {
   "protocol_id": "active-service-v2.1",
   "status": "frozen-before-full-model-runs",
+  "reported_models": ["gpt-5.6-luna"],
   "source_suite": {
     "path": "evaluation/active_service_scenarios.json",
     "sha256": "a9e77af758d8a7f18d0ba1ba0b387c87a9ba770e1fb7d46f05db8328ad2931dd",

@@ -1,6 +1,10 @@
 """
 User as Code v5 — Two-Phase Architecture
 
+Paper map: "User as Code" (alg:uac) and "Methodology: The User as Code
+Architecture" (sec:method), especially "Extraction: Memorize, then Structure"
+(sec:extraction) and "Retrieval and Use" (sec:retrieval-use).
+
 Phase 1 (Memorizing): Append-only fact extraction per session
   - Extract every fact as a flat string (like v3)
   - Never overwrite, never lose facts
@@ -59,7 +63,10 @@ class UserAsCodeV5:
     # ---------------------------------------------------------------
 
     def ingest_session(self, turns: list[str], session_id: str, session_date: str = ""):
-        """Ingest one session: extract facts (append-only) + store raw archive."""
+        """Append facts and raw evidence for Phase 1 of "User as Code"
+        (alg:uac), as described in "Extraction: Memorize, then Structure"
+        (sec:extraction).
+        """
         session_text = "\n".join(turns)
         self.session_dates[session_id] = session_date
 
@@ -157,7 +164,12 @@ List ALL facts:""",
     # ---------------------------------------------------------------
 
     def structure(self):
-        """Regenerate structured Python from a bounded accumulated-fact view.
+        """Regenerate typed Python for Phase 2 of "User as Code" (alg:uac),
+        as described in "Extraction: Memorize, then Structure"
+        (sec:extraction).
+
+        The bounded serialization and durable untruncated fact/archive tiers
+        implement the separation described under Phase 2 in the paper.
         This is a periodic operation — call after ingesting multiple sessions."""
         if not self.fact_list:
             self.code_state = "# No facts yet"
@@ -207,7 +219,9 @@ Output ONLY Python code:""",
     # ---------------------------------------------------------------
 
     def retrieve(self, query: str, top_k: int = 10) -> str:
-        """Multi-strategy retrieval: code + facts + archive."""
+        """Compose the state, fact, and archive channels described in
+        "Retrieval and Use" (sec:retrieval-use).
+        """
         parts = []
 
         # 1. Structured code (if available and not stale)
@@ -253,7 +267,9 @@ Output ONLY Python code:""",
         return "\n\n".join(parts)
 
     def answer(self, question: str) -> str:
-        """Answer using multi-strategy retrieval + thinking."""
+        """Answer through the three-channel path in "Retrieval and Use"
+        (sec:retrieval-use) and "User as Code" (alg:uac).
+        """
         # Auto-structure if stale and we have facts
         if self._code_stale and self.fact_list:
             self.structure()

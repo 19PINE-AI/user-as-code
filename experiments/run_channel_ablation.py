@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Retrieval-channel ablation for UaC v5.
 
+This runner implements "Evaluation of Answer-Channel Roles"
+(sec:channel-evaluation).
+
 For each of the 5 LOCOMO conversations, ingest once with UaC v5 (Phase 1
 extraction + Phase 2 structuring), then answer each of the 60 QAs three times
 under three leave-one-out channel configurations:
@@ -42,7 +45,9 @@ CHANNEL_CONFIGS = {
 def retrieve_with_channels(uac: UserAsCodeV5, query: str, *,
                            use_state: bool, use_facts: bool, use_archive: bool,
                            top_k_archive: int = 10) -> str:
-    """Copy of UaC v5 retrieve() with per-channel gating."""
+    """Gate the three sources compared in "Evaluation of Answer-Channel
+    Roles" (sec:channel-evaluation).
+    """
     parts = []
 
     if use_state and uac.code_state and not uac._code_stale:

@@ -3,9 +3,9 @@
 Active Service v3 is the engineering successor to the frozen v2.1 evaluation.
 It addresses the observed v2.1 failure modes while preserving the eligible
 17 cases, user-only histories, trigger timing, sandbox, and deterministic
-rubrics. Because its design was developed after inspecting v2.1 outputs, its
-result is a regression-suite result and must not replace the preregistered
-4/17 result as an unbiased evaluation.
+rubrics. Because we developed its design after inspecting v2.1 outputs, we
+treat its result as a regression-suite result rather than an unbiased
+replacement for the preregistered 4/17 result.
 
 ## Why v2.1 passed only 4/17
 
@@ -56,7 +56,7 @@ The model receives only the complete user-authored history and session
 timestamp. Expected alerts, trigger descriptions, rubric groups, assistant
 continuations, and scenario metadata are not included in its prompts.
 
-## Result and verification
+## Result and replay
 
 The final GPT-5.6 Luna artifact is stored at
 `experiments/results/active_service_v3_gpt_5_6_luna`.
@@ -100,9 +100,9 @@ python experiments/run_active_service_v3.py \
 
 ## Interpretation
 
-The 17/17 replay proves that the revised system handles every known v2.1
+The 17/17 replay shows that the revised system handles every known v2.1
 regression under the unchanged scorer. It does not establish out-of-sample
-accuracy: the suite influenced the new IR, prompt, and quality invariants.
-Publication claims should retain the preregistered v2.1 result and describe v3
-as post-evaluation engineering until a new held-out scenario set is frozen and
-run once.
+accuracy because the suite influenced the new IR, prompt, and quality
+invariants. We therefore report v2.1 as the frozen evaluation and identify v3
+as post-evaluation engineering. A newly frozen, held-out scenario set is needed
+to evaluate the revised design without this development overlap.
