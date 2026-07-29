@@ -22,12 +22,12 @@ plt.rcParams.update({
     'ps.fonttype': 42,
 })
 
-BLUE = '#4A90D9'
-GREEN = '#50B86C'
-ORANGE = '#F5A623'
-RED = '#D94A4A'
-PURPLE = '#8B5CF6'
-GRAY = '#9CA3AF'
+BLUE = '#2563A6'
+GREEN = '#237A3B'
+ORANGE = '#A65300'
+RED = '#B4232E'
+PURPLE = '#6D28D9'
+GRAY = '#59636F'
 DARKGRAY = '#4B5563'
 LIGHTBLUE = '#DBEAFE'
 LIGHTGREEN = '#D1FAE5'
@@ -78,7 +78,7 @@ def fig_architecture():
     phase2 = mpatches.FancyBboxPatch((5.5, 3.35), 4.2, 2.2,
         boxstyle="round,pad=0.08", facecolor=LIGHTGREEN, edgecolor=GREEN, linewidth=1.5)
     ax.add_patch(phase2)
-    ax.text(7.6, 5.35, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=11.2, color='#15803D')
+    ax.text(7.6, 5.35, 'Phase 2: Structuring', ha='center', fontweight='bold', fontsize=11.2, color='#116B34')
     ax.text(7.6, 5.05, '(periodic, first 30K serialized characters)', ha='center', fontsize=10.2, color=DARKGRAY)
 
     # Code representation
@@ -89,9 +89,9 @@ def fig_architecture():
 
     # Arrow from facts to code
     ax.annotate('', xy=(5.5, 4.55), xytext=(4.5, 3.72),
-        arrowprops=dict(arrowstyle='->', color='#15803D', lw=1.5, connectionstyle='arc3,rad=-0.2'))
+        arrowprops=dict(arrowstyle='->', color='#116B34', lw=1.5, connectionstyle='arc3,rad=-0.2'))
     ax.text(4.98, 3.99, 'Structure\n(thinking LLM)', ha='center', va='center',
-            fontsize=10.2, linespacing=0.95, color='#15803D', rotation=39)
+            fontsize=10.2, linespacing=0.95, color='#116B34', rotation=39)
 
     # Analytical execution over the typed view.
     const_box = mpatches.FancyBboxPatch((5.9, 3.58), 3.4, 0.48,
