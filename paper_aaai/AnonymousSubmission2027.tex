@@ -490,11 +490,9 @@ The results split by access interface. MemMachine drops from 100\% at $N{=}20$ t
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.94\columnwidth]{figures/analytical_scaling.pdf}
-\caption{Aggregate-inference accuracy as record count $N$ grows (log-scaled horizontal axis; 20 cases per value of $N$).}
+\caption{Aggregate-inference accuracy by record count $N$ (log scale; 20 cases per $N$).}
 \label{fig:analytical-scaling}
 \end{figure}
-
-Because both code-based systems expose complete collections, this schema-clean benchmark isolates read-side access rather than conversation-to-structure conversion.
 
 \subsection{Cue-Free Constraint Detection}
 \label{sec:active-service}
@@ -511,7 +509,7 @@ if activate <= now <= deadline:
     emit(f"Lease due {deadline}; {days} days left")
 # Aug 20: silent; Nov 25: alert (7 days)
 \end{lstlisting}
-\caption{Compiled deadline check: silent on August~20, then activated by the unrelated November~25 update.}
+\caption{Deadline check: silent August~20, then activated by the unrelated November~25 update.}
 \label{fig:constraint-example}
 \end{figure}
 
@@ -539,7 +537,7 @@ Top-1 Retrieval resolves all seven local schedule conflicts, but neither textual
 \subsection{Evaluation of Answer-Channel Roles}
 \label{sec:channel-evaluation}
 
-We evaluate the contributions of structured state (S), retrieved facts (F), and raw-archive excerpts (A) on the first five LOCOMO conversations and first 60 questions per conversation (300 total), using Gemini~3 Flash Preview at $T=1.0$ with a 2,048-token thinking budget. Table~\ref{tab:channel-evaluation} compares the full system with three configurations that each exclude one answer-time source.
+On 300 LOCOMO questions (60 from each of five conversations), we ablate structured state (S), retrieved facts (F), and raw-archive excerpts (A). Gemini~3 Flash Preview uses $T=1.0$ and a 2,048-token thinking budget.
 
 \begin{table}[t]
 \centering
@@ -557,28 +555,28 @@ State + Facts & \checkmark & \checkmark & --- & 70.7 & $-$7.3pp \\
 \bottomrule
 \end{tabular}
 }
-\caption{Answer-channel evaluation on LOCOMO ($n=300$). S/F/A denote structured state, retrieved facts, and raw-archive excerpts.}
+\caption{LOCOMO answer-channel ablation ($n=300$); S/F/A denote state, facts, and archive.}
 \label{tab:channel-evaluation}
 \end{table}
 
-Excluding structured state changes accuracy by $-$1.3pp (Holm-adjusted exact McNemar $p{=}.67$). Excluding facts or archive excerpts lowers accuracy by 9.3pp and 7.3pp (adjusted $p{=}.0023$ and $.016$), respectively. Thus, retrieved facts and archive excerpts provide most of the conventional QA benefit, while structured state supplies the enumerable interface evaluated in Section~\ref{sec:analytical}.
+Removing state changes accuracy by $-$1.3pp (Holm-adjusted exact McNemar $p{=}.67$); removing facts or archives changes it by $-$9.3pp and $-$7.3pp ($p{=}.0023$ and $.016$). Facts and archives thus drive QA, while state provides the enumerable interface evaluated in Section~\ref{sec:analytical}.
 
 \subsection{Modularity and Progressive Disclosure}
 \label{sec:modularity}
 
-We compare three loading strategies on 100 single-domain questions across 10 domains of 50 records each. All use Gemini~3 Flash Preview, a 2,048-token thinking budget, a 20-second REPL, and identical data. \emph{Monolithic} uses eight turns and places all 500 records both in the prompt and in \texttt{records\_raw}. \emph{Modular} and \emph{Manifest} use ten turns and the same \texttt{load\_domain(name)} loader; Modular exposes one-line summaries through a REPL \texttt{manifest}, whereas Manifest places them in the system prompt. Thus, only the presentation of routing hints varies.
+We compare three loading strategies on 100 single-domain questions spanning ten 50-record domains. All use Gemini~3 Flash Preview, a 2,048-token thinking budget, a 20-second REPL, and identical data. Over eight turns, \emph{Monolithic} places all 500 records in the prompt and \texttt{records\_raw}. \emph{Modular} and \emph{Manifest} use ten turns and the same loader, exposing one-line routing summaries in a REPL \texttt{manifest} or the system prompt, respectively.
 
-Modular attains 98.0\% accuracy with 426{,}856 prompt tokens at a cost of \$0.25, compared with 97.0\%, 10{,}155{,}765, and \$3.64 for Monolithic, and 87.0\%, 624{,}922, and \$0.38 for Manifest. At \$0.30/M prompt and \$2.50/M output-plus-thinking tokens, Modular therefore reduces prompt tokens 23.8$\times$ and cost 14.9$\times$. Its 95\% accuracy interval overlaps Monolithic's (93.0--99.4 versus 91.5--99.0), supporting an efficiency but not an accuracy gain. Manifest is 10pp lower because some upfront summaries route the model to the wrong domain. This schema-clean ablation tests read-side organization, not generated domain boundaries.
+Modular reaches 98.0\% using 426{,}856 prompt tokens at \$0.25; Monolithic reaches 97.0\% using 10{,}155{,}765 at \$3.64; and Manifest reaches 87.0\% using 624{,}922 at \$0.38. Given \$0.30/M prompt and \$2.50/M output-plus-thinking prices, Modular uses 23.8$\times$ fewer prompt tokens and costs 14.9$\times$ less than Monolithic. Their 95\% intervals overlap (93.0--99.4 versus 91.5--99.0), supporting efficiency but not an accuracy gain. Some summaries misroute the model, explaining Manifest's 10pp deficit. This schema-clean ablation tests read-side organization, not generated domain boundaries.
 
 \section{Discussion and Limitations}
 
-UaC changes the access interface rather than uniformly improving recall: retrieval preserves textual evidence, while executable state supports complete-set computation and persistent constraints. LOCOMO gains also vary by metric.
+UaC changes the access interface rather than uniformly improving recall: retrieval preserves textual evidence, while executable state supports complete-set computation and persistent constraints. LOCOMO gains vary by metric.
 
-Four limitations remain. First, Phase~2 reads only the first 30{,}000 serialized-fact characters, leaving typed state incomplete on long histories. Second, generated Python requires parsing, validation, and sandboxing. Although the cue-free extension compiles validated constraints in trusted code, its cases informed the representation and validation rules, so unseen constraints require a newly frozen suite. Third, the aggregate suite begins with schema-clean records and bypasses Phase~1; because UaC retains \texttt{records\_raw}, comparisons with a typed-state-only variant and query-specific code over raw records remain missing. Finally, controlled baselines simplify published stacks, and full LOCOMO uses the answer backbone as within-panel judge; native reproductions and independent full-scale judging remain future work.
+Four limitations remain. First, Phase~2's 30{,}000-character serialized-fact limit can yield incomplete typed state on long histories. Second, generated Python requires parsing, validation, and sandboxing. The cue-free cases informed the representation and validation rules, so unseen constraints require a frozen evaluation suite. Third, the schema-clean aggregate suite bypasses Phase~1; because UaC retains \texttt{records\_raw}, typed-only and query-specific raw-record variants remain untested. Finally, controlled baselines simplify published stacks, and full LOCOMO uses the answer backbone as within-panel judge; native reproductions and independent full-scale judging remain future work.
 
 \section{Conclusion}
 
-UaC combines textual evidence with enumerable execution, leading LOCOMO baselines and matching raw-record FC+REPL on all 100 aggregate cases. \textbf{AI assistance disclosure.} Generative AI assisted language, code, and formatting; the authors verified the paper.
+UaC treats persistent memory as both textual evidence and executable state. It leads evaluated LOCOMO baselines and matches raw-record FC+REPL on all 100 aggregate cases, showing the value of enumerable access for complete-history computation. Executable memory therefore complements, rather than replaces, retrieval. \textbf{AI assistance disclosure.} AI assisted language, code, and formatting; authors verified it.
 
 % Extended analyses, implementation details, and case studies are omitted from
 % the conference manuscript and remain available in the full version.
